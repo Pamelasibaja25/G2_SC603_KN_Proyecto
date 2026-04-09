@@ -5,10 +5,10 @@ wwwroot\css\perfect-scrollbar.css
 wwwroot\css\site.css
 wwwroot\css\theme-default.css
 wwwroot\favicon.ico
-wwwroot\img\logo.jpeg
 wwwroot\img\logo.jpg
 wwwroot\js\bootstrap.js
 wwwroot\js\config.js
+wwwroot\js\Filtro.js
 wwwroot\js\helpers.js
 wwwroot\js\main.js
 wwwroot\js\menu.js

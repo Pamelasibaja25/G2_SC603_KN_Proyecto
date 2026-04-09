@@ -1,0 +1,56 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+<div class="col-12">
+    <div class="card overflow-hidden" style="height: 500px">
+        <div class="card-body ps ps--active-x ps--active-y">
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <input type="text" id="txtBuscar" class="form-control" placeholder="Buscar por cédula, nombre o correo...">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-dark w-100" onclick="FiltrarTabla()">Buscar</button>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-dark w-100">Imprimir</button>
+                </div>
+            </div>
+
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Membresía</th>
+                        <th>Tipo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaClientes">
+                        <tr>
+                        <td>Pamela Sibaja Torres</td>
+                        <td>VIP</td>
+                        <td>Activa</td>
+                            <td>
+                            <button class="btn btn-dark d-grid w-100 form-control" type="submit">Editar</button>
+                            <button class="btn btn-danger d-grid w-100 form-control" type="submit">Desactivar</button>
+                            </td>
+                        </tr>
+                    <tr>
+                        <td>Juan Daniel Avila Vega</td>
+                        <td>VIP</td>
+                        <td>Vencida</td>
+                        <td>
+                            <button class="btn btn-dark d-grid w-100 form-control" type="submit">Editar</button>
+                            <button class="btn btn-danger d-grid w-100 form-control" type="submit">Desactivar</button>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+        <a asp-controller="Clientes" asp-action="RegistrarClientes" class="btn btn-dark d-grid w-100 form-control">Registro de Clientes</a>
+    </div>
+</div>
+<script src="~/js/Filtro.js"></script>

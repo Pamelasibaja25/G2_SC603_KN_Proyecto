@@ -46,5 +46,31 @@ $(document).ready(function () {
         errorElement: "span",
         errorClass: "text-danger"
     });
+    $("#FormRegistroMembresia").validate({
+        rules: {
+            Membresia: {
+                required: true
+            },
+            Cliente: {
+                required: true
+            },
+            Tipo: {
+                required: true
+            }
+        },
+        messages: {
+            Membresia: {
+                required: "* Seleccione una membresía"
+            },
+            Cliente: {
+                required: "* Seleccione un cliente"
+            },
+            Tipo: {
+                required: "* Seleccione un estado"
+            }
+        },
+        errorElement: "span",
+        errorClass: "text-danger"
+    });
 
 });

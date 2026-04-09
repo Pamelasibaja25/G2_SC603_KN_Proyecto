@@ -6,16 +6,15 @@ namespace G2_SC603_KN_Proyecto.Controllers
 {
     public class ClientesController : Controller
     {
-        private readonly ILogger<ClientesController> _logger;
-
-        public ClientesController(ILogger<ClientesController> logger)
-        {
-            _logger = logger;
-        }
 
         public IActionResult RegistrarClientes()
         {
             ViewData["Mensaje"] = "Registro de Clientes";
+            return View();
+        }
+        public IActionResult MostrarClientes()
+        {
+            ViewData["Mensaje"] = "Lista de Clientes";
             return View();
         }
     }

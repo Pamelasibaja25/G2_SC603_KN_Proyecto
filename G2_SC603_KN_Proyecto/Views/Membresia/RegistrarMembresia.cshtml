@@ -1,0 +1,56 @@
+﻿
+@{
+    Layout = "_Layout";
+    var mensaje = ViewData["Notificacion"];
+}
+
+<div class="authentication-wrapper authentication-basic container-p-y">
+    
+    <div class="authentication-inner">
+        <div class="card">
+            <div class="card-body">
+
+                @if (mensaje != null)
+                {
+                    <div class="alert alert-danger text-center" role="alert">
+                        <i class="bx bx-error-circle me-2"></i>
+                        <span>@mensaje</span>
+                    </div>
+                }
+                <form asp-action="RegistrarMembresia" asp-controller="Membresia" id="FormRegistroMembresia" class="custom-form contact-form" role="form">
+                    <div class="mb-3">
+                        <label for="Membresia" class="form-label">Membresía</label>
+                        <select id="Membresia" name="Membresia" class="form-control" required>
+                            <option value="">-- Seleccione --</option>
+                            <option value="Basica">Básica - ₡15,000</option>
+                            <option value="Premium">Premium - ₡25,000</option>
+                            <option value="VIP">VIP - ₡35,000</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="Cliente" class="form-label">Cliente</label>
+                        <select id="Cliente" name="Cliente" class="form-control" required>
+                            <option value="">-- Seleccione --</option>
+                            <option value="0">Pamela Sibaja Torres</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="Tipo" class="form-label">Cliente</label>
+                        <select id="Tipo" name="Tipo" class="form-control" required>
+                            <option value="">-- Seleccione --</option>
+                            <option value="0">Activa</option>
+                            <option value="1">Vencida</option>
+                            <option value="2">Pronto a Vencer</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-dark d-grid w-100 form-control" type="submit">Registrar</button>
+
+                </form>
+            </div>
+        </div>
+        <a asp-controller="Membresia" asp-action="MostrarMembresia" class="btn btn-dark d-grid w-100 form-control">Lista de Membresia</a>
+    </div>
+</div>
+
+<script src="~/js/Registro.js"></script>
