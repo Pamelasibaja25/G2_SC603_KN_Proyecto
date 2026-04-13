@@ -1,0 +1,355 @@
+﻿@{
+    ViewData["Mensaje"] = "Control de Equipos y Productos";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Inventario de Equipos</h5>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalAgregarEquipo">
+                    <i class="bx bx-plus"></i> Agregar Equipo
+                </button>
+            </div>
+            <div class="card-body">
+                <!-- Filtros -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <label class="form-label">Filtrar por Categoría</label>
+                        <select class="form-select">
+                            <option>Todas las categorías</option>
+                            <option>Máquinas de Cardio</option>
+                            <option>Pesas y Barras</option>
+                            <option>Accesorios</option>
+                            <option>Otros</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Estado</label>
+                        <select class="form-select">
+                            <option>Todos</option>
+                            <option>Activo</option>
+                            <option>En Mantenimiento</option>
+                            <option>Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Buscar Equipo</label>
+                        <input type="text" class="form-control" placeholder="Nombre o código...">
+                    </div>
+                </div>
+
+                <!-- Tabla de Equipos -->
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Equipo</th>
+                                <th>Categoría</th>
+                                <th>Cantidad</th>
+                                <th>Estado</th>
+                                <th>Último Mantenimiento</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Caminadora TM-500</strong>
+                                    <br>
+                                    <small class="text-muted">Código: EQ-001</small>
+                                </td>
+                                <td>Máquinas de Cardio</td>
+                                <td>2</td>
+                                <td>
+                                    <span class="badge bg-success">Activo</span>
+                                </td>
+                                <td>25/03/2026</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" title="Editar">
+                                        <i class="bx bx-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalMantenimiento" title="Mantenimiento">
+                                        <i class="bx bx-wrench"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary" title="Historial">
+                                        <i class="bx bx-history"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <strong>Bicicleta Estática XR-300</strong>
+                                    <br>
+                                    <small class="text-muted">Código: EQ-002</small>
+                                </td>
+                                <td>Máquinas de Cardio</td>
+                                <td>3</td>
+                                <td>
+                                    <span class="badge bg-success">Activo</span>
+                                </td>
+                                <td>20/03/2026</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" title="Editar">
+                                        <i class="bx bx-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalMantenimiento" title="Mantenimiento">
+                                        <i class="bx bx-wrench"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary" title="Historial">
+                                        <i class="bx bx-history"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <strong>Juego de Mancuernas 1-10kg</strong>
+                                    <br>
+                                    <small class="text-muted">Código: EQ-003</small>
+                                </td>
+                                <td>Pesas y Barras</td>
+                                <td>10</td>
+                                <td>
+                                    <span class="badge bg-success">Activo</span>
+                                </td>
+                                <td>10/03/2026</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" title="Editar">
+                                        <i class="bx bx-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalMantenimiento" title="Mantenimiento">
+                                        <i class="bx bx-wrench"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary" title="Historial">
+                                        <i class="bx bx-history"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <strong>Barras Olímpicas</strong>
+                                    <br>
+                                    <small class="text-muted">Código: EQ-004</small>
+                                </td>
+                                <td>Pesas y Barras</td>
+                                <td>4</td>
+                                <td>
+                                    <span class="badge bg-warning">En Mantenimiento</span>
+                                </td>
+                                <td>02/04/2026</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" title="Editar">
+                                        <i class="bx bx-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalMantenimiento" title="Mantenimiento">
+                                        <i class="bx bx-wrench"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary" title="Historial">
+                                        <i class="bx bx-history"></i>
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <strong>Colchonetas de Yoga (Set 5)</strong>
+                                    <br>
+                                    <small class="text-muted">Código: EQ-005</small>
+                                </td>
+                                <td>Accesorios</td>
+                                <td>5</td>
+                                <td>
+                                    <span class="badge bg-success">Activo</span>
+                                </td>
+                                <td>05/04/2026</td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" title="Editar">
+                                        <i class="bx bx-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalMantenimiento" title="Mantenimiento">
+                                        <i class="bx bx-wrench"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-secondary" title="Historial">
+                                        <i class="bx bx-history"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Mantenimientos Programados</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">Caminadora TM-500</h6>
+                                <small class="text-muted">Mantenimiento preventivo</small>
+                            </div>
+                            <span class="badge bg-info">12/04/2026</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">Bicicleta Estática XR-300</h6>
+                                <small class="text-muted">Revisión de componentes</small>
+                            </div>
+                            <span class="badge bg-warning">18/04/2026</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="mb-1">Barras Olímpicas</h6>
+                                <small class="text-muted">Reparación de daño</small>
+                            </div>
+                            <span class="badge bg-danger">En progreso</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Control de Stock Crítico</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <div class="list-group-item border-start border-warning">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">Botellas de Agua Reutilizables</h6>
+                                <small class="text-muted">Stock actual: 3 unidades</small>
+                            </div>
+                            <span class="badge bg-warning">Crítico</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item border-start border-warning">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">Toallas de Entrenamiento</h6>
+                                <small class="text-muted">Stock actual: 5 unidades</small>
+                            </div>
+                            <span class="badge bg-warning">Bajo</span>
+                        </div>
+                    </div>
+                    <div class="list-group-item border-start border-info">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">Desinfectante para Equipos</h6>
+                                <small class="text-muted">Stock actual: 8 unidades</small>
+                            </div>
+                            <span class="badge bg-info">Normal</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-outline-primary mt-3 w-100">Registrar entrada de productos</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Agregar Equipo -->
+<div class="modal fade" id="modalAgregarEquipo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Agregar Nuevo Equipo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nombre del Equipo</label>
+                        <input type="text" class="form-control" placeholder="ej: Caminadora TM-500">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Categoría</label>
+                        <select class="form-select">
+                            <option>Seleccione categoría</option>
+                            <option>Máquinas de Cardio</option>
+                            <option>Pesas y Barras</option>
+                            <option>Accesorios</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Cantidad</label>
+                        <input type="number" class="form-control" placeholder="0" min="1">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Costo de Adquisición</label>
+                        <input type="number" class="form-control" placeholder="₡0" min="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" rows="3" placeholder="Detalles adicionales del equipo..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Registrar Mantenimiento -->
+<div class="modal fade" id="modalMantenimiento" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Registrar Mantenimiento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Mantenimiento</label>
+                        <select class="form-select">
+                            <option>Seleccione tipo</option>
+                            <option>Preventivo</option>
+                            <option>Correctivo</option>
+                            <option>Revision</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fecha de Mantenimiento</label>
+                        <input type="date" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Costo</label>
+                        <input type="number" class="form-control" placeholder="₡0" min="0">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Observaciones</label>
+                        <textarea class="form-control" rows="3" placeholder="Detalles del mantenimiento realizado..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>

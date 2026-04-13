@@ -1,0 +1,293 @@
+﻿@{
+    ViewData["Mensaje"] = "Dashboard Administrativo";
+}
+
+<div class="row">
+    <!-- KPIs -->
+    <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="text-muted mb-1">Clientes Activos</h6>
+                        <h3 class="mb-0">24</h3>
+                        <small class="text-success">
+                            <i class="bx bx-up-arrow-alt"></i> +3 esta semana
+                        </small>
+                    </div>
+                    <div class="avatar bg-light-primary p-2">
+                        <i class="bx bx-user text-primary" style="font-size: 1.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="text-muted mb-1">Membresías Vigentes</h6>
+                        <h3 class="mb-0">18</h3>
+                        <small class="text-warning">
+                            <i class="bx bx-down-arrow-alt"></i> 2 próximas a vencer
+                        </small>
+                    </div>
+                    <div class="avatar bg-light-warning p-2">
+                        <i class="bx bx-card text-warning" style="font-size: 1.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="text-muted mb-1">Ingresos Este Mes</h6>
+                        <h3 class="mb-0">₡450,000</h3>
+                        <small class="text-success">
+                            <i class="bx bx-up-arrow-alt"></i> +15% vs mes anterior
+                        </small>
+                    </div>
+                    <div class="avatar bg-light-success p-2">
+                        <i class="bx bx-wallet text-success" style="font-size: 1.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="text-muted mb-1">Asistencia Hoy</h6>
+                        <h3 class="mb-0">16</h3>
+                        <small class="text-info">
+                            <i class="bx bx-check-circle"></i> Check-ins registrados
+                        </small>
+                    </div>
+                    <div class="avatar bg-light-info p-2">
+                        <i class="bx bx-check text-info" style="font-size: 1.5rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficos -->
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Ingresos Mensuales</h6>
+                <select class="form-select form-select-sm" style="width: auto;">
+                    <option>2026</option>
+                    <option>2025</option>
+                </select>
+            </div>
+            <div class="card-body">
+                <canvas id="chartIngresos"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">Tipos de Membresía</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="chartMembresias"></canvas>
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="bx bx-radio-circle" style="color: #696cff;"></i> Premium</span>
+                        <span>8 clientes</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="bx bx-radio-circle" style="color: #00cec9;"></i> Estándar</span>
+                        <span>10 clientes</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span><i class="bx bx-radio-circle" style="color: #fee140;"></i> Trial</span>
+                        <span>6 clientes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tablas de datos -->
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Próximos Vencimientos de Membresía</h6>
+                <a href="#" class="btn btn-sm btn-primary">Ver todas</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Tipo</th>
+                            <th>Vence</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong>Carlos Rodríguez</strong>
+                            </td>
+                            <td>Premium</td>
+                            <td>15 de abril</td>
+                            <td>
+                                <button class="btn btn-sm btn-success">Renovar</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Ana López</strong>
+                            </td>
+                            <td>Estándar</td>
+                            <td>18 de abril</td>
+                            <td>
+                                <button class="btn btn-sm btn-success">Renovar</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Miguel Torres</strong>
+                            </td>
+                            <td>Premium</td>
+                            <td>22 de abril</td>
+                            <td>
+                                <button class="btn btn-sm btn-success">Renovar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Últimas Transacciones</h6>
+                <a href="#" class="btn btn-sm btn-primary">Todas</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Monto</th>
+                            <th>Método</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong>Laura Martínez</strong>
+                            </td>
+                            <td>₡30,000</td>
+                            <td><span class="badge bg-success">Tarjeta</span></td>
+                            <td>10/04/2026</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>David Sánchez</strong>
+                            </td>
+                            <td>₡25,000</td>
+                            <td><span class="badge bg-info">Efectivo</span></td>
+                            <td>09/04/2026</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Rosa Fernández</strong>
+                            </td>
+                            <td>₡35,000</td>
+                            <td><span class="badge bg-warning">Transferencia</span></td>
+                            <td>08/04/2026</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts para gráficos (usando Chart.js como ejemplo) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de Ingresos Mensuales
+    var ctxIngresos = document.getElementById('chartIngresos').getContext('2d');
+    var chartIngresos = new Chart(ctxIngresos, {
+        type: 'line',
+        data: {
+            labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+            datasets: [{
+                label: 'Ingresos (₡)',
+                data: [320000, 350000, 380000, 420000, 390000, 450000, 480000, 460000, 500000, 520000, 510000, 550000],
+                borderColor: '#696cff',
+                backgroundColor: 'rgba(105, 108, 255, 0.1)',
+                tension: 0.4,
+                fill: true,
+                pointRadius: 4,
+                pointBackgroundColor: '#696cff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function (value) {
+                            return '₡' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Gráfico de Tipos de Membresía (Pie)
+    var ctxMembresias = document.getElementById('chartMembresias').getContext('2d');
+    var chartMembresias = new Chart(ctxMembresias, {
+        type: 'doughnut',
+        data: {
+            labels: ['Premium', 'Estándar', 'Trial'],
+            datasets: [{
+                data: [8, 10, 6],
+                backgroundColor: ['#696cff', '#00cec9', '#fee140'],
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+</script>
