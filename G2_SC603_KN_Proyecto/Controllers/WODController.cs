@@ -4,9 +4,9 @@ using System.Diagnostics;
 
 namespace G2_SC603_KN_Proyecto.Controllers
 {
-    public class ClientesController : Controller
+    public class WODController : Controller
     {
-        public IActionResult MostrarClientes()
+        public IActionResult MostrarWOD()
         {
             return View();
         }

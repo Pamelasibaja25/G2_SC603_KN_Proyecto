@@ -1,31 +1,109 @@
-﻿<h2>Control de Pagos</h2>
+﻿@{
+    Layout = "_Layout";
+}
+<div id="page-payments" class="section-page active p-6 lg:p-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h2 class="font-headline text-3xl font-bold tracking-tight">Control de Pagos</h2>
+            <p class="text-on-surface-variant text-xs mt-1">RMGM-02-001 al RMGM-02-004</p>
+        </div>
+        <button class="btn-primary py-2.5 text-sm" onclick="openPaymentModal()">
+            <span class="material-symbols-outlined text-[18px]">add</span> Registrar Pago
+        </button>
+    </div>
 
-<table class="tabla">
-    <thead>
-        <tr>
-            <th>Cliente</th>
-            <th>Fecha</th>
-            <th>Monto</th>
-            <th>Método de Pago</th>
-            <th>Comprobante</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Juan Pérez</td>
-            <td>08/04/2026</td>
-            <td>₡25,000</td>
-            <td>Tarjeta</td>
-            <td><button>Imprimir</button></td>
-        </tr>
-        <tr>
-            <td>María Gómez</td>
-            <td>07/04/2026</td>
-            <td>₡30,000</td>
-            <td>Efectivo</td>
-            <td><button>Imprimir</button></td>
-        </tr>
-    </tbody>
-</table>
+    <!-- Tabs: All / Delinquent -->
+    <div class="flex gap-2 mb-6">
+        <button class="tab-btn active" onclick="showPaymentsTab('all', this)">Todos los pagos</button>
+        <button class="tab-btn" onclick="showPaymentsTab('delinquent', this)">Morosos</button>
+    </div>
 
-<a href="/Pagos/Registrar" class="btn">Registrar Pago</a>
+    <div id="paymentsAll">
+        <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+            <div class="overflow-x-auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Fecha</th>
+                            <th>Monto</th>
+                            <th>Método</th>
+                            <th>Plan</th>
+                            <th class="text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paymentsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="paymentsDelinquent" class="hidden">
+        <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+            <div class="p-6 border-b border-outline-variant/10 flex items-center gap-3">
+                <span class="material-symbols-outlined text-[#fbbf24]">warning</span>
+                <h3 class="font-headline font-bold text-sm">Clientes con Membresías Vencidas</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Membresía Vencida</th>
+                            <th>Días Vencida</th>
+                            <th>Último Pago</th>
+                            <th class="text-right">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="delinquentTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="paymentModal">
+    <div class="modal-box">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="font-headline font-bold text-xl">Registrar Pago</h3>
+            <button onclick="closeModal('paymentModal')" class="btn-icon"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <form id="paymentForm" class="space-y-4">
+            <div>
+                <label class="label-float">Cliente *</label>
+                <select id="paymentClient" class="input-field" required></select>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="label-float">Fecha *</label>
+                    <input type="date" id="paymentDate" class="input-field" required />
+                </div>
+                <div>
+                    <label class="label-float">Monto *</label>
+                    <input type="text" id="paymentAmount" class="input-field" placeholder="₡25,000" required />
+                </div>
+                <div>
+                    <label class="label-float">Método de Pago *</label>
+                    <select id="paymentMethod" class="input-field" required>
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="SINPE">SINPE</option>
+                        <option value="Tarjeta">Tarjeta</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label-float">Plan</label>
+                    <select id="paymentPlan" class="input-field">
+                        <option value="Mensual">Mensual</option>
+                        <option value="Trimestral">Trimestral</option>
+                        <option value="Semestral">Semestral</option>
+                        <option value="Anual">Anual</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex gap-3 pt-2 justify-end">
+                <button type="button" class="btn-secondary" onclick="closeModal('paymentModal')">Cancelar</button>
+                <button type="submit" class="btn-primary"><span class="material-symbols-outlined text-[16px]">save</span> Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>

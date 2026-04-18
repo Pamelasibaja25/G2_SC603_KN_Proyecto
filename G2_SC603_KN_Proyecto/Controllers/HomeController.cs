@@ -9,7 +9,10 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
         public IActionResult Index()
         {
-            ViewData["Mensaje"] = "Bienvenido";
+            return View();
+        }
+        public IActionResult Home()
+        {
             return View();
         }
 
