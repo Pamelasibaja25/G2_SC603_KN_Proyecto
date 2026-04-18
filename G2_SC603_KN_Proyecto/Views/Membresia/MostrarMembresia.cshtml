@@ -2,55 +2,83 @@
     Layout = "_Layout";
 }
 
-<div class="col-12">
-    <div class="card overflow-hidden" style="height: 500px">
-        <div class="card-body ps ps--active-x ps--active-y">
-            <div class="row mb-3">
-                <div class="col-md-8">
-                    <input type="text" id="txtBuscar" class="form-control" placeholder="Buscar por cédula, nombre o correo...">
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-dark w-100" onclick="FiltrarTabla()">Buscar</button>
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-dark w-100">Imprimir</button>
-                </div>
-            </div>
+<div id="page-memberships" class="section-page active p-6 lg:p-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h2 class="font-headline text-3xl font-bold tracking-tight">Gestión de Membresías</h2>
+            <p class="text-on-surface-variant text-xs mt-1">RMGM-01-002, RMGM-01-006 al RMGM-01-008</p>
+        </div>
+        <button class="btn-primary py-2.5 text-sm" onclick="openMembershipModal()">
+            <span class="material-symbols-outlined text-[18px]">add</span> Nueva Membresía
+        </button>
+    </div>
 
-            <table class="table table-hover">
+    <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+        <div class="overflow-x-auto">
+            <table class="data-table">
                 <thead>
                     <tr>
                         <th>Cliente</th>
-                        <th>Membresía</th>
-                        <th>Tipo</th>
-                        <th>Acciones</th>
+                        <th>Tipo de Plan</th>
+                        <th>Inicio</th>
+                        <th>Vencimiento</th>
+                        <th>Monto</th>
+                        <th>Estado</th>
+                        <th class="text-right">Acciones</th>
                     </tr>
                 </thead>
-                <tbody id="tablaClientes">
-                        <tr>
-                        <td>Pamela Sibaja Torres</td>
-                        <td>VIP</td>
-                        <td>Activa</td>
-                            <td>
-                            <button class="btn btn-dark d-grid w-100 form-control" type="submit">Editar</button>
-                            <button class="btn btn-danger d-grid w-100 form-control" type="submit">Desactivar</button>
-                            </td>
-                        </tr>
-                    <tr>
-                        <td>Juan Daniel Avila Vega</td>
-                        <td>VIP</td>
-                        <td>Vencida</td>
-                        <td>
-                            <button class="btn btn-dark d-grid w-100 form-control" type="submit">Editar</button>
-                            <button class="btn btn-danger d-grid w-100 form-control" type="submit">Desactivar</button>
-                        </td>
-                    </tr>
-
-                </tbody>
+                <tbody id="membershipsTableBody"></tbody>
             </table>
-
         </div>
-        <a asp-controller="Clientes" asp-action="RegistrarClientes" class="btn btn-dark d-grid w-100 form-control">Registro de Clientes</a>
     </div>
 </div>
-<script src="~/js/Filtro.js"></script>
+<div class="modal-overlay" id="membershipModal">
+    <div class="modal-box">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="font-headline font-bold text-xl" id="membershipModalTitle">Nueva Membresía</h3>
+            <button onclick="closeModal('membershipModal')" class="btn-icon"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <form id="membershipForm" class="space-y-4">
+            <input type="hidden" id="membershipId" />
+            <div>
+                <label class="label-float">Cliente *</label>
+                <select id="membershipClient" class="input-field" required></select>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="label-float">Tipo de Plan *</label>
+                    <select id="membershipPlan" class="input-field" required>
+                        <option value="Mensual">Mensual — ₡25,000</option>
+                        <option value="Trimestral">Trimestral — ₡65,000</option>
+                        <option value="Semestral">Semestral — ₡120,000</option>
+                        <option value="Anual">Anual — ₡220,000</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label-float">Estado</label>
+                    <select id="membershipStatus" class="input-field">
+                        <option value="Activa">Activa</option>
+                        <option value="Vencida">Vencida</option>
+                        <option value="Suspendida">Suspendida</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label-float">Fecha de Inicio *</label>
+                    <input type="date" id="membershipStart" class="input-field" required />
+                </div>
+                <div>
+                    <label class="label-float">Fecha de Vencimiento *</label>
+                    <input type="date" id="membershipEnd" class="input-field" required />
+                </div>
+                <div class="col-span-2">
+                    <label class="label-float">Monto</label>
+                    <input type="text" id="membershipAmount" class="input-field" placeholder="₡25,000" />
+                </div>
+            </div>
+            <div class="flex gap-3 pt-2 justify-end">
+                <button type="button" class="btn-secondary" onclick="closeModal('membershipModal')">Cancelar</button>
+                <button type="submit" class="btn-primary"><span class="material-symbols-outlined text-[16px]">save</span> Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>

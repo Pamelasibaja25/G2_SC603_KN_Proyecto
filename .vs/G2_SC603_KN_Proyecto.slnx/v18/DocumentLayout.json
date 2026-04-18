@@ -1,14 +1,10 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\",
+  "WorkspaceRootPath": "E:\\pamel\\Downloads\\G2_SC603_KN_Proyecto-main\\G2_SC603_KN_Proyecto\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|e:\\pamel\\one drive (pamela)\\fidelitas\\proyecto martes (kn)\\prototipo\\g2_sc603_kn_proyecto\\g2_sc603_kn_proyecto\\views\\membresia\\mostrarmembresia.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|solutionrelative:g2_sc603_kn_proyecto\\views\\membresia\\mostrarmembresia.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|e:\\pamel\\one drive (pamela)\\fidelitas\\proyecto martes (kn)\\prototipo\\g2_sc603_kn_proyecto\\g2_sc603_kn_proyecto\\views\\clientes\\mostrarclientes.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|solutionrelative:g2_sc603_kn_proyecto\\views\\clientes\\mostrarclientes.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|e:\\pamel\\downloads\\g2_sc603_kn_proyecto-main\\g2_sc603_kn_proyecto\\g2_sc603_kn_proyecto\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|solutionrelative:g2_sc603_kn_proyecto\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -31,27 +27,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "MostrarMembresia.cshtml",
-              "DocumentMoniker": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\Views\\Membresia\\MostrarMembresia.cshtml",
-              "RelativeDocumentMoniker": "G2_SC603_KN_Proyecto\\Views\\Membresia\\MostrarMembresia.cshtml",
-              "ToolTip": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\Views\\Membresia\\MostrarMembresia.cshtml",
-              "RelativeToolTip": "G2_SC603_KN_Proyecto\\Views\\Membresia\\MostrarMembresia.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAWAAAAAAAAAA==",
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "E:\\pamel\\Downloads\\G2_SC603_KN_Proyecto-main\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "G2_SC603_KN_Proyecto\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "E:\\pamel\\Downloads\\G2_SC603_KN_Proyecto-main\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "G2_SC603_KN_Proyecto\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAIMAAAAAAAAAAAAuwEEAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-09T00:57:37.327Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "MostrarClientes.cshtml",
-              "DocumentMoniker": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\Views\\Clientes\\MostrarClientes.cshtml",
-              "RelativeDocumentMoniker": "G2_SC603_KN_Proyecto\\Views\\Clientes\\MostrarClientes.cshtml",
-              "ToolTip": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\Views\\Clientes\\MostrarClientes.cshtml",
-              "RelativeToolTip": "G2_SC603_KN_Proyecto\\Views\\Clientes\\MostrarClientes.cshtml",
-              "ViewState": "AgIAAAEAAAAAAAAAAAAuwAsAAAAPAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-09T00:54:46.661Z",
+              "WhenOpened": "2026-04-18T19:16:42.509Z",
               "EditorCaption": ""
             }
           ]

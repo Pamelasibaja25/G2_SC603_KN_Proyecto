@@ -1,0 +1,68 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+<div id="page-wod" class="section-page active p-6 lg:p-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h2 class="font-headline text-3xl font-bold tracking-tight">WOD — Workout of the Day</h2>
+            <p class="text-on-surface-variant text-xs mt-1">RMGM-WOD-001 al RMGM-WOD-005</p>
+        </div>
+        <button class="btn-primary py-2.5 text-sm" id="btnPublishWOD" onclick="openWODModal()">
+            <span class="material-symbols-outlined text-[18px]">add</span> Publicar WOD
+        </button>
+    </div>
+
+    <!-- WOD Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5" id="wodGrid"></div>
+</div>
+
+<div class="modal-overlay" id="wodModal">
+    <div class="modal-box" style="max-width:640px">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="font-headline font-bold text-xl" id="wodModalTitle">Publicar WOD</h3>
+            <button onclick="closeModal('wodModal')" class="btn-icon"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <form id="wodForm" class="space-y-4">
+            <input type="hidden" id="wodId" />
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="label-float">Nombre del Entrenamiento *</label>
+                    <input type="text" id="wodName" class="input-field" placeholder="Ej: AMRAP 20 — Fuerza y Cardio" required />
+                </div>
+                <div>
+                    <label class="label-float">Fecha *</label>
+                    <input type="date" id="wodDate" class="input-field" required />
+                </div>
+                <div>
+                    <label class="label-float">Categoría</label>
+                    <select id="wodCategory" class="input-field">
+                        <option>AMRAP</option>
+                        <option>For Time</option>
+                        <option>EMOM</option>
+                        <option>Chipper</option>
+                        <option>Strength</option>
+                        <option>Cardio</option>
+                    </select>
+                </div>
+                <div class="col-span-2">
+                    <label class="label-float">Descripción / Notas del Coach</label>
+                    <textarea id="wodDesc" class="input-field" rows="2" placeholder="Instrucciones, tips, observaciones..."></textarea>
+                </div>
+            </div>
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <label class="label-float mb-0">Ejercicios *</label>
+                    <button type="button" class="text-primary-container text-xs font-semibold flex items-center gap-1 hover:text-primary transition-colors" onclick="addExerciseRow()">
+                        <span class="material-symbols-outlined text-[16px]">add</span> Agregar ejercicio
+                    </button>
+                </div>
+                <div id="exerciseList" class="space-y-2"></div>
+            </div>
+            <div class="flex gap-3 pt-2 justify-end">
+                <button type="button" class="btn-secondary" onclick="closeModal('wodModal')">Cancelar</button>
+                <button type="submit" class="btn-primary"><span class="material-symbols-outlined text-[16px]">publish</span> Publicar</button>
+            </div>
+        </form>
+    </div>
+</div>

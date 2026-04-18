@@ -3,17 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace G2_SC603_KN_Proyecto.Controllers
 {
-    public class PagosController : Controller
+    public class ReportesController : Controller
     {
-        // GET: PagosController
+        // GET: NotificacionesController
         public ActionResult Index()
         {
+            ViewData["Mensaje"] = "Notificaciones";
             return View();
-
-        }
-     
         }
 
     }
-
-
+}

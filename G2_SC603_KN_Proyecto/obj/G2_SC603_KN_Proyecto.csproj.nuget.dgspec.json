@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj": {}
+    "E:\\pamel\\Downloads\\G2_SC603_KN_Proyecto-main\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj": {}
   },
   "projects": {
-    "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj": {
+    "E:\\pamel\\Downloads\\G2_SC603_KN_Proyecto-main\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
+        "projectUniqueName": "E:\\pamel\\Downloads\\G2_SC603_KN_Proyecto-main\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
         "projectName": "G2_SC603_KN_Proyecto",
-        "projectPath": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
+        "projectPath": "E:\\pamel\\Downloads\\G2_SC603_KN_Proyecto-main\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
         "packagesPath": "C:\\Users\\pamel\\.nuget\\packages\\",
-        "outputPath": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\obj\\",
+        "outputPath": "E:\\pamel\\Downloads\\G2_SC603_KN_Proyecto-main\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
