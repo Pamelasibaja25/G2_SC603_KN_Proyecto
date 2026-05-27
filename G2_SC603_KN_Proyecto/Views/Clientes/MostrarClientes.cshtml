@@ -1,4 +1,5 @@
-﻿@{
+﻿@model IEnumerable<G2_SC603_KN_Proyecto.Models.Cliente>
+@{
     Layout = "_Layout";
 }
 
@@ -32,13 +33,30 @@
                     <tr>
                         <th>Cliente</th>
                         <th>Cédula</th>
-                        <th>Contacto</th>
-                        <th>Estado Membresía</th>
-                        <th>Vencimiento</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                        <th>Fecha Nacimiento</th>
+                        <th>Estado</th>
                         <th class="text-right">Acciones</th>
                     </tr>
                 </thead>
-                <tbody id="clientsTableBody"></tbody>
+                <tbody id="clientsTableBody">
+                    @foreach (var cliente in Model)
+                    {
+                        <tr>
+                            <td>@cliente.Nombre</td>
+                            <td>@cliente.Cedula</td>
+                            <td>@cliente.Telefono</td>
+                            <td>@cliente.Correo</td>
+                            <td>@cliente.FechaNacimiento?.ToString("dd/MM/yyyy")</td>
+                            <td>@cliente.Estado</td>
+                            <td class="text-right">
+                                <a asp-action="Editar" asp-route-id="@cliente.IdCliente" class="btn-secondary">Editar</a>
+                                <a asp-action="Detalles" asp-route-id="@cliente.IdCliente" class="btn-primary">Ver</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
             </table>
         </div>
         <div class="bg-surface-container-low px-6 py-4 flex items-center justify-between border-t border-outline-variant/10">
@@ -71,10 +89,6 @@
                 <div class="col-span-2">
                     <label class="label-float">Correo Electrónico *</label>
                     <input type="email" id="clientEmail" class="input-field" placeholder="correo@ejemplo.com" required />
-                </div>
-                <div class="col-span-2">
-                    <label class="label-float">Dirección</label>
-                    <input type="text" id="clientAddress" class="input-field" placeholder="San José, Costa Rica" />
                 </div>
                 <div>
                     <label class="label-float">Fecha de Inscripción</label>

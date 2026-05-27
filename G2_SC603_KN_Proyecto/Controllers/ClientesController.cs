@@ -1,15 +1,25 @@
 using G2_SC603_KN_Proyecto.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 
 namespace G2_SC603_KN_Proyecto.Controllers
 {
     public class ClientesController : Controller
     {
-        public IActionResult MostrarClientes()
-        {
+        private readonly DbOrionFitContext _context;
 
-            return View();
+        public ClientesController(DbOrionFitContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<IActionResult> MostrarClientes()
+        {
+            var clientes = await _context.Clientes
+                .Include(c => c.IdUsuarioNavigation)
+                .ToListAsync();
+
+            return View(clientes);
         }
     }
 }
