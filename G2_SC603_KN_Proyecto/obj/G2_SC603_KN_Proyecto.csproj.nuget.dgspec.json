@@ -1,24 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "E:\\pamel\\Downloads\\G2_SC603_KN_Proyecto-main\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj": {}
+    "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj": {}
   },
   "projects": {
-    "E:\\pamel\\Downloads\\G2_SC603_KN_Proyecto-main\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj": {
+    "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\pamel\\Downloads\\G2_SC603_KN_Proyecto-main\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
+        "projectUniqueName": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
         "projectName": "G2_SC603_KN_Proyecto",
-        "projectPath": "E:\\pamel\\Downloads\\G2_SC603_KN_Proyecto-main\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
-        "packagesPath": "C:\\Users\\pamel\\.nuget\\packages\\",
-        "outputPath": "E:\\pamel\\Downloads\\G2_SC603_KN_Proyecto-main\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\obj\\",
+        "projectPath": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
+        "packagesPath": "C:\\Users\\mh880\\.nuget\\packages\\",
+        "outputPath": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\pamel\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\mh880\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -32,6 +31,7 @@
         },
         "frameworks": {
           "net8.0": {
+            "framework": "net8.0",
             "targetAlias": "net8.0",
             "projectReferences": {}
           }
@@ -46,11 +46,32 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "10.0.300"
       },
       "frameworks": {
         "net8.0": {
+          "framework": "net8.0",
           "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "MySql.Data": {
+              "target": "Package",
+              "version": "[9.7.0, )"
+            },
+            "MySql.Data.EntityFramework": {
+              "target": "Package",
+              "version": "[9.7.0, )"
+            },
+            "Pomelo.EntityFrameworkCore.MySql": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -70,7 +91,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.300/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

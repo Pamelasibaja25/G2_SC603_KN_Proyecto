@@ -8,6 +8,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
     {
         public IActionResult MostrarClientes()
         {
+
             return View();
         }
     }
