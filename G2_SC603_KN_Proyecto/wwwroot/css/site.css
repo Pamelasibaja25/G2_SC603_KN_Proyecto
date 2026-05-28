@@ -12,6 +12,7 @@ h1, h2, h3, h4, h5, h6, .font-headline {
     font-family: 'Manrope', sans-serif;
 }
 
+
 .material-symbols-outlined {
     font-family: 'Material Symbols Outlined';
     font-weight: normal;
@@ -179,11 +180,13 @@ h1, h2, h3, h4, h5, h6, .font-headline {
     border: 1px solid rgba(73,68,85,0.3);
 }
 
-.input-field {
+.input-field,
+.input-field:read-only,
+.input-field:disabled {
     width: 100%;
     background: #353534;
     border: 1px solid rgba(73,68,85,0.4);
-    color: #e5e2e1;
+    color: #e5e2e1 !important;
     padding: 0.75rem 1rem;
     border-radius: 0.5rem;
     font-size: 0.875rem;
@@ -193,6 +196,7 @@ h1, h2, h3, h4, h5, h6, .font-headline {
 
     .input-field:focus {
         border-color: #763df2;
+        color: #fff;
         background: rgba(118,61,242,0.08);
         box-shadow: 0 0 0 3px rgba(118,61,242,0.15);
     }
