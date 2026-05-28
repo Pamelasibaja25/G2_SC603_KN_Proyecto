@@ -1,5 +1,13 @@
-var builder = WebApplication.CreateBuilder(args);
+using G2_SC603_KN_Proyecto.Data;
+using Microsoft.EntityFrameworkCore;
 
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        ServerVersion.AutoDetect(
+            builder.Configuration.GetConnectionString("DefaultConnection"))
+    ));
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
