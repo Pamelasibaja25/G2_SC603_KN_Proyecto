@@ -10,11 +10,15 @@ builder.Services.AddDbContext<DbOrionFitContext>(options =>
         )
     )
 );
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddSession();
 
 var app = builder.Build();
+
+app.UseSession();
 
 if (!app.Environment.IsDevelopment())
 {

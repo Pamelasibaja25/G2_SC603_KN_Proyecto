@@ -55,6 +55,8 @@ public partial class DbOrionFitContext : DbContext
     public virtual DbSet<Ventum> Venta { get; set; }
 
     public DbSet<ClienteResumen> ClientesResumen { get; set; }
+
+    public DbSet<UsuarioNombre> UsuarioNombre { get; set; }
     public DbSet<Equipo> Equipo { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -68,6 +70,7 @@ public partial class DbOrionFitContext : DbContext
             .UseCollation("utf8mb4_0900_ai_ci")
             .HasCharSet("utf8mb4");
         modelBuilder.Entity<ClienteResumen>().HasNoKey();
+        modelBuilder.Entity<UsuarioNombre>().HasNoKey();
         modelBuilder.Entity<Administrador>(entity =>
         {
             entity.HasKey(e => e.IdAdministrador).HasName("PRIMARY");

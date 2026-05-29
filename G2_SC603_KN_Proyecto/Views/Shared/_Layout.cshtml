@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var rol = Context.Session.GetString("Rol");
+    var Usuario = Context.Session.GetString("Usuario");
+}
+<!DOCTYPE html>
 <html class="dark" lang="es">
 <head>
     <meta charset="utf-8" />
@@ -26,44 +30,87 @@
             </div>
 
             <div class="flex-1 overflow-y-auto space-y-0.5 px-3">
-                <a asp-controller="Dashboard" asp-action="Dashboard" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="dashboard">
-                    <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">dashboard</span> Dashboard
-                </a>
-                <a asp-controller="Clientes" asp-action="MostrarClientes" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="clients">
-                    <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">group</span> Clientes
-                </a>
-                <a asp-controller="Membresia" asp-action="MostrarMembresia" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="memberships">
-                    <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">card_membership</span> Membresías
-                </a>
-                <a asp-controller="Pagos" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="payments">
-                    <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">payments</span> Pagos
-                </a>
-                <a asp-controller="WOD" asp-action="MostrarWOD" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="wod">
-                    <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">fitness_center</span> WOD
-                </a>
-                <a asp-controller="Reservas" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="reservations">
-                    <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">calendar_today</span> Reservas
-                </a>
-                <a asp-controller="Notificaciones" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="notifications">
-                    <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">notifications</span> Notificaciones
-                    <span id="notifBadgeSidebar" class="ml-auto bg-primary-container text-on-primary-container text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">4</span>
-                </a>
-                <a asp-controller ="Equipos" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="inventory">
-                    <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">inventory_2</span> Inventario
-                </a>
-                <a asp-controller="Reportes" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="reports">
-                    <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">assessment</span> Reportes
-                </a>
+                @if (rol == "ADMIN")
+                {
+                    <a asp-controller="Dashboard" asp-action="Dashboard" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="dashboard">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">dashboard</span> Dashboard
+                    </a>
+                    <a asp-controller="Clientes" asp-action="MostrarClientes" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="clients">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">group</span> Clientes
+                    </a>
+                    <a asp-controller="Membresia" asp-action="MostrarMembresia" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="memberships">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">card_membership</span> Membresías
+                    </a>
+                    <a asp-controller="Pagos" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="payments">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">payments</span> Pagos
+                    </a>
+                    <a asp-controller="WOD" asp-action="MostrarWOD" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="wod">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">fitness_center</span> WOD
+                    </a>
+                    <a asp-controller="Reservas" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="reservations">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">calendar_today</span> Reservas
+                    </a>
+                    <a asp-controller="Notificaciones" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="notifications">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">notifications</span> Notificaciones
+                        <span id="notifBadgeSidebar" class="ml-auto bg-primary-container text-on-primary-container text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">4</span>
+                    </a>
+                    <a asp-controller="Equipos" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="inventory">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">inventory_2</span> Inventario
+                    </a>
+                    <a asp-controller="Reportes" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="reports">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">assessment</span> Reportes
+                    </a>
+                    <a asp-controller="Usuarios" asp-action="MostrarUsuarios" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="reports">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">assessment</span> Usuarios
+                    </a>
+                }
+                else if (rol == "USER")
+                {
+                    <a asp-controller="Pagos" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="payments">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">payments</span> Pagos
+                    </a>
+                    <a asp-controller="WOD" asp-action="MostrarWOD" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="wod">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">fitness_center</span> WOD
+                    </a>
+                    <a asp-controller="Reservas" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="reservations">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">calendar_today</span> Reservas
+                    </a>
+                    <a asp-controller="Notificaciones" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="notifications">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">notifications</span> Notificaciones
+                        <span id="notifBadgeSidebar" class="ml-auto bg-primary-container text-on-primary-container text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">4</span>
+                    </a>
+                }
+                else if (rol == "TRAINER")
+                {
+                    <a asp-controller="WOD" asp-action="MostrarWOD" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="wod">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">fitness_center</span> WOD
+                    </a>
+                    <a asp-controller="Reservas" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="reservations">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">calendar_today</span> Reservas
+                    </a>
+                }
+                else if (rol == "RECEPTION")
+                {
+                    <a asp-controller="Clientes" asp-action="MostrarClientes" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="clients">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">group</span> Clientes
+                    </a>
+                    <a asp-controller="Membresia" asp-action="MostrarMembresia" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="memberships">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">card_membership</span> Membresías
+                    </a>
+                    <a asp-controller="Pagos" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="payments">
+                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">payments</span> Pagos
+                    </a>
+                }
             </div>
 
             <div class="px-5 pt-4 border-t border-outline-variant/10 mt-2">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-primary-container/30 flex items-center justify-center text-primary-container font-headline font-bold text-xs" id="sidebarAvatar">KM</div>
+                    <div class="w-8 h-8 rounded-full bg-primary-container/30 flex items-center justify-center text-primary-container font-headline font-bold text-xs" id="sidebarAvatar"></div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-on-surface font-headline font-semibold text-xs truncate" id="sidebarName">Keren Mora</p>
-                        <p class="text-outline text-[10px] uppercase tracking-wider" id="sidebarRole">Administrador</p>
+                        <p class="text-on-surface font-headline font-semibold text-xs truncate" id="sidebarName">@Usuario</p>
+                        <p class="text-outline text-[10px] uppercase tracking-wider" id="sidebarRole">@rol</p>
                     </div>
-                    <a asp-controller="Home" asp-action="Index" class="btn-icon" title="Cerrar sesión">
+                    <a asp-controller="Home" asp-action="Logout" class="btn-icon" title="Cerrar sesión">
                         <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'wght' 300">logout</span>
                     </a>
                 </div>
@@ -88,13 +135,13 @@
                         <span id="notifBadge" class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary-container rounded-full text-[9px] font-bold text-on-primary-container flex items-center justify-center">4</span>
                     </button>
                     <div class="flex items-center gap-2 cursor-pointer" onclick="navigateTo('dashboard')">
-                        <div class="w-8 h-8 rounded-full bg-primary-container/30 flex items-center justify-center text-primary-container font-headline font-bold text-xs" id="headerAvatar">KM</div>
+                        <div class="w-8 h-8 rounded-full bg-primary-container/30 flex items-center justify-center text-primary-container font-headline font-bold text-xs" id="headerAvatar"></div>
                         <div class="hidden md:block">
-                            <p class="text-on-surface font-headline font-semibold text-xs leading-none" id="headerName">Keren Mora</p>
-                            <p class="text-outline text-[9px] uppercase tracking-wider" id="headerRole">Administrador</p>
+                            <p class="text-on-surface font-headline font-semibold text-xs leading-none" id="headerName">@Usuario</p>
+                            <p class="text-outline text-[9px] uppercase tracking-wider" id="headerRole">@rol</p>
                         </div>
                     </div>
-                    <a asp-controller="Home" asp-action="Index" class="btn-icon hidden md:flex">
+                    <a asp-controller="Home" asp-action="Logout" class="btn-icon hidden md:flex">
                         <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'wght' 300">logout</span>
                     </a>
                 </div>

@@ -2,6 +2,15 @@
   "version": 4,
   "targets": {
     "net8.0": {
+      "BCrypt.Net-Next/4.2.0": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.1/BCrypt-Net-Next.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.1/BCrypt-Net-Next.dll": {}
+        }
+      },
       "BouncyCastle.Cryptography/2.6.2": {
         "type": "package",
         "compile": {
@@ -1330,6 +1339,31 @@
     }
   },
   "libraries": {
+    "BCrypt.Net-Next/4.2.0": {
+      "sha512": "gwLD2KfCuwQesP17aVh4h6lpiMPEVt5Lbpndo0ej903hNUUTtyxt3ARdDjmuydBRTAUICc7OVKVbaOvc6SQYXA==",
+      "type": "package",
+      "path": "bcrypt.net-next/4.2.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "bcrypt.net-next.4.2.0.nupkg.sha512",
+        "bcrypt.net-next.nuspec",
+        "ico.png",
+        "lib/net10.0/BCrypt-Net-Next.dll",
+        "lib/net10.0/BCrypt.Net-Next.xml",
+        "lib/net462/BCrypt-Net-Next.dll",
+        "lib/net462/BCrypt.Net-Next.xml",
+        "lib/net472/BCrypt-Net-Next.dll",
+        "lib/net472/BCrypt.Net-Next.xml",
+        "lib/net48/BCrypt-Net-Next.dll",
+        "lib/net48/BCrypt.Net-Next.xml",
+        "lib/netstandard2.0/BCrypt-Net-Next.dll",
+        "lib/netstandard2.0/BCrypt.Net-Next.xml",
+        "lib/netstandard2.1/BCrypt-Net-Next.dll",
+        "lib/netstandard2.1/BCrypt.Net-Next.xml",
+        "readme.md"
+      ]
+    },
     "BouncyCastle.Cryptography/2.6.2": {
       "sha512": "7oWOcvnntmMKNzDLsdxAYqApt+AjpRpP2CShjMfIa3umZ42UQMvH0tl1qAliYPNYO6vTdcGMqnRrCPmsfzTI1w==",
       "type": "package",
@@ -3632,6 +3666,7 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "BCrypt.Net-Next >= 4.2.0",
       "Microsoft.EntityFrameworkCore.Tools >= 8.0.0",
       "MySql.Data >= 9.7.0",
       "MySql.Data.EntityFramework >= 9.7.0",
@@ -3639,23 +3674,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Ramses\\.nuget\\packages\\": {},
+    "C:\\Users\\mh880\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Ramses\\source\\repos\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
+      "projectUniqueName": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
       "projectName": "G2_SC603_KN_Proyecto",
-      "projectPath": "C:\\Users\\Ramses\\source\\repos\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
-      "packagesPath": "C:\\Users\\Ramses\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Ramses\\source\\repos\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\obj\\",
+      "projectPath": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
+      "packagesPath": "C:\\Users\\mh880\\.nuget\\packages\\",
+      "outputPath": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Ramses\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\mh880\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -3691,6 +3726,10 @@
         "framework": "net8.0",
         "targetAlias": "net8.0",
         "dependencies": {
+          "BCrypt.Net-Next": {
+            "target": "Package",
+            "version": "[4.2.0, )"
+          },
           "Microsoft.EntityFrameworkCore.Tools": {
             "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
             "suppressParent": "All",

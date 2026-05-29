@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("G2_SC603_KN_Proyecto")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3fbcd9fd7d661215b50f6ff2ac1f0f20d11ce634")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7964c6e4b0ccf3fd5b0bb4298d9b102569e027d8")]
 [assembly: System.Reflection.AssemblyProductAttribute("G2_SC603_KN_Proyecto")]
 [assembly: System.Reflection.AssemblyTitleAttribute("G2_SC603_KN_Proyecto")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

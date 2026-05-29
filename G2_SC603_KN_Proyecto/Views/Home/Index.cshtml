@@ -1,8 +1,16 @@
 ﻿@{
     Layout = "_LayoutExterno";
 }
+
 <body class="bg-surface text-on-surface min-h-screen">
 
+    @if (ViewBag.Error != null)
+    {
+        <div class="toast show" style="background:#201f1f; color:#ffb4ab;">
+            <span class="material-symbols-outlined">error</span>
+            <span>@ViewBag.Error</span>
+        </div>
+    }
 <!-- ═══════════════════════════════════════════════════════════════════ -->
 <!-- LOGIN SCREEN                                                        -->
 <!-- ═══════════════════════════════════════════════════════════════════ -->
@@ -23,20 +31,12 @@
       <p class="font-label text-on-surface-variant text-xs tracking-[0.2em] uppercase opacity-70">Elite Management System</p>
     </div>
 
-    <form id="loginForm" class="space-y-5 relative z-10">
-      <div>
-        <label class="label-float" for="loginRole">Rol de acceso</label>
-        <select class="input-field" id="loginRole">
-          <option value="admin">Administrador</option>
-          <option value="receptionist">Recepcionista</option>
-          <option value="trainer">Entrenador</option>
-        </select>
-      </div>
+    <form id="loginForm" asp-action="Index" method="post" class="space-y-5 relative z-10">
       <div>
         <label class="label-float" for="loginUser">Usuario</label>
         <div class="relative">
           <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]" style="font-variation-settings:'wght' 300">person</span>
-          <input class="input-field pl-10" id="loginUser" type="text" placeholder="Ingrese su usuario" value="admin"/>
+          <input class="input-field pl-10" id="loginUser" name="username" type="text" placeholder="Ingrese su usuario" />
         </div>
       </div>
       <div>
@@ -46,17 +46,16 @@
         </label>
         <div class="relative">
           <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]" style="font-variation-settings:'wght' 300">lock</span>
-          <input class="input-field pl-10 pr-10" id="loginPass" type="password" placeholder="••••••••" value="orion2024"/>
+          <input class="input-field pl-10 pr-10" id="loginPass" name="password" type="password" placeholder="••••••••" />
           <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors">
             <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'wght' 300">visibility_off</span>
           </button>
         </div>
       </div>
       <div class="pt-2">
-                    <a asp-controller="Home" asp-action="Home" class="btn-primary w-full justify-center text-base py-3.5">
-          Iniciar Sesión
-          <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-        </a>
+                    <button type="submit" class="btn-primary w-full justify-center text-base py-3.5">
+                        <span class="material-symbols-outlined text-[16px]"></span> Iniciar Sesión
+                    </button>
       </div>
        <p class="text-center text-xs text-outline mt-4">© @DateTime.Now.Year, Orion Fit</p>
     </form>
