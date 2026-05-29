@@ -66,3 +66,51 @@
         }
     }
 }
+//VISTA: MOSTRAR CLIENTES
+function filterClients() {
+    const searchValue = document.getElementById("clientSearch").value.toLowerCase();
+    const statusValue = document.getElementById("clientStatusFilter").value;
+    const rows = document.querySelectorAll("#clientsTableBody tr");
+
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const name = row.cells[0].textContent.toLowerCase();
+        const status = row.cells[5].textContent;
+
+        const matchesSearch = name.includes(searchValue);
+        const matchesStatus = statusValue === "" || status === statusValue;
+
+        if (matchesSearch && matchesStatus) {
+            row.style.display = "";
+            visibleCount++;
+        } else {
+            row.style.display = "none";
+        }
+    });
+
+    document.getElementById("clientsCount").textContent =
+        `Mostrando ${visibleCount} cliente(s)`;
+}
+
+function openDetailsModal(element) {
+    document.getElementById("detalleNombre").value = element.dataset.nombre;
+    document.getElementById("detalleCedula").value = element.dataset.cedula;
+    document.getElementById("detalleTelefono").value = element.dataset.telefono;
+    document.getElementById("detalleCorreo").value = element.dataset.correo;
+    document.getElementById("detalleFecha").value = element.dataset.fecha;
+    document.getElementById("detalleEstado").value = element.dataset.estado;
+    document.getElementById("detalleMembresia").value = element.dataset.membresia;
+    document.getElementById("detalleVencimiento").value = element.dataset.vencimiento;
+
+    document.getElementById("detailsModal").style.display = "flex";
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = "none";
+    document.querySelectorAll(`#${modalId} input`).forEach(input => input.value = "");
+}
+function openClientModal() {
+    const modal = document.getElementById("clientModal");
+    modal.classList.add("show");
+}

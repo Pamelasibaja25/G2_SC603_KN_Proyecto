@@ -1,5 +1,21 @@
-﻿@{
+﻿@model IEnumerable<G2_SC603_KN_Proyecto.Models.ClienteResumen>
+@{
     Layout = "_Layout";
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="toast show" style="background:#201f1f; color:#4ade80;">
+        <span class="material-symbols-outlined">check_circle</span>
+        <span>@TempData["SuccessMessage"]</span>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="toast show" style="background:#201f1f; color:#ffb4ab;">
+        <span class="material-symbols-outlined">error</span>
+        <span>@TempData["ErrorMessage"]</span>
+    </div>
 }
 
 <div id="page-clients" class="section-page active p-6 lg:p-8">
@@ -26,19 +42,60 @@
     </div>
 
     <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
             <table class="data-table">
                 <thead>
                     <tr>
                         <th>Cliente</th>
                         <th>Cédula</th>
-                        <th>Contacto</th>
-                        <th>Estado Membresía</th>
-                        <th>Vencimiento</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                        <th>Fecha Nacimiento</th>
+                        <th>Estado</th>
                         <th class="text-right">Acciones</th>
                     </tr>
                 </thead>
-                <tbody id="clientsTableBody"></tbody>
+                <tbody id="clientsTableBody">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var cliente in Model)
+                        {
+                            <tr>
+                                <td>@cliente.Nombre</td>
+                                <td>@cliente.Cedula</td>
+                                <td>@cliente.Telefono</td>
+                                <td>@cliente.Correo</td>
+                                <td>@cliente.fecha_nacimiento?.ToString("dd/MM/yyyy")</td>
+                                <td>@cliente.Estado</td>
+                                <td class="text-right">
+                                    <a asp-action="Editar" asp-route-id="@cliente.id_cliente" class="btn-secondary">Editar</a>
+                                    <a href="javascript:void(0)"
+                                       class="btn-primary"
+                                       onclick="openDetailsModal(this)"
+                                       data-nombre="@cliente.Nombre"
+                                       data-cedula="@cliente.Cedula"
+                                       data-telefono="@cliente.Telefono"
+                                       data-correo="@cliente.Correo"
+                                       data-fecha="@cliente.fecha_nacimiento?.ToString("dd/MM/yyyy")"
+                                       data-estado="@cliente.Estado"
+                                       data-membresia="@cliente.EstadoMembresia"
+                                       data-vencimiento="@cliente.Vencimiento?.ToString("dd/MM/yyyy")">
+                                        Ver
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-outline">
+                                No hay datos disponibles
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
             </table>
         </div>
         <div class="bg-surface-container-low px-6 py-4 flex items-center justify-between border-t border-outline-variant/10">
@@ -47,42 +104,88 @@
     </div>
 </div>
 
+<!-- MODAL VISUALIZAR INFO DETALLADA -->
+<div class="modal-overlay" id="detailsModal">
+    <div class="modal-box">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="font-headline font-bold text-xl">Detalles del Cliente</h3>
+            <button onclick="closeModal('detailsModal')" class="btn-icon">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="col-span-2">
+                <label class="label-float">Nombre Completo</label>
+                <input type="text" id="detalleNombre" class="input-field" readonly />
+            </div>
+            <div>
+                <label class="label-float">Cédula</label>
+                <input type="text" id="detalleCedula" class="input-field" readonly />
+            </div>
+            <div>
+                <label class="label-float">Teléfono</label>
+                <input type="text" id="detalleTelefono" class="input-field" readonly />
+            </div>
+            <div class="col-span-2">
+                <label class="label-float">Correo Electrónico</label>
+                <input type="email" id="detalleCorreo" class="input-field" readonly />
+            </div>
+            <div>
+                <label class="label-float">Fecha Nacimiento</label>
+                <input type="text" id="detalleFecha" class="input-field" readonly />
+            </div>
+            <div>
+                <label class="label-float">Estado</label>
+                <input type="text" id="detalleEstado" class="input-field" readonly />
+            </div>
+            <div class="grid grid-cols-2 gap-4 col-span-2">
+                <div>
+                    <label class="label-float">Estado Membresía</label>
+                    <input type="text" id="detalleMembresia" class="input-field" readonly />
+                </div>
+                <div>
+                    <label class="label-float">Vencimiento</label>
+                    <input type="text" id="detalleVencimiento" class="input-field" readonly />
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL AGREGAR INFO-->
 <div class="modal-overlay" id="clientModal">
     <div class="modal-box">
         <div class="flex items-center justify-between mb-6">
             <h3 class="font-headline font-bold text-xl" id="clientModalTitle">Nuevo Cliente</h3>
             <button onclick="closeModal('clientModal')" class="btn-icon"><span class="material-symbols-outlined">close</span></button>
         </div>
-        <form id="clientForm" class="space-y-4">
+        <form asp-action="AgregarCliente" method="post" id="clientForm" class="space-y-4">
             <input type="hidden" id="clientId" />
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
                     <label class="label-float">Nombre Completo *</label>
-                    <input type="text" id="clientName" class="input-field" placeholder="Ej: María González Solís" required />
+                    <input type="text" name="Nombre" class="input-field" placeholder="Ej: María González Solís" required />
                 </div>
                 <div>
                     <label class="label-float">Cédula / Identificación *</label>
-                    <input type="text" id="clientCedula" class="input-field" placeholder="1-XXXX-XXXX" required />
+                    <input type="text" name="Cedula" class="input-field" placeholder="XXXXXXXXX" required />
                 </div>
                 <div>
                     <label class="label-float">Teléfono *</label>
-                    <input type="tel" id="clientPhone" class="input-field" placeholder="+506 8888-8888" required />
+                    <input type="tel" name="Telefono" class="input-field" placeholder="8888-8888" required />
                 </div>
                 <div class="col-span-2">
                     <label class="label-float">Correo Electrónico *</label>
-                    <input type="email" id="clientEmail" class="input-field" placeholder="correo@ejemplo.com" required />
-                </div>
-                <div class="col-span-2">
-                    <label class="label-float">Dirección</label>
-                    <input type="text" id="clientAddress" class="input-field" placeholder="San José, Costa Rica" />
+                    <input type="email" name="Correo" class="input-field" placeholder="correo@ejemplo.com" required />
                 </div>
                 <div>
-                    <label class="label-float">Fecha de Inscripción</label>
-                    <input type="date" id="clientDate" class="input-field" />
+                    <label class="label-float">Fecha de Nacimiento</label>
+                    <input type="date" name="fecha_nacimiento" class="input-field" required />
                 </div>
                 <div>
                     <label class="label-float">Estado</label>
-                    <select id="clientStatus" class="input-field">
+                    <select id="clientStatus" name="Estado" class="input-field">
                         <option value="Activa">Activa</option>
                         <option value="Vencida">Vencida</option>
                         <option value="Suspendida">Suspendida</option>
