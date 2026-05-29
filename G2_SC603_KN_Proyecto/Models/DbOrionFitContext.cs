@@ -55,6 +55,7 @@ public partial class DbOrionFitContext : DbContext
     public virtual DbSet<Ventum> Venta { get; set; }
 
     public DbSet<ClienteResumen> ClientesResumen { get; set; }
+    public DbSet<Equipo> Equipo { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     { 

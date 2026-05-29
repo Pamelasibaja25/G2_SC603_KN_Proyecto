@@ -3639,23 +3639,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\mh880\\.nuget\\packages\\": {},
+    "C:\\Users\\Ramses\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
+      "projectUniqueName": "C:\\Users\\Ramses\\source\\repos\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
       "projectName": "G2_SC603_KN_Proyecto",
-      "projectPath": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
-      "packagesPath": "C:\\Users\\mh880\\.nuget\\packages\\",
-      "outputPath": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\obj\\",
+      "projectPath": "C:\\Users\\Ramses\\source\\repos\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj",
+      "packagesPath": "C:\\Users\\Ramses\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Ramses\\source\\repos\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\mh880\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Ramses\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
