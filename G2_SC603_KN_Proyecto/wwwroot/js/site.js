@@ -67,6 +67,7 @@
     }
 }
 //VISTA: MOSTRAR CLIENTES
+
 function filterClients() {
     const searchValue = document.getElementById("clientSearch").value.toLowerCase();
     const statusValue = document.getElementById("clientStatusFilter").value;

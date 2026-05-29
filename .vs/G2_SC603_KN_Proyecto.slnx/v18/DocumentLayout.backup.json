@@ -3,24 +3,28 @@
   "WorkspaceRootPath": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|e:\\pamel\\one drive (pamela)\\fidelitas\\proyecto martes (kn)\\prototipo\\g2_sc603_kn_proyecto\\g2_sc603_kn_proyecto\\controllers\\clientescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|solutionrelative:g2_sc603_kn_proyecto\\controllers\\clientescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|e:\\pamel\\one drive (pamela)\\fidelitas\\proyecto martes (kn)\\prototipo\\g2_sc603_kn_proyecto\\g2_sc603_kn_proyecto\\wwwroot\\js\\site.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|solutionrelative:g2_sc603_kn_proyecto\\wwwroot\\js\\site.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|e:\\pamel\\one drive (pamela)\\fidelitas\\proyecto martes (kn)\\prototipo\\g2_sc603_kn_proyecto\\g2_sc603_kn_proyecto\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|solutionrelative:g2_sc603_kn_proyecto\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|e:\\pamel\\one drive (pamela)\\fidelitas\\proyecto martes (kn)\\prototipo\\g2_sc603_kn_proyecto\\g2_sc603_kn_proyecto\\views\\clientes\\mostrarclientes.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|solutionrelative:g2_sc603_kn_proyecto\\views\\clientes\\mostrarclientes.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|e:\\pamel\\one drive (pamela)\\fidelitas\\proyecto martes (kn)\\prototipo\\g2_sc603_kn_proyecto\\g2_sc603_kn_proyecto\\wwwroot\\js\\site.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
-      "RelativeMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|solutionrelative:g2_sc603_kn_proyecto\\wwwroot\\js\\site.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+      "AbsoluteMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|e:\\pamel\\one drive (pamela)\\fidelitas\\proyecto martes (kn)\\prototipo\\g2_sc603_kn_proyecto\\g2_sc603_kn_proyecto\\models\\clienteresumen.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|solutionrelative:g2_sc603_kn_proyecto\\models\\clienteresumen.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|e:\\pamel\\one drive (pamela)\\fidelitas\\proyecto martes (kn)\\prototipo\\g2_sc603_kn_proyecto\\g2_sc603_kn_proyecto\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|solutionrelative:g2_sc603_kn_proyecto\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|e:\\pamel\\one drive (pamela)\\fidelitas\\proyecto martes (kn)\\prototipo\\g2_sc603_kn_proyecto\\g2_sc603_kn_proyecto\\models\\clienteresumen.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|solutionrelative:g2_sc603_kn_proyecto\\models\\clienteresumen.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|e:\\pamel\\one drive (pamela)\\fidelitas\\proyecto martes (kn)\\prototipo\\g2_sc603_kn_proyecto\\g2_sc603_kn_proyecto\\controllers\\clientescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{67B2B916-4E9F-7031-B116-623CFE35A9C0}|G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto.csproj|solutionrelative:g2_sc603_kn_proyecto\\controllers\\clientescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,7 +34,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -42,7 +46,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "G2_SC603_KN_Proyecto\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "G2_SC603_KN_Proyecto\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAHIAAAAAAAAAAAAcwI8AAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-05-29T03:04:24.679Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "Index.cshtml",
               "DocumentMoniker": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\Views\\Home\\Index.cshtml",
               "RelativeDocumentMoniker": "G2_SC603_KN_Proyecto\\Views\\Home\\Index.cshtml",
@@ -55,52 +72,52 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 3,
               "Title": "ClienteResumen.cs",
               "DocumentMoniker": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\Models\\ClienteResumen.cs",
               "RelativeDocumentMoniker": "G2_SC603_KN_Proyecto\\Models\\ClienteResumen.cs",
               "ToolTip": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\Models\\ClienteResumen.cs",
               "RelativeToolTip": "G2_SC603_KN_Proyecto\\Models\\ClienteResumen.cs",
-              "ViewState": "AgIAAA4AAAAAAAAAAAAIwAkAAAAZAAAAAAAAAA==",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAwwAkAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-28T01:02:17.861Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "site.js",
               "DocumentMoniker": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\wwwroot\\js\\site.js",
               "RelativeDocumentMoniker": "G2_SC603_KN_Proyecto\\wwwroot\\js\\site.js",
-              "ToolTip": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\wwwroot\\js\\site.js",
-              "RelativeToolTip": "G2_SC603_KN_Proyecto\\wwwroot\\js\\site.js",
-              "ViewState": "AgIAAGAAAAAAAAAAAAAmwHMAAAABAAAAAAAAAA==",
+              "ToolTip": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\wwwroot\\js\\site.js*",
+              "RelativeToolTip": "G2_SC603_KN_Proyecto\\wwwroot\\js\\site.js*",
+              "ViewState": "AgIAADwAAAAAAAAAAAAAwEcAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
               "WhenOpened": "2026-05-28T00:07:34.012Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "MostrarClientes.cshtml",
               "DocumentMoniker": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\Views\\Clientes\\MostrarClientes.cshtml",
               "RelativeDocumentMoniker": "G2_SC603_KN_Proyecto\\Views\\Clientes\\MostrarClientes.cshtml",
               "ToolTip": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\Views\\Clientes\\MostrarClientes.cshtml",
               "RelativeToolTip": "G2_SC603_KN_Proyecto\\Views\\Clientes\\MostrarClientes.cshtml",
-              "ViewState": "AgIAAKAAAAAAAAAAAAAYwJUAAAASAAAAAAAAAA==",
+              "ViewState": "AgIAAFgAAAAAAAAAAAAYwGgAAABkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2026-05-27T02:21:15.42Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 5,
               "Title": "ClientesController.cs",
               "DocumentMoniker": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\Controllers\\ClientesController.cs",
               "RelativeDocumentMoniker": "G2_SC603_KN_Proyecto\\Controllers\\ClientesController.cs",
               "ToolTip": "E:\\pamel\\One Drive (Pamela)\\Fidelitas\\Proyecto Martes (KN)\\Prototipo\\G2_SC603_KN_Proyecto\\G2_SC603_KN_Proyecto\\Controllers\\ClientesController.cs",
               "RelativeToolTip": "G2_SC603_KN_Proyecto\\Controllers\\ClientesController.cs",
-              "ViewState": "AgIAAAEAAAAAAAAAAAAmwCQAAAAQAAAAAAAAAA==",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAA8AAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-27T02:19:39.012Z",
               "EditorCaption": ""

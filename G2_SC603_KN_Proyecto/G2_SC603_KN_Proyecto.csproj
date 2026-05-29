@@ -7,21 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-<<<<<<< HEAD
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
-=======
->>>>>>> a0d6b9f7ad3afdbd119de867bbd9e7725ddd9f4b
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-<<<<<<< HEAD
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="9.0.0" />
-=======
     <PackageReference Include="MySql.Data" Version="9.7.0" />
     <PackageReference Include="MySql.Data.EntityFramework" Version="9.7.0" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.0" />
->>>>>>> a0d6b9f7ad3afdbd119de867bbd9e7725ddd9f4b
   </ItemGroup>
 
 </Project>

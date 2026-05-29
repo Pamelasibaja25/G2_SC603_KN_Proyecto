@@ -24,21 +24,24 @@
             <h2 class="font-headline text-3xl font-bold tracking-tight">Gestión de Clientes</h2>
             <p class="text-on-surface-variant text-xs mt-1">RMGM-01-001 al RMGM-01-014</p>
         </div>
-        <div class="flex gap-3 flex-wrap">
-            <div class="relative">
+        <div class="flex gap-3 items-center">
+            <div class="relative flex-[2]">
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
-                <input type="text" id="clientSearch" placeholder="Buscar cliente..." class="input-field pl-9 py-2.5 text-sm w-56" oninput="filterClients()" />
+                <input type="text" id="clientSearch" placeholder="Buscar cliente..."
+                       class="input-field text-sm pl-10 w-full"
+                       oninput="filterClients()" />
             </div>
-            <select class="input-field py-2.5 text-sm w-40" id="clientStatusFilter" onchange="filterClients()">
+            <select class="input-field text-sm flex-[1]" id="clientStatusFilter" onchange="filterClients()">
                 <option value="">Todos los estados</option>
                 <option value="Activa">Activa</option>
                 <option value="Vencida">Vencida</option>
                 <option value="Suspendida">Suspendida</option>
             </select>
-            <button class="btn-primary py-2.5 text-sm" onclick="openClientModal()">
+            <button class="btn-primary text-sm flex items-center gap-1" onclick="openClientModal()">
                 <span class="material-symbols-outlined text-[18px]">add</span> Nuevo Cliente
             </button>
         </div>
+
     </div>
 
     <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
@@ -67,7 +70,7 @@
                                 <td>@cliente.Correo</td>
                                 <td>@cliente.fecha_nacimiento?.ToString("dd/MM/yyyy")</td>
                                 <td>@cliente.Estado</td>
-                                <td class="text-right">
+                                <td class="flex gap-3 items-center">
                                     <a asp-action="Editar" asp-route-id="@cliente.id_cliente" class="btn-secondary">Editar</a>
                                     <a href="javascript:void(0)"
                                        class="btn-primary"
@@ -181,7 +184,7 @@
                 </div>
                 <div>
                     <label class="label-float">Fecha de Nacimiento</label>
-                    <input type="date" name="fecha_nacimiento" class="input-field" required />
+                    <input type="date" name="fecha_nacimiento" class="input-field" placeholder="dd/MM/yyyy" required />
                 </div>
                 <div>
                     <label class="label-float">Estado</label>
