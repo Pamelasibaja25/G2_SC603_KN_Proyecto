@@ -66,6 +66,22 @@
         }
     }
 }
+//VISTA: LOGIN
+document.getElementById("togglePassword").addEventListener("click", function () {
+    const passInput = document.getElementById("loginPass");
+    const icon = document.getElementById("toggleIcon");
+
+    if (passInput.type === "password") {
+        passInput.type = "text";
+        icon.textContent = "visibility"; 
+    } else {
+        passInput.type = "password";
+        icon.textContent = "visibility_off"; 
+    }
+});
+
+
+
 //VISTA: MOSTRAR CLIENTES
 
 function filterClients() {
@@ -114,4 +130,42 @@ function closeModal(modalId) {
 function openClientModal() {
     const modal = document.getElementById("clientModal");
     modal.classList.add("show");
+}
+
+//VISTA: MOSTRAR USUARIOS
+function filterUsers() {
+    const searchValue = document.getElementById("clientSearch").value.toLowerCase();
+    const statusValue = document.getElementById("clientStatusFilter").value;
+    const rows = document.querySelectorAll("#clientsTableBody tr");
+
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const name = row.cells[2].textContent.toLowerCase();
+        const status = row.cells[1].textContent;
+
+        const matchesSearch = name.includes(searchValue);
+        const matchesStatus = statusValue === "" || status === statusValue;
+
+        if (matchesSearch && matchesStatus) {
+            row.style.display = "";
+            visibleCount++;
+        } else {
+            row.style.display = "none";
+        }
+    });
+
+    document.getElementById("clientsCount").textContent =
+        `Mostrando ${visibleCount} usuario(s)`;
+}
+
+function openEditUserModal(username, nombre, correo, rol, telefono) {
+    document.getElementById("editUserId").value = username;
+    document.getElementById("editUsername").value = username;
+    document.getElementById("editNombre").value = nombre;
+    document.getElementById("editCorreo").value = correo;
+    document.getElementById("editRol").value = rol;
+    document.getElementById("editTelefono").value = telefono;
+
+    document.getElementById("editUserModal").style.display = "flex";
 }

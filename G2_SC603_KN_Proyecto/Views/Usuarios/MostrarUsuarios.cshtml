@@ -29,9 +29,9 @@
                 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
                 <input type="text" id="clientSearch" placeholder="Buscar cliente..."
                        class="input-field text-sm pl-10 w-full"
-                       oninput="filterClients()" />
+                       oninput="filterUsers()" />
             </div>
-            <select class="input-field text-sm flex-[1]" id="clientStatusFilter" onchange="filterClients()">
+            <select class="input-field text-sm flex-[1]" id="clientStatusFilter" onchange="filterUsers()">
                 <option value="">Todos los roles</option>
                 <option value="ADMIN">Administrador</option>
                 <option value="USER">Cliente</option>
@@ -53,6 +53,7 @@
                         <th>Username</th>
                         <th>Rol</th>
                         <th>Nombre</th>
+                        <th>Correo</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -65,8 +66,12 @@
                                 <td>@cliente.Username</td>
                                 <td>@cliente.Rol</td>
                                 <td>@cliente.Nombre</td>
+                                <td>@cliente.Correo</td>
                                 <td class="flex gap-3 items-center">
-                                    <a asp-action="Editar" asp-route-id="@cliente.Username" class="btn-secondary">Editar</a>
+                                    <a href="javascript:void(0)"
+                                       onclick="openEditUserModal('@cliente.Username', '@cliente.Nombre', '@cliente.Correo', '@cliente.Rol', '@cliente.Telefono')"
+                                       class="btn-secondary">Editar</a>
+
                                 </td>
                             </tr>
                         }
@@ -93,19 +98,25 @@
 <div class="modal-overlay" id="clientModal">
     <div class="modal-box">
         <div class="flex items-center justify-between mb-6">
-            <h3 class="font-headline font-bold text-xl" id="clientModalTitle">Nuevo Cliente</h3>
+            <h3 class="font-headline font-bold text-xl" id="clientModalTitle">Nuevo Usuario</h3>
             <button onclick="closeModal('clientModal')" class="btn-icon"><span class="material-symbols-outlined">close</span></button>
         </div>
-        <form asp-action="AgregarCliente" method="post" id="clientForm" class="space-y-4">
+        <form asp-action="AgregarUsuario" method="post" id="clientForm" class="space-y-4">
             <input type="hidden" id="clientId" />
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
+                    <label class="label-float">Rol</label>
+                    <select class="input-field" id="clientStatusFilter" name="Rol" required>
+                        <option value="ADMIN">Administrador</option>
+                        <option value="TRAINER">Entrenador</option>
+                        <option value="RECEPTION">Recepcionista</option>
+                    </select>
                     <label class="label-float">Nombre Completo *</label>
                     <input type="text" name="Nombre" class="input-field" placeholder="Ej: María González Solís" required />
                 </div>
                 <div>
-                    <label class="label-float">Cédula / Identificación *</label>
-                    <input type="text" name="Cedula" class="input-field" placeholder="XXXXXXXXX" required />
+                    <label class="label-float">Cédula</label>
+                    <input type="text" name="Username" class="input-field" placeholder="XXXXXXXXX" required />
                 </div>
                 <div>
                     <label class="label-float">Teléfono *</label>
@@ -115,21 +126,63 @@
                     <label class="label-float">Correo Electrónico *</label>
                     <input type="email" name="Correo" class="input-field" placeholder="correo@ejemplo.com" required />
                 </div>
-                <div>
-                    <label class="label-float">Fecha de Nacimiento</label>
-                    <input type="date" name="fecha_nacimiento" class="input-field" placeholder="dd/MM/yyyy" required />
-                </div>
-                <div>
-                    <label class="label-float">Estado</label>
-                    <select id="clientStatus" name="Estado" class="input-field">
-                        <option value="Activa">Activa</option>
-                        <option value="Vencida">Vencida</option>
-                        <option value="Suspendida">Suspendida</option>
-                    </select>
-                </div>
             </div>
             <div class="flex gap-3 pt-2 justify-end">
                 <button type="button" class="btn-secondary" onclick="closeModal('clientModal')">Cancelar</button>
+                <button type="submit" class="btn-primary">
+                    <span class="material-symbols-outlined text-[16px]">save</span> Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL EDITAR USUARIO -->
+<div class="modal-overlay" id="editUserModal">
+    <div class="modal-box">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="font-headline font-bold text-xl">Editar Usuario</h3>
+            <button onclick="closeModal('editUserModal')" class="btn-icon">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form asp-action="EditarUsuario" method="post" id="editUserForm" class="space-y-4">
+            <input type="hidden" id="editUserId" name="Username" />
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="label-float">Username</label>
+                    <input type="text" id="editUsername" name="Username" class="input-field" readonly />
+                </div>
+
+                <div class="col-span-2">
+                    <label class="label-float">Nombre</label>
+                    <input type="text" id="editNombre" name="Nombre" class="input-field" required />
+                </div>
+
+                <div class="col-span-2">
+                    <label class="label-float">Correo</label>
+                    <input type="email" id="editCorreo" name="Correo" class="input-field" required />
+                </div>
+
+                <div>
+                    <label class="label-float">Teléfono *</label>
+                    <input type="tel" id="editTelefono" name="Telefono" class="input-field" placeholder="8888-8888" required />
+                </div>
+
+                <div class="col-span-2">
+                    <label class="label-float">Rol</label>
+                    <select class="input-field" id="editRol" name="Rol" required>
+                        <option value="ADMIN">Administrador</option>
+                        <option value="TRAINER">Entrenador</option>
+                        <option value="RECEPTION">Recepcionista</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-2 justify-end">
+                <button type="button" class="btn-secondary" onclick="closeModal('editUserModal')">Cancelar</button>
                 <button type="submit" class="btn-primary">
                     <span class="material-symbols-outlined text-[16px]">save</span> Guardar
                 </button>

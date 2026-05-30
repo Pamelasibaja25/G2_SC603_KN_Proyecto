@@ -25,26 +25,50 @@ namespace G2_SC603_KN_Proyecto.Controllers
         }
         #endregion
 
-        #region AgregarCliente
+        #region Agregar Usuario
         [HttpPost]
-        public async Task<IActionResult> AgregarCliente(ClienteResumen nuevoCliente)
+        public async Task<IActionResult> AgregarUsuario(UsuarioNombre nuevoUsuario)
         {
             try
             {
                 await _context.Database.ExecuteSqlRawAsync(
-                "CALL sp_AgregarCliente({0}, {1}, {2}, {3}, {4}, {5})",
-                nuevoCliente.Nombre,
-                nuevoCliente.Cedula,
-                nuevoCliente.Telefono,
-                nuevoCliente.Correo,
-                nuevoCliente.fecha_nacimiento,
-                nuevoCliente.Estado
+                "CALL sp_AgregarUsuario({0}, {1}, {2}, {3}, {4})",
+                nuevoUsuario.Nombre,
+                nuevoUsuario.Telefono,
+                nuevoUsuario.Correo,
+                nuevoUsuario.Rol,
+                nuevoUsuario.Username
             );
-                TempData["SuccessMessage"] = "Cliente agregado correctamente.";
+                TempData["SuccessMessage"] = "Usuario agregado correctamente.";
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Error al agregar el cliente: " + ex.Message;
+                TempData["ErrorMessage"] = "Error al agregar el Usuario: " + ex.Message;
+            }
+
+            return RedirectToAction("MostrarUsuarios");
+        }
+        #endregion
+
+        #region Editar Usuario
+        [HttpPost]
+        public async Task<IActionResult> EditarUsuario(UsuarioNombre nuevoUsuario)
+        {
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync(
+                "CALL sp_EditarUsuario({0}, {1}, {2}, {3}, {4})",
+                nuevoUsuario.Nombre,
+                nuevoUsuario.Telefono,
+                nuevoUsuario.Correo,
+                nuevoUsuario.Rol,
+                nuevoUsuario.Username
+            );
+                TempData["SuccessMessage"] = "Usuario editado correctamente.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error al editar el Usuario: " + ex.Message;
             }
 
             return RedirectToAction("MostrarUsuarios");
