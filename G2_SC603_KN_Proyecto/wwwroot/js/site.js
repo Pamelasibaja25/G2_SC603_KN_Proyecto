@@ -66,24 +66,43 @@
         }
     }
 }
-//VISTA: LOGIN
-document.getElementById("togglePassword").addEventListener("click", function () {
-    const passInput = document.getElementById("loginPass");
-    const icon = document.getElementById("toggleIcon");
 
-    if (passInput.type === "password") {
-        passInput.type = "text";
-        icon.textContent = "visibility"; 
-    } else {
-        passInput.type = "password";
-        icon.textContent = "visibility_off"; 
+// VISTA: LOGIN
+// El togglePassword solo se enlaza si el elemento existe en la pagina actual
+document.addEventListener("DOMContentLoaded", function () {
+    const togglePassword = document.getElementById("togglePassword");
+    if (togglePassword) {
+        togglePassword.addEventListener("click", function () {
+            const passInput = document.getElementById("loginPass");
+            const icon = document.getElementById("toggleIcon");
+            if (passInput.type === "password") {
+                passInput.type = "text";
+                icon.textContent = "visibility";
+            } else {
+                passInput.type = "password";
+                icon.textContent = "visibility_off";
+            }
+        });
     }
 });
 
+// ===================== MODALES GENERICOS =====================
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    modal.style.display = "none";
+    modal.classList.remove("active");
+    modal.querySelectorAll("input").forEach(function (input) { input.value = ""; });
+}
 
+function openClientModal() {
+    const modal = document.getElementById("clientModal");
+    if (!modal) return;
+    modal.classList.add("active");
+    modal.style.display = "flex";
+}
 
-//VISTA: MOSTRAR CLIENTES
-
+// ===================== VISTA: MOSTRAR CLIENTES =====================
 function filterClients() {
     const searchValue = document.getElementById("clientSearch").value.toLowerCase();
     const statusValue = document.getElementById("clientStatusFilter").value;
@@ -92,8 +111,8 @@ function filterClients() {
     let visibleCount = 0;
 
     rows.forEach(row => {
-        const name = row.cells[0].textContent.toLowerCase();
-        const status = row.cells[5].textContent;
+        const name = row.cells[0] ? row.cells[0].textContent.toLowerCase() : "";
+        const status = row.cells[5] ? row.cells[5].textContent : "";
 
         const matchesSearch = name.includes(searchValue);
         const matchesStatus = statusValue === "" || status === statusValue;
@@ -106,33 +125,52 @@ function filterClients() {
         }
     });
 
-    document.getElementById("clientsCount").textContent =
-        `Mostrando ${visibleCount} cliente(s)`;
+    const counter = document.getElementById("clientsCount");
+    if (counter) counter.textContent = `Mostrando ${visibleCount} cliente(s)`;
 }
 
 function openDetailsModal(element) {
-    document.getElementById("detalleNombre").value = element.dataset.nombre;
-    document.getElementById("detalleCedula").value = element.dataset.cedula;
-    document.getElementById("detalleTelefono").value = element.dataset.telefono;
-    document.getElementById("detalleCorreo").value = element.dataset.correo;
-    document.getElementById("detalleFecha").value = element.dataset.fecha;
-    document.getElementById("detalleEstado").value = element.dataset.estado;
-    document.getElementById("detalleMembresia").value = element.dataset.membresia;
-    document.getElementById("detalleVencimiento").value = element.dataset.vencimiento;
-
-    document.getElementById("detailsModal").style.display = "flex";
+    const modal = document.getElementById("detailsModal");
+    if (!modal) return;
+    document.getElementById("detalleNombre").value = element.dataset.nombre || "";
+    document.getElementById("detalleCedula").value = element.dataset.cedula || "";
+    document.getElementById("detalleTelefono").value = element.dataset.telefono || "";
+    document.getElementById("detalleCorreo").value = element.dataset.correo || "";
+    document.getElementById("detalleFecha").value = element.dataset.fecha || "";
+    document.getElementById("detalleEstado").value = element.dataset.estado || "";
+    document.getElementById("detalleMembresia").value = element.dataset.membresia || "";
+    document.getElementById("detalleVencimiento").value = element.dataset.vencimiento || "";
+    modal.classList.add("active");
+    modal.style.display = "flex";
 }
 
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = "none";
-    document.querySelectorAll(`#${modalId} input`).forEach(input => input.value = "");
-}
-function openClientModal() {
-    const modal = document.getElementById("clientModal");
-    modal.classList.add("show");
+function openEditModal(btn) {
+    const modal = document.getElementById("editModal");
+    if (!modal) return;
+    document.getElementById("editIdCliente").value = btn.dataset.id || "";
+    document.getElementById("editNombre").value = btn.dataset.nombre || "";
+    document.getElementById("editCedula").value = btn.dataset.cedula || "";
+    document.getElementById("editTelefono").value = btn.dataset.telefono || "";
+    document.getElementById("editCorreo").value = btn.dataset.correo || "";
+    document.getElementById("editFecha").value = btn.dataset.fecha || "";
+    const selectEstado = document.getElementById("editEstado");
+    if (selectEstado) selectEstado.value = btn.dataset.estado || "Activo";
+    modal.classList.add("active");
+    modal.style.display = "flex";
 }
 
-//VISTA: MOSTRAR USUARIOS
+function confirmarEliminacion(idCliente, nombreCliente) {
+    const modal = document.getElementById("deleteModal");
+    if (!modal) return;
+    document.getElementById("deleteClienteNombre").textContent = nombreCliente;
+    document.getElementById("btnConfirmarEliminar").onclick = function () {
+        document.getElementById("formEliminar_" + idCliente).submit();
+    };
+    modal.classList.add("active");
+    modal.style.display = "flex";
+}
+
+// ===================== VISTA: MOSTRAR USUARIOS =====================
 function filterUsers() {
     const searchValue = document.getElementById("clientSearch").value.toLowerCase();
     const statusValue = document.getElementById("clientStatusFilter").value;
@@ -141,8 +179,8 @@ function filterUsers() {
     let visibleCount = 0;
 
     rows.forEach(row => {
-        const name = row.cells[2].textContent.toLowerCase();
-        const status = row.cells[1].textContent;
+        const name = row.cells[2] ? row.cells[2].textContent.toLowerCase() : "";
+        const status = row.cells[1] ? row.cells[1].textContent : "";
 
         const matchesSearch = name.includes(searchValue);
         const matchesStatus = statusValue === "" || status === statusValue;
@@ -155,17 +193,36 @@ function filterUsers() {
         }
     });
 
-    document.getElementById("clientsCount").textContent =
-        `Mostrando ${visibleCount} usuario(s)`;
+    const counter = document.getElementById("clientsCount");
+    if (counter) counter.textContent = `Mostrando ${visibleCount} usuario(s)`;
 }
 
 function openEditUserModal(username, nombre, correo, rol, telefono) {
+    const modal = document.getElementById("editUserModal");
+    if (!modal) return;
     document.getElementById("editUserId").value = username;
     document.getElementById("editUsername").value = username;
     document.getElementById("editNombre").value = nombre;
     document.getElementById("editCorreo").value = correo;
     document.getElementById("editRol").value = rol;
-    document.getElementById("editTelefono").value = telefono;
+    document.getElementById("editTelefono").value = telefono || "";
+    modal.classList.add("active");
+    modal.style.display = "flex";
+}
 
-    document.getElementById("editUserModal").style.display = "flex";
+// ===================== VISTA: MOSTRAR WOD =====================
+function openWODModal() {
+    const modal = document.getElementById("wodModal");
+    if (!modal) return;
+    const exerciseList = document.getElementById("exerciseList");
+    if (exerciseList) exerciseList.innerHTML = "";
+    const wodNombre = document.getElementById("wodNombre");
+    if (wodNombre) wodNombre.value = "";
+    const wodObjetivo = document.getElementById("wodObjetivo");
+    if (wodObjetivo) wodObjetivo.value = "";
+    const errorEj = document.getElementById("errorEjercicios");
+    if (errorEj) errorEj.classList.add("hidden");
+    if (typeof agregarFilaEjercicio === "function") agregarFilaEjercicio();
+    modal.classList.add("active");
+    modal.style.display = "flex";
 }
