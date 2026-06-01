@@ -1189,3 +1189,98 @@ document.getElementById('reportEndDate').value = new Date().toISOString().slice(
 
     // Actualizar UI con los datos del usuario (igual que antes)...
 })();
+
+// ════════════════════════════════════
+// EQUIPO CRUD
+// ════════════════════════════════════
+
+function openEquipoModal(id = null) {
+    document.getElementById('equipoForm').reset();
+    document.getElementById('equipoId').value = '';
+
+    if (id) {
+        const equipo = Store.get('equipos')
+            .find(e => e.id === id);
+
+        if (!equipo) return;
+
+        document.getElementById('equipoModalTitle')
+            .textContent = 'Editar Equipo';
+
+        document.getElementById('equipoId').value = equipo.id;
+        document.getElementById('equipoNombre').value = equipo.nombre;
+        document.getElementById('equipoDescripcion').value = equipo.descripcion || '';
+
+    } else {
+        document.getElementById('equipoModalTitle')
+            .textContent = 'Agregar Equipo';
+    }
+
+    UIService.openModal('equipoModal');
+}
+
+function editEquipo(id) {
+    openEquipoModal(id);
+}
+
+document.getElementById('equipoForm')
+    .addEventListener('submit', function (e) {
+
+        e.preventDefault();
+
+        const id = document.getElementById('equipoId').value;
+
+        const data = {
+            nombre: document.getElementById('equipoNombre').value.trim(),
+            descripcion: document.getElementById('equipoDescripcion').value.trim()
+        };
+
+        const equipos = Store.get('equipos');
+
+        if (id) {
+            const idx = equipos.findIndex(e => e.id === parseInt(id));
+
+            if (idx !== -1) {
+                equipos[idx] = {
+                    ...equipos[idx],
+                    ...data
+                };
+            }
+
+            UIService.showToast('Equipo actualizado', 'success');
+
+        } else {
+
+            data.id = Store.getNextId('equipos');
+            equipos.unshift(data);
+
+            UIService.showToast('Equipo agregado', 'success');
+        }
+
+        Store.set('equipos', equipos);
+
+        UIService.closeModal('equipoModal');
+
+        Renderer.renderEquipos();
+    });
+
+function confirmDeleteEquipo(id) {
+    UIService.openConfirm(
+        'Eliminar equipo',
+        '¿Eliminar este equipo?',
+        () => {
+            Store.set(
+                'equipos',
+                Store.get('equipos')
+                    .filter(e => e.id !== id)
+            );
+
+            Renderer.renderEquipos();
+
+            UIService.showToast(
+                'Equipo eliminado',
+                'info'
+            );
+        }
+    );
+}

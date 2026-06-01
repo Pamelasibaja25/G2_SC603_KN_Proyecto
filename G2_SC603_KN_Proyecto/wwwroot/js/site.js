@@ -226,3 +226,23 @@ function openWODModal() {
     modal.classList.add("active");
     modal.style.display = "flex";
 }
+
+function openEditEquipoModal(idEquipo, nombre, estado, fechaCompra, costo) {
+
+    const modal = document.getElementById("editEquipoModal");
+
+    if (!modal) return;
+
+    document.getElementById("editIdEquipo").value = idEquipo;
+    document.getElementById("editNombre").value = nombre;
+    document.getElementById("editEstado").value = estado;
+    document.getElementById("editFechaCompra").value = fechaCompra || "";
+    document.getElementById("editCosto").value = costo || "";
+
+    modal.classList.add("active");
+    modal.style.display = "flex";
+}
+
+function openAddEquipoModal() {
+    document.getElementById("addEquipoModal").classList.add("active");
+}
