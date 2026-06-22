@@ -1,0 +1,127 @@
+﻿@model List<G2_SC603_KN_Proyecto.Models.Mantenimiento>
+
+@{
+    Layout = "_Layout";
+    var equipo = ViewBag.Equipo as G2_SC603_KN_Proyecto.Models.Equipo;
+}
+
+<div id="page-historial" class="section-page active p-6 lg:p-8">
+
+    <div class="flex items-center gap-3 mb-6">
+        <a asp-controller="Mantenimiento" asp-action="MostrarMantenimiento" class="btn-icon" title="Volver">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+
+        <div>
+            <h2 class="font-headline text-3xl font-bold tracking-tight">
+                Historial de mantenimientos
+            </h2>
+            <p class="text-on-surface-variant text-xs mt-1">
+                Equipo: @equipo?.Nombre
+            </p>
+        </div>
+    </div>
+
+    <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+
+        <div class="overflow-x-auto">
+
+            <table class="data-table">
+
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Costo</th>
+                        <th>Observaciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        @foreach (var m in Model)
+                        {
+                            <tr class="@(m.Estado == "Completado" ? "row-disabled" : "")" style="cursor:pointer"
+                                onclick="verDetalleMantenimiento(@m.IdMantenimiento)">
+
+                                <td>@m.Tipo</td>
+                                <td>@m.Fecha.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    @if (m.Estado == "Programado")
+                                    {
+                                        <span class="badge-status badge-disponible">Programado</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-status badge-no-disponible">@m.Estado</span>
+                                    }
+                                </td>
+                                <td>@(m.Costo.HasValue ? "₡" + m.Costo : "—")</td>
+                                <td>@m.Descripcion</td>
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <!-- AC2: historial vacio -->
+                        <tr>
+                            <td colspan="5" class="text-center text-on-surface-variant py-6">
+                                Este equipo no tiene mantenimientos registrados.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================== MODAL DETALLE DE MANTENIMIENTO ===================== -->
+<div class="modal-overlay" id="detalleMantenimientoModal">
+
+    <div class="modal-box" style="max-width:420px">
+
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="font-headline font-bold text-xl">Detalle del mantenimiento</h3>
+            <button type="button" class="btn-icon" onclick="closeModal('detalleMantenimientoModal')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <div id="detalleMantenimientoContenido" class="text-sm space-y-2">
+            <!-- Se llena dinamicamente via fetch -->
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    // HU #40 (AC3): muestra el detalle completo de un mantenimiento del historial.
+    function verDetalleMantenimiento(idMantenimiento) {
+        fetch('/Mantenimiento/Detalle/' + idMantenimiento)
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                var html =
+                    '<p><strong>Equipo:</strong> ' + (data.equipo || '—') + '</p>' +
+                    '<p><strong>Tipo:</strong> ' + (data.tipo || '—') + '</p>' +
+                    '<p><strong>Fecha:</strong> ' + (data.fecha || '—') + '</p>' +
+                    '<p><strong>Estado:</strong> ' + (data.estado || '—') + '</p>' +
+                    '<p><strong>Costo:</strong> ' + (data.costo != null ? '₡' + data.costo : '—') + '</p>' +
+                    '<p><strong>Observaciones:</strong> ' + (data.descripcion || '—') + '</p>';
+
+                document.getElementById('detalleMantenimientoContenido').innerHTML = html;
+                openModal('detalleMantenimientoModal');
+            })
+            .catch(function () {
+                showToast('No se pudo cargar el detalle del mantenimiento.', 'error');
+            });
+    }
+</script>

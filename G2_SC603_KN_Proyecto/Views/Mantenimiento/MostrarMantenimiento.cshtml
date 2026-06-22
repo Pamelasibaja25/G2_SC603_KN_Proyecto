@@ -1,0 +1,443 @@
+﻿@model List<G2_SC603_KN_Proyecto.Models.Mantenimiento>
+
+@{
+    Layout = "_Layout";
+    var equipos = ViewBag.Equipos as List<G2_SC603_KN_Proyecto.Models.Equipo>;
+    var responsable = ViewBag.Responsable as string;
+    bool hayConflicto = TempData["ConflictoMantenimiento"] != null;
+}
+
+<div id="page-mantenimiento" class="section-page active p-6 lg:p-8">
+
+    <!-- HEADER -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+
+        <div>
+            <h2 class="font-headline text-3xl font-bold tracking-tight">
+                Mantenimiento de Equipos
+            </h2>
+
+            <p class="text-on-surface-variant text-xs mt-1">
+                Historial y programación de mantenimientos
+            </p>
+        </div>
+
+        <div class="flex gap-3">
+            <a asp-controller="Mantenimiento" asp-action="Disponibilidad" class="btn-secondary py-2.5 text-sm">
+                <span class="material-symbols-outlined text-[16px]">event_available</span>
+                Disponibilidad por fecha
+            </a>
+
+            <button class="btn-primary py-2.5 text-sm" onclick="openNuevoMantenimientoModal()">
+                <span class="material-symbols-outlined text-[16px]">add</span>
+                Nuevo Mantenimiento
+            </button>
+        </div>
+
+    </div>
+
+    @if (TempData["MensajeExito"] != null)
+    {
+        <script>window.__toastData = { message: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["MensajeExito"]!.ToString())), type: "success" };</script>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>window.__toastData = { message: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["ErrorMessage"]!.ToString())), type: "error" };</script>
+    }
+
+    @if (TempData["WarningMessage"] != null)
+    {
+        <script>window.__toastData = { message: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["WarningMessage"]!.ToString())), type: "warning" };</script>
+    }
+
+    <!-- ===================== TABLA DE MANTENIMIENTOS ===================== -->
+    <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+
+        <div class="overflow-x-auto">
+
+            <table class="data-table">
+
+                <thead>
+                    <tr>
+                        <th>Equipo</th>
+                        <th>Tipo</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Costo</th>
+                        <th>Observaciones</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        @foreach (var m in Model)
+                        {
+                            <tr class="@(m.Estado == "Completado" ? "row-disabled" : "")">
+
+                                <td>@m.IdEquipoNavigation?.Nombre</td>
+                                <td>@m.Tipo</td>
+                                <td>@m.Fecha.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    @if (m.Estado == "Programado")
+                                    {
+                                        <span class="badge-status badge-disponible">Programado</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-status badge-no-disponible">@m.Estado</span>
+                                    }
+                                </td>
+                                <td>@(m.Costo.HasValue ? "₡" + m.Costo : "—")</td>
+                                <td>@m.Descripcion</td>
+                                <td>
+                                    <div class="flex gap-2">
+                                        <button type="button" class="btn-icon" title="Ver detalle"
+                                                onclick="verDetalleMantenimiento(@m.IdMantenimiento)">
+                                            <span class="material-symbols-outlined text-[18px]">visibility</span>
+                                        </button>
+
+                                        <a asp-controller="Mantenimiento" asp-action="Historial" asp-route-id="@m.IdEquipo"
+                                           class="btn-icon" title="Historial del equipo">
+                                            <span class="material-symbols-outlined text-[18px]">history</span>
+                                        </a>
+
+                                        @if (m.Estado == "Programado")
+                                        {
+                                            <button type="button" class="btn-icon" title="Marcar como completado"
+                                                    data-id-mantenimiento="@m.IdMantenimiento"
+                                                    data-id-equipo="@m.IdEquipo"
+                                                    data-nombre-equipo="@m.IdEquipoNavigation?.Nombre"
+                                                    onclick="openCompletarModalFromButton(this)">
+                                                <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center text-on-surface-variant py-6">
+                                No hay mantenimientos registrados.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================== MODAL NUEVO MANTENIMIENTO ===================== -->
+<div class="modal-overlay" id="nuevoMantenimientoModal">
+
+    <div class="modal-box">
+
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="font-headline font-bold text-xl">
+                Nuevo Mantenimiento
+            </h3>
+
+            <button type="button" class="btn-icon" onclick="closeModal('nuevoMantenimientoModal')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <form asp-controller="Mantenimiento" asp-action="Programar" method="post" id="formNuevoMantenimiento">
+
+            <div class="grid grid-cols-2 gap-4">
+
+                <div class="col-span-2">
+                    <label class="label-float">Equipo</label>
+                    <select name="idEquipo" id="selectEquipoMantenimiento" class="input-field" required onchange="verificarConflictoMantenimiento()">
+                        <option value="" disabled selected>Seleccione un equipo</option>
+                        @if (equipos != null)
+                        {
+                            @foreach (var eq in equipos)
+                            {
+                                <option value="@eq.IdEquipo" data-estado="@eq.Estado">
+                                    @eq.Nombre (@eq.Estado)
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-span-2">
+                    <label class="label-float">Tipo de mantenimiento</label>
+                    <select name="tipo" class="input-field" required>
+                        <option value="" disabled selected>Seleccione un tipo</option>
+                        <option value="Preventivo">Preventivo</option>
+                        <option value="Correctivo">Correctivo</option>
+                        <option value="Calibracion">Calibración</option>
+                        <option value="Limpieza">Limpieza</option>
+                    </select>
+                </div>
+
+                <div class="col-span-2">
+                    <label class="label-float">Fecha programada</label>
+                    <input type="date" name="fecha" id="fechaMantenimiento" class="input-field" required onchange="verificarConflictoMantenimiento()" />
+                </div>
+
+                <div class="col-span-2">
+                    <label class="label-float">Observaciones</label>
+                    <textarea name="descripcion" class="input-field" rows="2" placeholder="Detalles del mantenimiento (opcional)"></textarea>
+                </div>
+
+                <div class="col-span-2">
+                    <label class="label-float">Costo estimado (opcional)</label>
+                    <input type="number" name="costo" step="0.01" min="0" class="input-field" placeholder="0.00" />
+                </div>
+
+                <div class="col-span-2">
+                    <label class="label-float">Responsable</label>
+                    <input type="text" class="input-field" value="@responsable" disabled />
+                    <p class="text-xs text-on-surface-variant mt-1">
+                        Se asigna automáticamente según el usuario que inició sesión.
+                    </p>
+                </div>
+
+                <div class="col-span-2" id="avisoConflicto" style="display:none;">
+                    <div class="bg-amber-600/20 border border-amber-600 text-amber-300 text-xs rounded-lg p-3">
+                        ⚠️ Este equipo ya tiene un mantenimiento programado para la fecha seleccionada.
+                        Puedes continuar, pero se te pedirá confirmación.
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+
+                <button type="button" class="btn-secondary" onclick="closeModal('nuevoMantenimientoModal')">
+                    Cancelar
+                </button>
+
+                <button type="submit" class="btn-primary">
+                    Guardar
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- ===================== MODAL MARCAR COMO COMPLETADO ===================== -->
+<div class="modal-overlay" id="completarMantenimientoModal">
+
+    <div class="modal-box">
+
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="font-headline font-bold text-xl">
+                Registrar mantenimiento realizado
+            </h3>
+
+            <button type="button" class="btn-icon" onclick="closeModal('completarMantenimientoModal')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <p class="text-on-surface-variant text-sm mb-4" id="completarEquipoNombre"></p>
+
+        <form asp-controller="Mantenimiento" asp-action="RegistrarRealizado" method="post" id="formCompletarMantenimiento">
+
+            <input type="hidden" name="idMantenimientoProgramado" id="completarIdMantenimiento" />
+            <input type="hidden" name="idEquipo" id="completarIdEquipo" />
+
+            <div class="grid grid-cols-2 gap-4">
+
+                <div class="col-span-2">
+                    <label class="label-float">Tipo de mantenimiento</label>
+                    <select name="tipo" id="completarTipo" class="input-field" required>
+                        <option value="Preventivo">Preventivo</option>
+                        <option value="Correctivo">Correctivo</option>
+                        <option value="Calibracion">Calibración</option>
+                        <option value="Limpieza">Limpieza</option>
+                    </select>
+                </div>
+
+                <div class="col-span-2">
+                    <label class="label-float">Fecha realizada</label>
+                    <input type="date" name="fecha" id="completarFecha" class="input-field" required />
+                </div>
+
+                <div class="col-span-2">
+                    <label class="label-float">Costo</label>
+                    <input type="number" name="costo" step="0.01" min="0" class="input-field" placeholder="0.00" />
+                </div>
+
+                <div class="col-span-2">
+                    <label class="label-float">Observaciones</label>
+                    <textarea name="descripcion" class="input-field" rows="2" placeholder="Detalles del mantenimiento realizado"></textarea>
+                </div>
+
+                <div class="col-span-2">
+                    <label class="label-float">Responsable</label>
+                    <input type="text" class="input-field" value="@responsable" disabled />
+                </div>
+
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+                <button type="button" class="btn-secondary" onclick="closeModal('completarMantenimientoModal')">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn-primary">
+                    Guardar
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- ===================== MODAL DETALLE DE MANTENIMIENTO ===================== -->
+<div class="modal-overlay" id="detalleMantenimientoModal">
+
+    <div class="modal-box" style="max-width:420px">
+
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="font-headline font-bold text-xl">Detalle del mantenimiento</h3>
+            <button type="button" class="btn-icon" onclick="closeModal('detalleMantenimientoModal')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <div id="detalleMantenimientoContenido" class="text-sm space-y-2">
+            <!-- Se llena dinamicamente via fetch -->
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================== MODAL CONFIRMAR CONFLICTO ===================== -->
+<div class="modal-overlay" id="confirmarConflictoModal">
+
+    <div class="modal-box" style="max-width:420px">
+
+        <div class="flex items-center gap-3 mb-4">
+            <span class="material-symbols-outlined text-amber-400 text-[28px]">warning</span>
+            <h3 class="font-headline font-bold text-lg">Mantenimiento ya programado</h3>
+        </div>
+
+        <p class="text-on-surface-variant text-sm mb-6">
+            Ya existe un mantenimiento programado para este equipo en la fecha indicada.
+            ¿Deseas continuar de todos modos?
+        </p>
+
+        <form asp-controller="Mantenimiento" asp-action="Programar" method="post" id="formConfirmarConflicto">
+            <input type="hidden" name="idEquipo" id="conflictoIdEquipo" />
+            <input type="hidden" name="fecha" id="conflictoFecha" />
+            <input type="hidden" name="tipo" id="conflictoTipo" />
+            <input type="hidden" name="descripcion" id="conflictoDescripcion" />
+            <input type="hidden" name="costo" id="conflictoCosto" />
+            <input type="hidden" name="confirmarConflicto" value="true" />
+
+            <div class="flex gap-3 justify-end">
+                <button type="button" class="btn-secondary" onclick="closeModal('confirmarConflictoModal')">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn-primary">
+                    Sí, continuar
+                </button>
+            </div>
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+    function openNuevoMantenimientoModal() {
+        openModal('nuevoMantenimientoModal');
+    }
+
+    // Avisa en el formulario si el equipo + fecha elegidos ya tienen
+    // un mantenimiento programado (sin bloquear la seleccion).
+    function verificarConflictoMantenimiento() {
+        var idEquipo = document.getElementById('selectEquipoMantenimiento').value;
+        var fecha = document.getElementById('fechaMantenimiento').value;
+        var aviso = document.getElementById('avisoConflicto');
+
+        if (!idEquipo || !fecha) {
+            aviso.style.display = 'none';
+            return;
+        }
+
+        fetch('/Mantenimiento/VerificarConflicto?idEquipo=' + idEquipo + '&fecha=' + fecha)
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                aviso.style.display = data.conflicto ? 'block' : 'none';
+            })
+            .catch(function () { aviso.style.display = 'none'; });
+    }
+
+    // HU #39: abre el modal de "registrar mantenimiento realizado" precargado
+    // con los datos del mantenimiento programado que se va a cerrar.
+    function openCompletarModalFromButton(button) {
+        var idMantenimiento = button.getAttribute('data-id-mantenimiento');
+        var idEquipo = button.getAttribute('data-id-equipo');
+        var nombreEquipo = button.getAttribute('data-nombre-equipo');
+
+        document.getElementById('completarIdMantenimiento').value = idMantenimiento;
+        document.getElementById('completarIdEquipo').value = idEquipo;
+        document.getElementById('completarEquipoNombre').textContent = 'Equipo: ' + nombreEquipo;
+
+        var hoy = new Date().toISOString().split('T')[0];
+        document.getElementById('completarFecha').value = hoy;
+
+        openModal('completarMantenimientoModal');
+    }
+
+    // HU #40 (AC3): muestra el detalle completo de un mantenimiento del historial.
+    function verDetalleMantenimiento(idMantenimiento) {
+        fetch('/Mantenimiento/Detalle/' + idMantenimiento)
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                var html =
+                    '<p><strong>Equipo:</strong> ' + (data.equipo || '—') + '</p>' +
+                    '<p><strong>Tipo:</strong> ' + (data.tipo || '—') + '</p>' +
+                    '<p><strong>Fecha:</strong> ' + (data.fecha || '—') + '</p>' +
+                    '<p><strong>Estado:</strong> ' + (data.estado || '—') + '</p>' +
+                    '<p><strong>Costo:</strong> ' + (data.costo != null ? '₡' + data.costo : '—') + '</p>' +
+                    '<p><strong>Observaciones:</strong> ' + (data.descripcion || '—') + '</p>';
+
+                document.getElementById('detalleMantenimientoContenido').innerHTML = html;
+                openModal('detalleMantenimientoModal');
+            })
+            .catch(function () {
+                showToast('No se pudo cargar el detalle del mantenimiento.', 'error');
+            });
+    }
+
+    // Si el servidor detecto un conflicto al intentar guardar (AC3),
+    // se reabre el modal de confirmacion con los datos que el usuario ya habia llenado.
+    @if (hayConflicto)
+    {
+        <text>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('conflictoIdEquipo').value = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["ConflictoEquipo"]?.ToString() ?? ""));
+            document.getElementById('conflictoFecha').value = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["ConflictoFecha"]?.ToString() ?? ""));
+            document.getElementById('conflictoTipo').value = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["ConflictoTipo"]?.ToString() ?? ""));
+            document.getElementById('conflictoDescripcion').value = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["ConflictoDescripcion"]?.ToString() ?? ""));
+            document.getElementById('conflictoCosto').value = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["ConflictoCosto"]?.ToString() ?? ""));
+            openModal('confirmarConflictoModal');
+        });
+        </text>
+    }
+</script>

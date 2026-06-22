@@ -1,0 +1,118 @@
+﻿@{
+    Layout = "_Layout";
+    DateOnly fechaConsulta = (DateOnly)ViewBag.FechaConsulta;
+    var disponibles = ViewBag.Disponibles as List<G2_SC603_KN_Proyecto.Models.Equipo>;
+    var noDisponibles = ViewBag.NoDisponibles as List<G2_SC603_KN_Proyecto.Controllers.EquipoNoDisponibleViewModel>;
+}
+
+<div id="page-disponibilidad" class="section-page active p-6 lg:p-8">
+
+    <div class="flex items-center gap-3 mb-6">
+        <a asp-controller="Mantenimiento" asp-action="MostrarMantenimiento" class="btn-icon" title="Volver">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+
+        <div>
+            <h2 class="font-headline text-3xl font-bold tracking-tight">
+                Disponibilidad de equipos
+            </h2>
+            <p class="text-on-surface-variant text-xs mt-1">
+                Consulta equipos disponibles para una fecha especifica
+            </p>
+        </div>
+    </div>
+
+    <!-- HU #45 - selector de fecha -->
+    <form asp-controller="Mantenimiento" asp-action="Disponibilidad" method="get" class="flex gap-3 items-end mb-6">
+        <div>
+            <label class="label-float">Fecha de consulta</label>
+            <input type="date" name="fecha" class="input-field" value="@fechaConsulta.ToString("yyyy-MM-dd")" required />
+        </div>
+        <button type="submit" class="btn-primary py-2.5 text-sm">
+            Consultar
+        </button>
+    </form>
+
+    @{
+        bool sinEquiposDisponibles = (disponibles == null || disponibles.Count == 0);
+    }
+
+    @if (sinEquiposDisponibles)
+    {
+        <!-- AC3: sin equipos disponibles para la fecha seleccionada -->
+        <div class="bg-surface-container rounded-2xl p-6 mb-6 text-center text-on-surface-variant">
+            No hay equipos disponibles para la fecha seleccionada (@fechaConsulta.ToString("dd/MM/yyyy")).
+        </div>
+    }
+    else
+    {
+        <!-- AC1: equipos disponibles -->
+        <h3 class="font-headline text-lg font-semibold mb-3">
+            Equipos disponibles (@disponibles!.Count)
+        </h3>
+
+        <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)] mb-8">
+            <div class="overflow-x-auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Equipo</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var eq in disponibles)
+                        {
+                            <tr>
+                                <td>@eq.Nombre</td>
+                                <td><span class="badge-status badge-disponible">@eq.Estado</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <!-- AC2: equipos no disponibles, con motivo -->
+    <h3 class="font-headline text-lg font-semibold mb-3">
+        Equipos no disponibles
+    </h3>
+
+    <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+        <div class="overflow-x-auto">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Equipo</th>
+                        <th>Motivo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        bool hayNoDisponibles = (noDisponibles != null && noDisponibles.Count > 0);
+                    }
+                    @if (hayNoDisponibles)
+                    {
+                        @foreach (var item in noDisponibles!)
+                        {
+                            <tr>
+                                <td>@item.Equipo?.Nombre</td>
+                                <td>@item.Motivo</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2" class="text-center text-on-surface-variant py-6">
+                                Todos los equipos estan disponibles para esta fecha.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
