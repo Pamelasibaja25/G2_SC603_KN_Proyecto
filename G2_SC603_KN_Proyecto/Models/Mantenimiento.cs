@@ -9,6 +9,8 @@ public partial class Mantenimiento
 
     public int IdEquipo { get; set; }
 
+    public string Tipo { get; set; } = null!;
+
     public DateOnly Fecha { get; set; }
 
     public string? Descripcion { get; set; }

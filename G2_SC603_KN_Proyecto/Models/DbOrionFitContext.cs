@@ -371,6 +371,9 @@ public partial class DbOrionFitContext : DbContext
             entity.HasIndex(e => e.IdEquipo, "FK_Mantenimiento_Equipo");
 
             entity.Property(e => e.IdMantenimiento).HasColumnName("id_mantenimiento");
+            entity.Property(e => e.Tipo)
+                .HasColumnType("enum('Preventivo','Correctivo','Calibracion','Limpieza')")
+                .HasColumnName("tipo");
             entity.Property(e => e.Costo)
                 .HasPrecision(10, 2)
                 .HasColumnName("costo");
