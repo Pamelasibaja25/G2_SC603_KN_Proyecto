@@ -238,4 +238,19 @@ CREATE TABLE Detalle_Venta (
     CONSTRAINT FK_DetalleVenta_Venta FOREIGN KEY (id_venta) REFERENCES Venta(id_venta),
     CONSTRAINT FK_DetalleVenta_Inventario FOREIGN KEY (id_producto) REFERENCES Inventario(id_producto)
 );
+/* =========================================================
+   TABLA NOTIFICACION
+========================================================= */
+CREATE TABLE Notificacion (
+    id_notificacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_cliente INT NOT NULL,
+    tipo VARCHAR(30) NOT NULL,
+    titulo VARCHAR(100) NOT NULL,
+    mensaje VARCHAR(255) NOT NULL,
+    fecha DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    leida BOOLEAN NOT NULL DEFAULT FALSE,
 
+    CONSTRAINT FK_Notificacion_Cliente
+        FOREIGN KEY (id_cliente)
+        REFERENCES Cliente(id_cliente)
+);
