@@ -63,9 +63,28 @@
                     <a asp-controller="Mantenimiento"  asp-action="MostrarMantenimiento" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="maintenance">
                         <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">build</span> Mantenimiento
                     </a>
-                    <a asp-controller="Reportes" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="reports">
-                        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">assessment</span> Reportes
-                    </a>
+                    <div>
+                        <a asp-controller="Reportes" asp-action="Index"
+                           class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer"
+                           data-section="reports">
+                            <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">
+                                assessment
+                            </span>
+                            Reportes
+                        </a>
+
+                        <!-- Submenú -->
+                        <div class="ml-8">
+                            <a asp-controller="Reportes"
+                               asp-action="Membresia"
+                               class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer">
+                                <span class="material-symbols-outlined text-[18px]">
+                                    arrow_right
+                                </span>
+                                Reportes Membresía
+                            </a>
+                        </div>
+                    </div>
                     <a asp-controller="Usuarios" asp-action="MostrarUsuarios" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider cursor-pointer" data-section="users">
                         <span class="material-symbols-outlined text-[22px]" style="font-variation-settings:'wght' 300">person</span> Usuarios
                     </a>

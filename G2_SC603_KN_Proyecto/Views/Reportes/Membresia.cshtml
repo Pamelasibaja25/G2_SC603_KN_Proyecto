@@ -1,0 +1,110 @@
+﻿@model List<G2_SC603_KN_Proyecto.Models.ReporteMembresiaViewModel>
+
+@{
+    Layout = "_Layout";
+}
+<div id="page-reports" class="section-page active p-6 lg:p-8">
+<form asp-action="Membresia" method="get">
+
+    <div class="flex flex-wrap gap-4 items-end">
+
+        <div class="flex-1 min-w-40">
+
+            <label class="label-float">
+                Estado
+            </label>
+
+                <select name="estado" class="input-field" id="reporteStatusFilter" onchange="filterReportMembresia()">
+
+                <option value="">--Seleccione Una Opción--</option>
+                    <option value="Todos">Todos</option>
+                <option value="Activa">Activa</option>
+
+                <option value="Vencida">Vencida</option>
+
+                <option value="Cancelada">Cancelada</option>
+
+            </select>
+
+        </div>
+
+        <button class="btn-primary">
+            Generar Reporte
+        </button>
+
+    </div>
+
+</form>
+
+<table class="data-table">
+
+    <thead>
+
+        <tr>
+
+            <th>Cédula</th>
+            <th>Cliente</th>
+            <th>Teléfono</th>
+            <th>Correo</th>
+            <th>Membresía</th>
+            <th>Precio</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Estado</th>
+
+        </tr>
+
+    </thead>
+
+        <tbody id="clientsTableBody">
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td>@item.Cedula</td>
+
+                <td>@item.NombreCliente</td>
+
+                <td>@item.Telefono</td>
+
+                <td>@item.Correo</td>
+
+                <td>@item.Membresia</td>
+
+                <td>₡ @item.Precio.ToString("N2")</td>
+
+                <td>@item.FechaInicio.ToString("dd/MM/yyyy")</td>
+
+                <td>@item.FechaFin.ToString("dd/MM/yyyy")</td>
+
+                <td>
+
+                    @if (item.Estado == "Activa")
+                    {
+                        <span class="badge badge-success">
+                            @item.Estado
+                        </span>
+                    }
+                    else if (item.Estado == "Vencida")
+                    {
+                        <span class="badge badge-error">
+                            @item.Estado
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-warning">
+                            @item.Estado
+                        </span>
+                    }
+
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+</div>

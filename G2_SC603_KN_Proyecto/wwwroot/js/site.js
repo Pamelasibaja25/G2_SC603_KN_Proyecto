@@ -114,6 +114,24 @@ function showTab(tabId) {
     event.target.classList.add('active');
 }
 
+//===================== VISTA: REPORTE MEMBRESIA =====================
+function filterReportMembresia() {
+    const statusValue = document.getElementById("reporteStatusFilter").value;
+    const rows = document.querySelectorAll("#clientsTableBody tr");
+
+    rows.forEach(row => {
+        const status = row.cells[8] ? row.cells[8].textContent.trim() : "";
+        const matchesStatus = statusValue === "" || status === statusValue ||
+            statusValue === "Todos";
+
+        if (matchesStatus) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+}
+
 // ===================== VISTA: MOSTRAR CLIENTES =====================
 function filterClients() {
     const searchValue = document.getElementById("clientSearch").value.toLowerCase();
