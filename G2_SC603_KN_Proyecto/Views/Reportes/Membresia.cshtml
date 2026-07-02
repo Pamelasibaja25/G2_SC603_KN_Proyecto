@@ -2,8 +2,90 @@
 
 @{
     Layout = "_Layout";
+    var totalClientes = Model.Select(x => x.Cedula).Distinct().Count();
+    var totalMembresias = Model.Count();
+    var membresiasActivas = Model.Count(x => x.Estado == "Activa");
+    var membresiasVencidas = Model.Count(x => x.Estado == "Vencida");
 }
 <div id="page-reports" class="section-page active p-6 lg:p-8">
+    <div class="mb-8">
+        <h2 class="font-headline text-3xl font-bold tracking-tight">Reporte: Membresía</h2>
+        <p class="text-on-surface-variant text-xs mt-1">RMGM-DASH-007 al RMGM-DASH-009</p>
+    </div>
+
+    <!-- Cards Resumen -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+        <div class="bg-surface-container rounded-2xl p-5 shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-on-surface-variant uppercase">
+                        Clientes
+                    </p>
+                    <h3 class="text-3xl font-bold mt-2">
+                        @totalClientes
+                    </h3>
+                </div>
+
+                <span class="material-symbols-outlined text-4xl text-primary">
+                    groups
+                </span>
+            </div>
+        </div>
+
+        <div class="bg-surface-container rounded-2xl p-5 shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-on-surface-variant uppercase">
+                        Membresías
+                    </p>
+                    <h3 class="text-3xl font-bold mt-2">
+                        @totalMembresias
+                    </h3>
+                </div>
+
+                <span class="material-symbols-outlined text-4xl text-primary">
+                    card_membership
+                </span>
+            </div>
+        </div>
+
+        <div class="bg-surface-container rounded-2xl p-5 shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-on-surface-variant uppercase">
+                        Activas
+                    </p>
+                    <h3 class="text-3xl font-bold text-green-600 mt-2">
+                        @membresiasActivas
+                    </h3>
+                </div>
+
+                <span class="material-symbols-outlined text-4xl text-green-600">
+                    check_circle
+                </span>
+            </div>
+        </div>
+
+        <div class="bg-surface-container rounded-2xl p-5 shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-on-surface-variant uppercase">
+                        Vencidas
+                    </p>
+                    <h3 class="text-3xl font-bold text-red-600 mt-2">
+                        @membresiasVencidas
+                    </h3>
+                </div>
+
+                <span class="material-symbols-outlined text-4xl text-red-600">
+                    warning
+                </span>
+            </div>
+        </div>
+
+    </div>
+
 <form asp-action="Membresia" method="get">
 
     <div class="flex flex-wrap gap-4 items-end">
