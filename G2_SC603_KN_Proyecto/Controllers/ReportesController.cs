@@ -103,6 +103,69 @@ namespace G2_SC603_KN_Proyecto.Controllers
         }
         #endregion
 
+        #region Reporte Cliente
+        public IActionResult Cliente(string estado = "")
+        {
+            var reporte = (from c in _context.Clientes
+                           select new Cliente
+                           {
+                               IdCliente = c.IdCliente,
+                               Cedula = c.Cedula,
+                               Nombre = c.Nombre,
+                               Telefono = c.Telefono,
+                               Correo = c.Correo,
+                               Estado = c.Estado
+                           });
 
-}
+            if (!string.IsNullOrEmpty(estado))
+            {
+                if (estado != "Todos")
+                {
+                    reporte = reporte.Where(x => x.Estado == estado);
+                }
+                using (var workbook = new XLWorkbook())
+                {
+                    var ws = workbook.Worksheets.Add("Reporte Clientes");
+
+                    // Encabezados
+                    ws.Cell(1, 1).Value = "Cédula";
+                    ws.Cell(1, 2).Value = "Cliente";
+                    ws.Cell(1, 3).Value = "Teléfono";
+                    ws.Cell(1, 4).Value = "Correo";
+                    ws.Cell(1, 5).Value = "Estado";
+
+                    int fila = 2;
+
+                    foreach (var item in reporte)
+                    {
+                        ws.Cell(fila, 1).Value = item.Cedula;
+                        ws.Cell(fila, 2).Value = item.Nombre;
+                        ws.Cell(fila, 3).Value = item.Telefono;
+                        ws.Cell(fila, 4).Value = item.Correo;
+                        ws.Cell(fila, 5).Value = item.Estado;
+
+                        fila++;
+                    }
+
+                    ws.Columns().AdjustToContents();
+
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+
+                        var contenido = stream.ToArray();
+
+                        return File(
+                            contenido,
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            $"Reporte_Clientes_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
+                    }
+
+                }
+            }
+
+            return View(reporte.ToList());
+        }
+        #endregion
+    }
 }

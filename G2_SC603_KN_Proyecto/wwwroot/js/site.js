@@ -132,6 +132,24 @@ function filterReportMembresia() {
     });
 }
 
+//===================== VISTA: REPORTE CLIENTES =====================
+function filterReportCliente() {
+    const statusValue = document.getElementById("reporteStatusFilter").value;
+    const rows = document.querySelectorAll("#clientsTableBody tr");
+
+    rows.forEach(row => {
+        const status = row.cells[4] ? row.cells[4].textContent.trim() : "";
+        const matchesStatus = statusValue === "" || status === statusValue ||
+            statusValue === "Todos";
+
+        if (matchesStatus) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+}
+
 // ===================== VISTA: MOSTRAR CLIENTES =====================
 function filterClients() {
     const searchValue = document.getElementById("clientSearch").value.toLowerCase();
