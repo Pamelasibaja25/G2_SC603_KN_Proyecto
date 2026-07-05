@@ -329,6 +329,72 @@ function openEditModalMembresia(btn) {
     modal.classList.add("active");
     modal.style.display = "flex";
 }
+async function mostrarHistorial(idCliente) {
+
+    const respuesta = await fetch('/Membresia/ObtenerHistorial?idCliente=' + idCliente);
+    const datos = await respuesta.json();
+
+    let html = "";
+
+    if (datos.length === 0) {
+
+        html = `
+            <tr>
+                <td colspan="3" class="text-center text-outline py-4">
+                    No hay datos registrados.
+                </td>
+            </tr>`;
+    }
+    else {
+
+        datos.forEach(x => {
+            html += `
+                <tr>
+                    <td>${x.membresia}</td>
+                    <td>${x.fechaInicio.substring(0, 10)}</td>
+                    <td>${x.fechaFin.substring(0, 10)}</td>
+                </tr>`;
+        });
+    }
+
+    document.getElementById("tablaHistorial").innerHTML = html;
+
+    openModal("historialModal");
+}
+async function mostrarMembresiasProximas() {
+
+    const respuesta = await fetch('/Membresia/ObtenerMembresiasProximas');
+    const datos = await respuesta.json();
+
+    let html = "";
+
+    if (datos.length === 0) {
+
+        html = `
+            <tr>
+                <td colspan="4" class="text-center py-4 text-outline">
+                    No hay membresías a vencer.
+                </td>
+            </tr>`;
+    }
+    else {
+
+        datos.forEach(x => {
+
+            html += `
+                <tr>
+                    <td>${x.cliente}</td>
+                    <td>${x.membresia}</td>
+                    <td>${x.fechaFin.substring(0, 10)}</td>
+                    <td>${x.diasRestantes} días</td>
+                </tr>`;
+        });
+    }
+
+    document.getElementById("tablaProximas").innerHTML = html;
+
+    openModal("proximasModal");
+}
 
 // ===================== VISTA: MOSTRAR USUARIOS =====================
 function filterUsers() {

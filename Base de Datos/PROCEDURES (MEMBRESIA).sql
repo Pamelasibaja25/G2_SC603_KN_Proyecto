@@ -3,6 +3,8 @@ DROP PROCEDURE IF EXISTS sp_ObtenerClientesMembresias;
 DROP PROCEDURE IF EXISTS sp_ActualizarEstadosMembresias;
 DROP PROCEDURE IF EXISTS sp_AgregarClienteMembresia;
 DROP PROCEDURE IF EXISTS sp_ActualizarClienteMembresia;
+DROP PROCEDURE IF EXISTS sp_ObtenerHistorialMembresia;
+DROP PROCEDURE IF EXISTS sp_ObtenerMembresiasProximasVencer;
 
 /*EVENTS*/
 CREATE EVENT IF NOT EXISTS EventoActualizarEstados
@@ -92,6 +94,21 @@ CREATE PROCEDURE sp_ActualizarClienteMembresia(
     IN p_estado VARCHAR(20)
 )
 BEGIN
+    -- Guardar la información actual en el historial
+    INSERT INTO historial_membresias (
+        id_cliente,
+        id_membresia,
+        fecha_inicio,
+        fecha_fin
+    )
+    SELECT
+        id_cliente,
+        id_membresia,
+        fecha_inicio,
+        fecha_fin
+    FROM Cliente_Membresia
+    WHERE id_cliente = p_id_cliente;
+    
     -- Actualiza la membresía del cliente si existe
     UPDATE Cliente_Membresia
     SET id_membresia = p_id_membresia,
@@ -99,9 +116,57 @@ BEGIN
         fecha_fin = p_fecha_fin,
         estado = p_estado
     WHERE id_cliente = p_id_cliente;
+    
 END$$
 
 DELIMITER ;
 
+DELIMITER $$
+
+CREATE PROCEDURE sp_ObtenerHistorialMembresia(
+    IN p_id_cliente INT
+)
+BEGIN
+    SELECT
+        h.id_historial,
+        h.id_cliente,
+        c.nombre AS Cliente,
+        h.id_membresia,
+        m.nombre AS Membresia,
+        h.fecha_inicio,
+        h.fecha_fin
+    FROM historial_membresias h
+    INNER JOIN Cliente c
+        ON h.id_cliente = c.id_cliente
+    INNER JOIN Membresia m
+        ON h.id_membresia = m.id_membresia
+    WHERE h.id_cliente = p_id_cliente
+    ORDER BY h.id_historial DESC;
+END$$
+
+DELIMITER ;
+DELIMITER $$
+
+CREATE PROCEDURE sp_ObtenerMembresiasProximasVencer()
+BEGIN
+
+    SELECT
+        cm.id_cliente AS IdCliente,
+        c.nombre AS Cliente,
+        m.nombre AS Membresia,
+        cm.fecha_fin AS FechaFin,
+        DATEDIFF(cm.fecha_fin, CURDATE()) AS DiasRestantes
+    FROM Cliente_Membresia cm
+        INNER JOIN Cliente c
+            ON c.id_cliente = cm.id_cliente
+        INNER JOIN Membresia m
+            ON m.id_membresia = cm.id_membresia
+    WHERE cm.estado = 'Activa'
+        AND cm.fecha_fin BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 15 DAY)
+    ORDER BY cm.fecha_fin ASC;
+
+END$$
+
+DELIMITER ;
 
 

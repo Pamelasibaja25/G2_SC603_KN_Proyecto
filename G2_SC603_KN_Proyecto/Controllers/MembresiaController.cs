@@ -79,5 +79,27 @@ namespace G2_SC603_KN_Proyecto.Controllers
             return RedirectToAction("MostrarMembresia");
         }
         #endregion
+
+        #region Mostrar Historial
+        public async Task<IActionResult> ObtenerHistorial(int idCliente)
+        {
+            var historial = await _context.HistorialMembresias
+                .FromSqlRaw("CALL sp_ObtenerHistorialMembresia({0})", idCliente)
+                .ToListAsync();
+
+            return Json(historial);
+        }
+        #endregion
+
+        #region Mostrar Membresías a Vencer
+        public async Task<IActionResult> ObtenerMembresiasProximas()
+        {
+            var lista = await _context.MembresiasProximasVencer
+                .FromSqlRaw("CALL sp_ObtenerMembresiasProximasVencer()")
+                .ToListAsync();
+
+            return Json(lista);
+        }
+        #endregion
     }
 }

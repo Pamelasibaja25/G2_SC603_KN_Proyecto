@@ -15,7 +15,8 @@ public partial class DbOrionFitContext : DbContext
         : base(options)
     {
     }
-
+    public virtual DbSet<MembresiaProximaVencer> MembresiasProximasVencer { get; set; }
+    public virtual DbSet<HistorialMembresia> HistorialMembresias { get; set; }
     public virtual DbSet<Administrador> Administradors { get; set; }
 
     public virtual DbSet<Asistencium> Asistencia { get; set; }
@@ -69,6 +70,22 @@ public partial class DbOrionFitContext : DbContext
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<HistorialMembresia>(entity =>
+        {
+            entity.HasKey(e => e.IdHistorial);
+
+            entity.ToTable("historial_membresias");
+
+            entity.Property(e => e.IdHistorial).HasColumnName("id_historial");
+            entity.Property(e => e.IdCliente).HasColumnName("id_cliente");
+            entity.Property(e => e.IdMembresia).HasColumnName("id_membresia");
+            entity.Property(e => e.FechaInicio).HasColumnName("fecha_inicio");
+            entity.Property(e => e.FechaFin).HasColumnName("fecha_fin");
+
+            entity.HasOne(d => d.Cliente)
+                .WithMany()
+                .HasForeignKey(d => d.IdCliente);
+        });
         modelBuilder
             .UseCollation("utf8mb4_0900_ai_ci")
             .HasCharSet("utf8mb4");
@@ -77,6 +94,7 @@ public partial class DbOrionFitContext : DbContext
         modelBuilder.Entity<UsuarioNombre>().HasNoKey();
         modelBuilder.Entity<EjercicioResumen>().HasNoKey();
         modelBuilder.Entity<WodResumen>().HasNoKey();
+        modelBuilder.Entity<MembresiaProximaVencer>().HasNoKey();
         modelBuilder.Entity<Administrador>(entity =>
         {
             entity.HasKey(e => e.IdAdministrador).HasName("PRIMARY");

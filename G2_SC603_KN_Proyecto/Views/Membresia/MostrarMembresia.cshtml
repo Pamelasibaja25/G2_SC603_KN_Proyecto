@@ -41,6 +41,13 @@
             <button class="btn-primary py-2.5 text-sm" onclick="openModal('membershipModal')">
                 <span class="material-symbols-outlined text-[18px]">add</span> Nueva Membresía
             </button>
+            <button class="btn-secondary py-2.5 text-sm"
+                    onclick="mostrarMembresiasProximas()">
+                <span class="material-symbols-outlined text-[18px]">
+                    notifications
+                </span>
+                Próximas a Vencer
+            </button>
         }
     </div>
 
@@ -87,7 +94,10 @@
                                         </button>
                                     }
 
-                                   
+                                    <button class="btn-primary text-xs py-1 px-2"
+                                            onclick="mostrarHistorial(@cliente.IdCliente)">
+                                        Historial
+                                    </button>
                                 </td>
                             </tr>
                         }
@@ -213,5 +223,66 @@
                 </button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- ===================== MODAL HISTORIAL MEMBRESIA ===================== -->
+<div class="modal-overlay" id="historialModal">
+    <div class="modal-box" style="max-width:900px">
+
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-headline font-bold text-xl">
+                Historial de Membresías
+            </h3>
+
+            <button onclick="closeModal('historialModal')" class="btn-icon">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Membresía</th>
+                    <th>Inicio</th>
+                    <th>Fin</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaHistorial">
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+<!-- ===================== MODAL MEMBRESIAS POR VENCER ===================== -->
+<div class="modal-overlay" id="proximasModal">
+    <div class="modal-box" style="max-width:900px">
+
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-headline font-bold text-xl">
+                Membresías Próximas a Vencer (Dentro de los 15 Días)
+            </h3>
+
+            <button onclick="closeModal('proximasModal')" class="btn-icon">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Membresía</th>
+                    <th>Vence</th>
+                    <th>Días restantes</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaProximas">
+            </tbody>
+        </table>
+
     </div>
 </div>

@@ -254,3 +254,19 @@ CREATE TABLE Notificacion (
         FOREIGN KEY (id_cliente)
         REFERENCES Cliente(id_cliente)
 );
+/* =========================================================
+   TABLA HISTORIAL MEMBRESÍAS
+========================================================= */
+USE DB_Orion_Fit;
+CREATE TABLE historial_membresias (
+    id_historial INT AUTO_INCREMENT PRIMARY KEY,
+    id_cliente INT NOT NULL,
+    id_membresia INT NOT NULL,
+	fecha_inicio DATE NOT NULL,
+    fecha_fin DATE NOT NULL,
+
+    CONSTRAINT FK_Historial_Cliente
+        FOREIGN KEY (id_cliente)
+        REFERENCES Cliente(id_cliente),
+        CONSTRAINT FK_Historial_Membresia FOREIGN KEY (id_membresia) REFERENCES Membresia(id_membresia)
+);
