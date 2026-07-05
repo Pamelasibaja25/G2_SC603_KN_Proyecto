@@ -8,9 +8,13 @@ function cambiarPeriodo(periodo) {
         document.getElementById("btnSemana").classList.add("active");
         cargarGrafico(asistenciaSemana);
     }
-    else {
+    else if (periodo === "mes") {
         document.getElementById("btnMes").classList.add("active");
         cargarGrafico(asistenciaMes);
+    }
+    else {
+        document.getElementById("btnRango").classList.add("active");
+        cargarGrafico(asistenciaRango);
     }
 
 }
@@ -21,6 +25,13 @@ function cargarGrafico(datos) {
 
     const labels = datos.map(x => x.Dia);
     const valores = datos.map(x => x.Cantidad);
+
+    // Sin datos
+    const mensaje = document.getElementById("chartEmptyMsg");
+    if (mensaje) {
+        const sinDatos = valores.length === 0 || valores.every(v => v === 0);
+        mensaje.style.display = sinDatos ? "block" : "none";
+    }
 
     if (attendanceChart) {
         attendanceChart.destroy();
@@ -50,6 +61,11 @@ function cargarGrafico(datos) {
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    cambiarPeriodo("semana");
+    if (asistenciaRango.length > 0) {
+        cambiarPeriodo("rango");
+    }
+    else {
+        cambiarPeriodo("semana");
+    }
 
 });

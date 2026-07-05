@@ -1,0 +1,47 @@
+﻿@model G2_SC603_KN_Proyecto.Models.Reserva
+@{
+    Layout = "_Layout";
+}
+
+<div class="section-page active p-6 lg:p-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h2 class="font-headline text-3xl font-bold tracking-tight">Detalle de Reserva</h2>
+            <p class="text-on-surface-variant text-xs mt-1">Reserva #@Model.IdReserva</p>
+        </div>
+        <a asp-controller="Reservas" asp-action="Index" class="btn-secondary py-2.5 text-sm">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span> Volver
+        </a>
+    </div>
+
+    <div class="bg-surface-container rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)] max-w-xl space-y-4">
+        <div class="flex justify-between border-b pb-3">
+            <span class="text-on-surface-variant text-sm">Cliente</span>
+            <span class="font-semibold text-sm">@Model.IdClienteNavigation.Nombre</span>
+        </div>
+        <div class="flex justify-between border-b pb-3">
+            <span class="text-on-surface-variant text-sm">Cédula</span>
+            <span class="font-semibold text-sm">@Model.IdClienteNavigation.Cedula</span>
+        </div>
+        <div class="flex justify-between border-b pb-3">
+            <span class="text-on-surface-variant text-sm">Clase</span>
+            <span class="font-semibold text-sm">@Model.IdClaseNavigation.Nombre</span>
+        </div>
+        <div class="flex justify-between border-b pb-3">
+            <span class="text-on-surface-variant text-sm">Horario</span>
+            <span class="font-semibold text-sm">@Model.IdClaseNavigation.Horario.ToString("dd/MM/yyyy · hh:mm tt")</span>
+        </div>
+        <div class="flex justify-between border-b pb-3">
+            <span class="text-on-surface-variant text-sm">Entrenador</span>
+            <span class="font-semibold text-sm">@Model.IdClaseNavigation.IdEntrenadorNavigation.Nombre</span>
+        </div>
+        <div class="flex justify-between border-b pb-3">
+            <span class="text-on-surface-variant text-sm">Fecha de reserva</span>
+            <span class="font-semibold text-sm">@Model.FechaReserva.ToString("dd/MM/yyyy")</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-on-surface-variant text-sm">Estado</span>
+            <span class="@(Model.Estado == "Activa" ? "badge-active" : "badge-expired") inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase">@Model.Estado</span>
+        </div>
+    </div>
+</div>

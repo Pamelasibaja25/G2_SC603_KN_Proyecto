@@ -445,4 +445,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (window.__toastData && window.__toastData.message) {
         showToast(window.__toastData.message, window.__toastData.type);
     }
+
+    // Oculta los toasts renderizados desde el servidor
+    document.querySelectorAll(".toast.show").forEach(function (t) {
+        setTimeout(function () {
+            t.classList.remove("show");
+        }, 4000);
+    });
 });

@@ -10,7 +10,7 @@ public class DashboardController : Controller
     {
         _context = context;
     }
-    public IActionResult Dashboard()
+    public IActionResult Dashboard(DateOnly? fechaInicio, DateOnly? fechaFin)
     {
         DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
 
@@ -67,6 +67,35 @@ public class DashboardController : Controller
                 };
             }).ToList();
 
+        // Asistencia por rango de fechas
+        model.FechaInicio = fechaInicio;
+        model.FechaFin = fechaFin;
+        model.AsistenciaRango = new List<AsistenciaSemanalVM>();
+
+        if (fechaInicio.HasValue && fechaFin.HasValue)
+        {
+            if (fechaInicio > fechaFin)
+            {
+                model.RangoInvalido = true;
+            }
+            else
+            {
+                int dias = fechaFin.Value.DayNumber - fechaInicio.Value.DayNumber + 1;
+
+                model.AsistenciaRango = Enumerable.Range(0, dias)
+                    .Select(i =>
+                    {
+                        var fecha = fechaInicio.Value.AddDays(i);
+
+                        return new AsistenciaSemanalVM
+                        {
+                            Dia = fecha.ToString("dd/MM"),
+                            Cantidad = _context.Asistencia.Count(a => a.Fecha == fecha)
+                        };
+                    }).ToList();
+            }
+        }
+
         //Alertas de vencimiento
         model.Vencimientos = _context.ClienteMembresia
             .Include(x => x.IdClienteNavigation)
@@ -110,5 +139,38 @@ public class DashboardController : Controller
             }).ToList();
 
         return View(model);
+    }
+
+    public IActionResult TopHorarios(DateOnly? fechaInicio, DateOnly? fechaFin)
+    {
+        IQueryable<Asistencium> query = _context.Asistencia;
+
+        if (fechaInicio.HasValue && fechaFin.HasValue)
+        {
+            if (fechaInicio > fechaFin)
+            {
+                ViewBag.RangoInvalido = true;
+            }
+            else
+            {
+                query = query.Where(a => a.Fecha >= fechaInicio && a.Fecha <= fechaFin);
+            }
+        }
+
+        List<TopHorarioVM> horarios = query
+            .ToList()
+            .GroupBy(a => a.HoraEntrada.Hour)
+            .Select(g => new TopHorarioVM
+            {
+                Hora = g.Key,
+                Asistencias = g.Count()
+            })
+            .OrderByDescending(x => x.Asistencias)
+            .ToList();
+
+        ViewBag.FechaInicio = fechaInicio;
+        ViewBag.FechaFin = fechaFin;
+
+        return View(horarios);
     }
 }

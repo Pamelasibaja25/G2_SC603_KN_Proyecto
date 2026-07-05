@@ -1,0 +1,63 @@
+﻿@model List<G2_SC603_KN_Proyecto.Models.TopHorarioVM>
+@{
+    Layout = "_Layout";
+    DateOnly? fechaInicio = ViewBag.FechaInicio as DateOnly?;
+    DateOnly? fechaFin = ViewBag.FechaFin as DateOnly?;
+}
+
+<div class="section-page active p-6 lg:p-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h2 class="font-headline text-3xl font-bold tracking-tight">Top Horarios</h2>
+            <p class="text-on-surface-variant text-xs mt-1">Horarios con mayor asistencia registrada</p>
+        </div>
+
+        <form method="get" asp-controller="Dashboard" asp-action="TopHorarios" class="flex flex-wrap items-center gap-2">
+            <input type="date" name="fechaInicio" class="input-field text-xs py-1.5" style="max-width:160px"
+                   value="@(fechaInicio?.ToString("yyyy-MM-dd"))" required />
+            <input type="date" name="fechaFin" class="input-field text-xs py-1.5" style="max-width:160px"
+                   value="@(fechaFin?.ToString("yyyy-MM-dd"))" required />
+            <button type="submit" class="tab-btn">Filtrar</button>
+        </form>
+    </div>
+
+    @if (ViewBag.RangoInvalido == true)
+    {
+        <p class="text-xs mb-4" style="color:#ffb4ab;">El rango de fechas no es válido, la fecha de inicio no puede ser posterior a la fecha de fin.</p>
+    }
+
+    <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+        @if (!Model.Any())
+        {
+            <p class="text-outline text-sm p-6">No hay datos de asistencia disponibles para el período consultado.</p>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Horario</th>
+                            <th>Asistencias</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int posicion = 1;
+                        }
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@posicion</td>
+                                <td>@($"{item.Hora:00}:00 - {item.Hora + 1:00}:00")</td>
+                                <td>@item.Asistencias</td>
+                            </tr>
+                            posicion++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

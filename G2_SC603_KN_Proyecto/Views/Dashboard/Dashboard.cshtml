@@ -45,8 +45,8 @@
         <div class="lg:col-span-2 bg-surface-container rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h3 class="font-headline font-bold text-lg">Asistencia Semanal</h3>
-                    <p class="text-on-surface-variant text-xs">Últimos 7 días</p>
+                    <h3 class="font-headline font-bold text-lg">Asistencia</h3>
+                    <p class="text-on-surface-variant text-xs">Semana, mes o rango de fechas</p>
                 </div>
                 <div class="flex gap-1">
                     <button id="btnSemana"
@@ -60,11 +60,34 @@
                             onclick="cambiarPeriodo('mes')">
                         Mes
                     </button>
+
+                    <button id="btnRango"
+                            class="tab-btn"
+                            onclick="cambiarPeriodo('rango')">
+                        Rango
+                    </button>
                 </div>
             </div>
+
+            <form method="get" asp-controller="Dashboard" asp-action="Dashboard" class="flex flex-wrap items-center gap-2 mb-4">
+                <input type="date" name="fechaInicio" class="input-field text-xs py-1.5" style="max-width:160px"
+                       value="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))" required />
+                <input type="date" name="fechaFin" class="input-field text-xs py-1.5" style="max-width:160px"
+                       value="@(Model.FechaFin?.ToString("yyyy-MM-dd"))" required />
+                <button type="submit" class="tab-btn">Aplicar</button>
+            </form>
+
+            @if (Model.RangoInvalido)
+            {
+                <p class="text-xs mb-3" style="color:#ffb4ab;">El rango de fechas no es válido, la fecha de inicio no puede ser posterior a la fecha de fin.</p>
+            }
+
             <div style="height:300px">
                 <canvas id="attendanceChart"></canvas>
             </div>
+            <p id="chartEmptyMsg" class="text-on-surface-variant text-xs text-center mt-2" style="display:none;">
+                No hay asistencias registradas para el período seleccionado.
+            </p>
         </div>
 
         <!-- Expiring Soon -->
@@ -153,6 +176,9 @@
 
     const asistenciaMes =
     @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AsistenciaMensual));
+
+    const asistenciaRango =
+    @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AsistenciaRango));
 
 </script>
 

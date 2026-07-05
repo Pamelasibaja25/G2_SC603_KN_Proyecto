@@ -16,6 +16,12 @@ public class DashboardViewModel
 
     public List<AsistenciaSemanalVM> AsistenciaMensual { get; set; }
 
+    //Gráfico por rango de fechas
+    public List<AsistenciaSemanalVM> AsistenciaRango { get; set; }
+    public DateOnly? FechaInicio { get; set; }
+    public DateOnly? FechaFin { get; set; }
+    public bool RangoInvalido { get; set; }
+
     //Alertas
     public List<VencimientoVM> Vencimientos { get; set; }
 
@@ -50,4 +56,10 @@ public class PagoHoyVM
     public string Cliente { get; set; }
     public decimal Monto { get; set; }
     public string Metodo { get; set; }
+}
+
+public class TopHorarioVM
+{
+    public int Hora { get; set; }
+    public int Asistencias { get; set; }
 }
