@@ -88,6 +88,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 );
 
                 TempData["SuccessMessage"] = "WOD publicado correctamente.";
+                GenerarNotificacionWOD(nombre, objetivo);
             }
             catch (Exception ex)
             {
@@ -97,7 +98,25 @@ namespace G2_SC603_KN_Proyecto.Controllers
             return RedirectToAction("MostrarWOD");
         }
         #endregion
+        private void GenerarNotificacionWOD(string nombre, string objetivo)
+        {
+            var clientes = _context.Clientes.ToList();
 
+            foreach (var cliente in clientes)
+            {
+                _context.Notificaciones.Add(new Notificacion
+                {
+                    IdCliente = cliente.IdCliente,
+                    Tipo = "WOD",
+                    Titulo = "Nuevo entrenamiento disponible",
+                    Mensaje = $"Se publicó el WOD: {nombre}. Objetivo: {objetivo}",
+                    Fecha = DateTime.Now,
+                    Leida = false
+                });
+            }
+
+            _context.SaveChanges();
+        }
         private async Task<string?> GuardarImagenWod(IFormFile? imagen)
         {
             if (imagen == null || imagen.Length == 0)

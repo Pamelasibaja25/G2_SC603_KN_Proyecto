@@ -42,7 +42,10 @@
       <div>
         <label class="label-float flex justify-between" for="loginPass">
           <span>Contraseña</span>
-          <a href="#" class="text-primary-container text-xs font-medium hover:text-primary transition-colors normal-case tracking-normal">¿Olvidó su clave?</a>
+          <a asp-controller="Account" asp-action="Recuperar"
+   class="text-primary-container text-xs font-medium hover:text-primary transition-colors normal-case tracking-normal">
+    ¿Olvidó su clave?</a>
+
         </label>
         <div class="relative">
           <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]" style="font-variation-settings:'wght' 300">lock</span>

@@ -270,6 +270,7 @@ CREATE TABLE historial_membresias (
         REFERENCES Cliente(id_cliente),
         CONSTRAINT FK_Historial_Membresia FOREIGN KEY (id_membresia) REFERENCES Membresia(id_membresia)
 );
+<<<<<<< HEAD
 /* =========================================================
    TABLA DE ANUNCIOS
 ========================================================= */
@@ -279,3 +280,5 @@ CREATE TABLE Anuncio (
     mensaje VARCHAR(255),
     fecha DATETIME
 );
+=======
+>>>>>>> dc0100e (Sprint 3)

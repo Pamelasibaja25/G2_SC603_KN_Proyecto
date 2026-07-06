@@ -1,0 +1,31 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+<h2>Cambiar contraseña</h2>
+
+<form method="post">
+
+    <div>
+        <label>Contraseña actual</label>
+        <input type="password" name="actual" required />
+    </div>
+
+    <div>
+        <label>Nueva contraseña</label>
+        <input type="password" name="nueva" required />
+    </div>
+
+    <button type="submit">Cambiar contraseña</button>
+
+</form>
+
+@if (ViewBag.Error != null)
+{
+    <p style="color:red">@ViewBag.Error</p>
+}
+
+@if (ViewBag.Mensaje != null)
+{
+    <p style="color:green">@ViewBag.Mensaje</p>
+}

@@ -50,6 +50,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
             _context.Pagos.Add(pago);
             _context.SaveChanges();
 
+            GenerarNotificacionPago(pago.IdClienteMembresia, pago.Monto);
+
             return RedirectToAction("Index");
         }
         public IActionResult HistorialCliente(int idCliente)
@@ -60,6 +62,45 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 .ToList();
 
             return View(pagos);
+        }
+        private void GenerarNotificacionPago(int idClienteMembresia, decimal monto)
+        {
+            var clienteMembresia = _context.ClienteMembresia
+                .FirstOrDefault(cm => cm.IdClienteMembresia == idClienteMembresia);
+
+            if (clienteMembresia == null) return;
+
+            var notificacion = new Notificacion
+            {
+                IdCliente = clienteMembresia.IdCliente,
+                Tipo = "Pago",
+                Titulo = "Pago registrado",
+                Mensaje = $"Se registró un pago de ₡{monto}",
+                Fecha = DateTime.Now,
+                Leida = false
+            };
+
+            _context.Notificaciones.Add(notificacion);
+            _context.SaveChanges();
+        }
+        [HttpPost]
+        public IActionResult GenerarNotificacionPagoManual(int idClienteMembresia, decimal monto)
+        {
+            GenerarNotificacionPago(idClienteMembresia, monto);
+
+            return Ok();
+        }
+        public IActionResult Comprobante(int idPago)
+        {
+            var pago = _context.Pagos
+                .Include(p => p.IdClienteMembresiaNavigation)
+                .ThenInclude(cm => cm.IdClienteNavigation)
+                .FirstOrDefault(p => p.IdPago == idPago);
+
+            if (pago == null)
+                return NotFound();
+
+            return View(pago);
         }
     }
 }

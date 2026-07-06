@@ -1,0 +1,106 @@
+﻿@model IEnumerable<G2_SC603_KN_Proyecto.Models.Anuncio>
+
+@{
+    Layout = "_Layout";
+    string rolActual = Context.Session.GetString("Rol") ?? string.Empty;
+}
+
+<div class="section-page active p-6 lg:p-8">
+
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-3xl font-bold">Anuncios</h2>
+
+        @if (rolActual == "ADMIN" || rolActual == "TRAINER")
+        {
+            <button class="btn-primary"
+                    onclick="openModal('anuncioModal')">
+                + Crear anuncio
+            </button>
+        }
+    </div>
+
+    <div class="bg-surface-container rounded-2xl shadow overflow-hidden">
+        <table class="data-table w-full">
+
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Mensaje</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Titulo</td>
+                            <td>@item.Mensaje</td>
+                            <td>@item.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="3" class="text-center">
+                            No hay anuncios registrados
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+
+</div>@if (rolActual == "ADMIN" || rolActual == "TRAINER")
+{
+    <div class="modal-overlay" id="anuncioModal">
+
+        <div class="modal-box">
+
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">Crear anuncio</h3>
+
+                <button class="btn-icon" onclick="closeModal('anuncioModal')">
+                    ✕
+                </button>
+            </div>
+
+            <form asp-action="Crear" method="post" class="space-y-4">
+
+                <div>
+                    <label>Título</label>
+                    <input type="text" name="Titulo" class="input-field" required />
+                </div>
+
+                <div>
+                    <label>Mensaje</label>
+                    <textarea name="Mensaje" class="input-field" required></textarea>
+                </div>
+
+                <div>
+                    <label>Fecha</label>
+                    <input type="date" name="Fecha" class="input-field" required />
+                </div>
+
+                <div class="flex justify-end gap-3">
+                    <button type="button"
+                            class="btn-secondary"
+                            onclick="closeModal('anuncioModal')">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" class="btn-primary">
+                        Guardar
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+}

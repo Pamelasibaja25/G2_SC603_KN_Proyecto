@@ -1,7 +1,8 @@
-﻿@{
+﻿ @{
     Layout = "_Layout";
 }
-
+@if (Context.Session.GetString("Rol") == "USER")
+{
 <div id="page-dashboard" class="section-page active p-6 lg:p-8 space-y-6">
 
     <!-- HEADER -->
@@ -69,3 +70,4 @@
     </div>
 
 </div>
+}

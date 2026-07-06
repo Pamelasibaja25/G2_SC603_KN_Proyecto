@@ -62,6 +62,8 @@ public partial class DbOrionFitContext : DbContext
     public DbSet<Equipo> Equipo { get; set; }
     public DbSet<EjercicioResumen> EjerciciosResumen { get; set; }
     public DbSet<WodResumen> WodsResumen { get; set; }
+    public virtual DbSet<Notificacion> Notificaciones { get; set; }
+    public DbSet<Anuncio> Anuncios { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -588,6 +590,37 @@ public partial class DbOrionFitContext : DbContext
                 .HasForeignKey(d => d.IdCliente)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Venta_Cliente");
+        });
+
+        modelBuilder.Entity<Notificacion>(entity =>
+        {
+            entity.HasKey(e => e.IdNotificacion);
+
+            entity.ToTable("Notificacion");
+
+            entity.Property(e => e.IdNotificacion)
+                .HasColumnName("id_notificacion");
+
+            entity.Property(e => e.IdCliente)
+                .HasColumnName("id_cliente");
+
+            entity.Property(e => e.Tipo)
+                .HasMaxLength(30)
+                .HasColumnName("tipo");
+
+            entity.Property(e => e.Titulo)
+                .HasMaxLength(100)
+                .HasColumnName("titulo");
+
+            entity.Property(e => e.Mensaje)
+                .HasMaxLength(255)
+                .HasColumnName("mensaje");
+
+            entity.Property(e => e.Fecha)
+                .HasColumnName("fecha");
+
+            entity.Property(e => e.Leida)
+                .HasColumnName("leida");
         });
 
         OnModelCreatingPartial(modelBuilder);
