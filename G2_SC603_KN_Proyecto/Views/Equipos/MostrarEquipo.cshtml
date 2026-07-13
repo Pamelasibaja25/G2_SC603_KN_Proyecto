@@ -49,13 +49,22 @@
 
     </div>
 
-    <!-- BOTÓN NUEVO -->
-    <div class="flex justify-end mb-4">
+    <!-- ACCIONES -->
+    <div class="flex justify-end gap-3 mb-4">
+
+        <a asp-controller="Reportes"
+           asp-action="Inventario"
+           class="btn-secondary py-2.5 px-4 text-sm flex items-center gap-2">
+            <span class="material-symbols-outlined text-[16px]">assessment</span>
+            Reporte Inventario
+        </a>
+
         <button class="btn-primary py-2.5 text-sm"
                 onclick="openAddEquipoModal()">
             <span class="material-symbols-outlined text-[16px]">add</span>
             Nuevo Equipo
         </button>
+
     </div>
 
     <!-- TABLA -->

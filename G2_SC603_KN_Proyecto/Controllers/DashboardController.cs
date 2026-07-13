@@ -10,56 +10,41 @@ public class DashboardController : Controller
     {
         _context = context;
     }
-    public IActionResult Dashboard(DateOnly? fechaInicio, DateOnly? fechaFin)
+
+    public IActionResult Dashboard(DateOnly? fechaInicio, DateOnly? fechaFin,
+        DateOnly? rankingInicio, DateOnly? rankingFin)
     {
         DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
-
-        DateOnly inicioMes = new DateOnly(
-            hoy.Year,
-            hoy.Month,
-            1);
+        DateOnly inicioMes = new DateOnly(hoy.Year, hoy.Month, 1);
 
         DashboardViewModel model = new DashboardViewModel();
 
-        //Clientes activos
-        model.ClientesActivos = _context.Clientes
-                    .Count(c => c.Estado == "Activo");
+        model.ClientesActivos = _context.Clientes.Count(c => c.Estado == "Activo");
 
-        //Ingresos del mes
         model.IngresosMes = _context.Pagos
-                .Where(p => p.FechaPago >= inicioMes)
-                .Sum(p => (decimal?)p.Monto) ?? 0;
+            .Where(p => p.FechaPago >= inicioMes)
+            .Sum(p => (decimal?)p.Monto) ?? 0;
 
-        //Asistencia de hoy
-        model.AsistenciaHoy = _context.Asistencia
-                .Count(a => a.Fecha == hoy);
+        model.AsistenciaHoy = _context.Asistencia.Count(a => a.Fecha == hoy);
 
-        //Membresías por vencer
         model.MembresiasPorVencer = _context.ClienteMembresia
-            .Count(c =>
-                    c.FechaFin >= hoy &&
-                    c.FechaFin <= hoy.AddDays(7));
+            .Count(c => c.FechaFin >= hoy && c.FechaFin <= hoy.AddDays(7));
 
-        //Gráfico semanal
         model.AsistenciaSemanal = Enumerable.Range(0, 7)
             .Select(i =>
             {
                 var fecha = hoy.AddDays(-6 + i);
-
                 return new AsistenciaSemanalVM
                 {
                     Dia = fecha.ToString("ddd"),
-                    Cantidad = _context.Asistencia
-                        .Count(a => a.Fecha == fecha)
+                    Cantidad = _context.Asistencia.Count(a => a.Fecha == fecha)
                 };
             }).ToList();
 
-        // Asistencia del último mes (30 días)
         model.AsistenciaMensual = Enumerable.Range(0, 30)
             .Select(i =>
             {
                 var fecha = hoy.AddDays(-29 + i);
-
                 return new AsistenciaSemanalVM
                 {
                     Dia = fecha.ToString("dd/MM"),
@@ -67,7 +52,6 @@ public class DashboardController : Controller
                 };
             }).ToList();
 
-        // Asistencia por rango de fechas
         model.FechaInicio = fechaInicio;
         model.FechaFin = fechaFin;
         model.AsistenciaRango = new List<AsistenciaSemanalVM>();
@@ -75,18 +59,14 @@ public class DashboardController : Controller
         if (fechaInicio.HasValue && fechaFin.HasValue)
         {
             if (fechaInicio > fechaFin)
-            {
                 model.RangoInvalido = true;
-            }
             else
             {
                 int dias = fechaFin.Value.DayNumber - fechaInicio.Value.DayNumber + 1;
-
                 model.AsistenciaRango = Enumerable.Range(0, dias)
                     .Select(i =>
                     {
                         var fecha = fechaInicio.Value.AddDays(i);
-
                         return new AsistenciaSemanalVM
                         {
                             Dia = fecha.ToString("dd/MM"),
@@ -96,33 +76,38 @@ public class DashboardController : Controller
             }
         }
 
-        //Alertas de vencimiento
         model.Vencimientos = _context.ClienteMembresia
             .Include(x => x.IdClienteNavigation)
-            .Where(x => x.FechaFin >= hoy &&
-                        x.FechaFin <= hoy.AddDays(7))
+            .Where(x => x.FechaFin >= hoy && x.FechaFin <= hoy.AddDays(7))
             .OrderBy(x => x.FechaFin)
             .Select(x => new VencimientoVM
             {
+                IdCliente = x.IdClienteNavigation.IdCliente,
                 Cliente = x.IdClienteNavigation.Nombre,
                 FechaFin = x.FechaFin,
                 DiasRestantes = EF.Functions.DateDiffDay(hoy, x.FechaFin)
             }).ToList();
 
-        //Top clientes
-        model.RankingClientes = _context.Asistencia
-            .Include(a => a.IdClienteNavigation)
-            .GroupBy(a => a.IdClienteNavigation.Nombre)
+        model.RankingInicio = rankingInicio;
+        model.RankingFin = rankingFin;
+
+        IQueryable<Asistencium> queryRanking = _context.Asistencia
+            .Include(a => a.IdClienteNavigation);
+
+        if (rankingInicio.HasValue && rankingFin.HasValue && rankingInicio <= rankingFin)
+            queryRanking = queryRanking.Where(a => a.Fecha >= rankingInicio && a.Fecha <= rankingFin);
+
+        model.RankingClientes = queryRanking
+            .GroupBy(a => new { a.IdClienteNavigation.IdCliente, a.IdClienteNavigation.Nombre })
             .Select(x => new RankingClienteVM
             {
-                Cliente = x.Key,
+                Cliente = x.Key.Nombre,
                 Asistencias = x.Count()
             })
             .OrderByDescending(x => x.Asistencias)
-            .Take(5)
+            .Take(10)
             .ToList();
 
-        //Ingresos de hoy
         model.IngresosHoy = _context.Pagos
             .Where(x => x.FechaPago == hoy)
             .Sum(x => (decimal?)x.Monto) ?? 0;
@@ -138,6 +123,15 @@ public class DashboardController : Controller
                 Metodo = p.MetodoPago
             }).ToList();
 
+        model.AlertasStock = _context.Inventarios
+            .Where(i => i.Cantidad <= i.StockMinimo)
+            .Select(i => new AlertaStockVM
+            {
+                Producto = i.NombreProducto,
+                CantidadActual = i.Cantidad,
+                StockMinimo = i.StockMinimo
+            }).ToList();
+
         return View(model);
     }
 
@@ -148,23 +142,15 @@ public class DashboardController : Controller
         if (fechaInicio.HasValue && fechaFin.HasValue)
         {
             if (fechaInicio > fechaFin)
-            {
                 ViewBag.RangoInvalido = true;
-            }
             else
-            {
                 query = query.Where(a => a.Fecha >= fechaInicio && a.Fecha <= fechaFin);
-            }
         }
 
         List<TopHorarioVM> horarios = query
             .ToList()
             .GroupBy(a => a.HoraEntrada.Hour)
-            .Select(g => new TopHorarioVM
-            {
-                Hora = g.Key,
-                Asistencias = g.Count()
-            })
+            .Select(g => new TopHorarioVM { Hora = g.Key, Asistencias = g.Count() })
             .OrderByDescending(x => x.Asistencias)
             .ToList();
 

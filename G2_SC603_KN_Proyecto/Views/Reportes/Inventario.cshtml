@@ -1,0 +1,96 @@
+﻿@model List<G2_SC603_KN_Proyecto.Models.Equipo>
+@{
+    Layout = "_Layout";
+    var activos = Model?.Count(e => e.Estado == "Disponible") ?? 0;
+    var inactivos = Model?.Count(e => e.Estado == "No Disponible") ?? 0;
+    var enMant = Model?.Count(e => e.Estado != "Disponible" && e.Estado != "No Disponible") ?? 0;
+    bool vacio = ViewBag.Vacio == true || Model == null || !Model.Any();
+}
+
+<div id="page-inventario-reporte" class="section-page active p-6 lg:p-8">
+
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div>
+            <h2 class="font-headline text-3xl font-bold tracking-tight">Reporte de Inventario</h2>
+            <p class="text-on-surface-variant text-xs mt-1">Equipos clasificados por estado — RMGM-EQUIP-009</p>
+        </div>
+
+        @if (!vacio)
+        {
+            <div class="flex gap-3">
+                <a asp-controller="Reportes" asp-action="Inventario" asp-route-exportar="excel"
+                   class="btn-secondary py-2.5 text-sm">
+                    <span class="material-symbols-outlined text-[16px]">table_view</span> Excel
+                </a>
+                <a asp-controller="Reportes" asp-action="Inventario" asp-route-exportar="pdf"
+                   class="btn-primary py-2.5 text-sm">
+                    <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span> PDF
+                </a>
+            </div>
+        }
+    </div>
+
+    @if (vacio)
+    {
+        <div class="bg-surface-container rounded-2xl p-10 text-center text-on-surface-variant">
+            <span class="material-symbols-outlined text-[48px] mb-3">inventory_2</span>
+            <p>No hay equipos registrados en el inventario.</p>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-surface-container rounded-2xl p-5">
+                <p class="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold mb-2">Disponibles</p>
+                <p class="font-headline text-3xl font-black tracking-tighter text-primary-container">@activos</p>
+            </div>
+            <div class="bg-surface-container rounded-2xl p-5">
+                <p class="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold mb-2">No Disponibles</p>
+                <p class="font-headline text-3xl font-black tracking-tighter" style="color:#ef4444">@inactivos</p>
+            </div>
+            <div class="bg-surface-container rounded-2xl p-5">
+                <p class="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold mb-2">En Mantenimiento</p>
+                <p class="font-headline text-3xl font-black tracking-tighter text-[#fbbf24]">@enMant</p>
+            </div>
+            <div class="bg-surface-container rounded-2xl p-5">
+                <p class="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold mb-2">Total</p>
+                <p class="font-headline text-3xl font-black tracking-tighter">@Model!.Count</p>
+            </div>
+        </div>
+
+        <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+            <div class="overflow-x-auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Estado</th>
+                            <th>Fecha Compra</th>
+                            <th>Costo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var eq in Model)
+                        {
+                            <tr class="@(eq.Estado == "No Disponible" ? "row-disabled" : "")">
+                                <td>@eq.Nombre</td>
+                                <td>
+                                    @if (eq.Estado == "Disponible")
+                                    {
+                                        <span class="badge-status badge-disponible">@eq.Estado</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-status badge-no-disponible">@eq.Estado</span>
+                                    }
+                                </td>
+                                <td>@(eq.FechaCompra?.ToString("dd/MM/yyyy") ?? "—")</td>
+                                <td>@(eq.Costo.HasValue ? "₡" + eq.Costo.Value.ToString("N2") : "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

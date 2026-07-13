@@ -1,8 +1,8 @@
 ﻿@model List<G2_SC603_KN_Proyecto.Models.ReporteAnalisis>
 @{
     Layout = "_Layout";
-    var membresiasActivas = Model.Count(x => x.Estado == "Activa");
-    var membresiasVencidas = Model.Count(x => x.Estado == "Vencida");
+    var membresiasActivas = (int)ViewBag.MembresiasActivas;
+    var membresiasVencidas = (int)ViewBag.MembresiasVencidas;
     var montoTotal = Model.Sum(x => x.Monto);
 }
 <div id="page-reports" class="section-page active p-6 lg:p-8">
@@ -45,12 +45,18 @@
                     <option>Tarjeta</option>
                 </select>
             </div>
-            <div class="flex gap-2">
-                    <button class="btn-primary py-2.5 text-sm">
-                    <span class="material-symbols-outlined text-[16px]">filter_list</span> Generar
-                </button>
-                    <button class="btn-secondary py-2.5 text-sm" onclick="limpiarFiltros()">Limpiar</button>
-            </div>
+                <div class="flex gap-2 flex-wrap">
+                    <button class="btn-primary py-2.5 text-sm" name="exportar" value="">
+                        <span class="material-symbols-outlined text-[16px]">filter_list</span> Generar
+                    </button>
+                    <button class="btn-secondary py-2.5 text-sm" name="exportar" value="excel">
+                        <span class="material-symbols-outlined text-[16px]">table_view</span> Excel
+                    </button>
+                    <button class="btn-secondary py-2.5 text-sm" name="exportar" value="pdf">
+                        <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span> PDF
+                    </button>
+                    <button type="button" class="btn-secondary py-2.5 text-sm" onclick="limpiarFiltros()">Limpiar</button>
+                </div>
         </div>
     </div>
     </form>
@@ -99,6 +105,8 @@
                             <td>@item.Membresia</td>
 
                             <td>@item.MetodoPago</td>
+
+                            <td>@item.Monto</td>
 
                         </tr>
                     }
