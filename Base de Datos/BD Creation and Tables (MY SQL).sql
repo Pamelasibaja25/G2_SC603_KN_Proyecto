@@ -282,3 +282,10 @@ CREATE TABLE Anuncio (
 );
 =======
 >>>>>>> dc0100e (Sprint 3)
+
+/* =========================================================
+  Agregar comprobante sinpe 
+========================================================= */	
+USE DB_Orion_Fit;
+ALTER TABLE Pago
+ADD comprobante VARCHAR(255) NULL;
