@@ -1,0 +1,240 @@
+﻿@using G2_SC603_KN_Proyecto.Models
+@inject DbOrionFitContext _context
+@{
+    var rol = Context.Session.GetString("Rol");
+    var Usuario = Context.Session.GetString("Usuario");
+
+    int cantidadNotificaciones = 0;
+
+if (rol == "USER")
+{
+    int? idUsuario = Context.Session.GetInt32("ID");
+
+    var cliente = _context.Clientes.FirstOrDefault(c => c.IdUsuario == idUsuario);
+
+    if (cliente != null)
+    {
+        cantidadNotificaciones = _context.Notificaciones.Count(n => n.idCliente == cliente.IdCliente);
+    }
+}
+}
+<!DOCTYPE html>
+<html class="dark" lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Orion Fit Studio — Sistema de Gestión</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+</head>
+
+<body>
+
+    <div id="mainApp" class="flex h-screen overflow-hidden">
+
+        <!-- SIDEBAR -->
+        <nav id="sidebar" class="hidden md:flex flex-col h-screen w-72 fixed left-0 top-0 bg-surface-container-low shadow-[10px_0px_30px_rgba(0,0,0,0.4)] z-40 py-6 flex-shrink-0">
+            <div class="px-6 mb-10">
+                <h1 class="text-primary-container font-headline font-black italic text-2xl tracking-tighter sidebar-logo-glow">Orion Fit</h1>
+                <p class="text-on-surface-variant text-[10px] uppercase tracking-[0.2em] mt-1 font-medium">Elite Management</p>
+            </div>
+
+            <div class="flex-1 overflow-y-auto space-y-0.5 px-3">
+
+                @if (rol == "ADMIN")
+                {
+                    <a asp-controller="Dashboard" asp-action="Dashboard" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">dashboard</span> Dashboard
+                    </a>
+
+                    <a asp-controller="Dashboard" asp-action="TopHorarios" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">schedule</span> Top Horarios
+                    </a>
+
+                    <a asp-controller="Clientes" asp-action="MostrarClientes" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">group</span> Clientes
+                    </a>
+
+                    <a asp-controller="Membresia" asp-action="MostrarMembresia" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">card_membership</span> Membresías
+                    </a>
+
+                    <a asp-controller="Pagos" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">payments</span> Pagos
+                    </a>
+
+                    <a asp-controller="WOD" asp-action="MostrarWOD" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">fitness_center</span> WOD
+                    </a>
+
+                    <a asp-controller="WOD" asp-action="HistorialEntrenamientos" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">history</span> Historial WOD
+                    </a>
+
+                    <a asp-controller="Reservas" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">calendar_today</span> Reservas
+                    </a>
+
+                    @if (Context.Session.GetString("ROL") == "USER")
+                       {
+                       <a asp-controller="Notificaciones" asp-action="Index"
+                       class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">notifications</span>
+                         Notificaciones
+                             </a>
+                             }       
+
+                    <a asp-controller="Equipos" asp-action="MostrarEquipo" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">inventory_2</span> Inventario
+                    </a>
+
+                    <a asp-controller="Reportes" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">assignment</span> Reportes
+                    </a>
+
+                    <a asp-controller="Mantenimiento" asp-action="MostrarMantenimiento" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">build</span> Mantenimiento
+                    </a>
+
+                    <a asp-controller="Usuarios" asp-action="MostrarUsuarios" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">person</span> Usuarios
+                    </a>
+                }
+
+                else if (rol == "USER")
+                {
+                    <a asp-controller="Pagos" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">payments</span> Pagos
+                    </a>
+
+                    <a asp-controller="WOD" asp-action="MostrarWOD" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">fitness_center</span> WOD
+                    </a>
+
+                    <a asp-controller="WOD" asp-action="HistorialEntrenamientos" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">history</span> Historial WOD
+                    </a>
+
+                    <a asp-controller="Reservas" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">calendar_today</span> Reservas
+                    </a>
+
+                    <a asp-controller="Notificaciones" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">notifications</span>
+                        Notificaciones
+                    </a>
+                }
+
+                else if (rol == "TRAINER")
+                {
+                    <a asp-controller="WOD" asp-action="MostrarWOD" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">fitness_center</span> WOD
+                    </a>
+
+                    <a asp-controller="WOD" asp-action="HistorialEntrenamientos" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">history</span> Historial WOD
+                    </a>
+
+                    <a asp-controller="Reservas" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">calendar_today</span> Reservas
+                    </a>
+                }
+
+                else if (rol == "RECEPTION")
+                {
+                    <a asp-controller="Clientes" asp-action="MostrarClientes" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">group</span> Clientes
+                    </a>
+
+                    <a asp-controller="Membresia" asp-action="MostrarMembresia" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">card_membership</span> Membresías
+                    </a>
+
+                    <a asp-controller="Pagos" asp-action="Index" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
+                        <span class="material-symbols-outlined text-[22px]">payments</span> Pagos
+                    </a>
+                }
+            </div>
+
+            <div class="px-5 pt-4 border-t border-outline-variant/10 mt-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-primary-container/30 flex items-center justify-center text-primary-container font-headline font-bold text-xs" id="sidebarAvatar"></div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-on-surface font-headline font-semibold text-xs truncate">@Usuario</p>
+                        <p class="text-outline text-[10px] uppercase tracking-wider">@rol</p>
+                    </div>
+
+                    <a asp-controller="Home" asp-action="Logout" class="btn-icon" title="Cerrar sesión">
+                        <span class="material-symbols-outlined text-[18px]">logout</span>
+                    </a>
+
+                    <a asp-controller="Usuarios" asp-action="Configuracion" class="btn-icon hidden md:flex" title="Configuraciones">
+                        <span class="material-symbols-outlined text-[20px]">settings</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+  
+     <!-- MAIN -->
+<div class="flex-1 md:ml-72 flex flex-col h-screen min-w-0">
+
+    <header class="flex items-center justify-between px-6 h-16 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10">
+
+        <div class="flex items-center gap-3">
+            <span class="text-primary-container font-headline font-black italic text-xl md:hidden">
+                Orion Fit
+            </span>
+        </div>
+
+        <div class="flex items-center gap-3">
+
+            @if (rol == "USER")
+            {
+                <button onclick="navigateTo('notifications')" class="relative btn-icon">
+                    <span class="material-symbols-outlined text-[22px]">notifications</span>
+
+                    @if (cantidadNotificaciones > 0)
+                    {
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                            @cantidadNotificaciones
+                        </span>
+                    }
+                </button>
+            }
+
+            <div class="flex items-center gap-2 cursor-pointer" onclick="navigateTo('dashboard')">
+                <div class="w-8 h-8 rounded-full bg-primary-container/30 flex items-center justify-center text-primary-container font-headline font-bold text-xs"></div>
+
+                <div class="hidden md:block">
+                    <p class="text-on-surface font-headline font-semibold text-xs">@Usuario</p>
+                    <p class="text-outline text-[9px] uppercase">@rol</p>
+                </div>
+            </div>
+
+            <a asp-controller="Home" asp-action="Logout" class="btn-icon hidden md:flex">
+                <span class="material-symbols-outlined text-[20px]">logout</span>
+            </a>
+
+            <a asp-controller="Usuarios" asp-action="Configuracion" class="btn-icon hidden md:flex">
+                <span class="material-symbols-outlined text-[20px]">settings</span>
+            </a>
+
+        </div>
+
+    </header>
+
+    <main class="flex-1 overflow-y-auto bg-surface">
+        @RenderBody()
+    </main>
+
+</div>
+ <script src="~/js/site.js" asp-append-version="true"></script>
+</body>
+</html>

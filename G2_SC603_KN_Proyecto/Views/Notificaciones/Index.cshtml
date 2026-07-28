@@ -1,0 +1,80 @@
+@using Microsoft.AspNetCore.Http
+@model IEnumerable<G2_SC603_KN_Proyecto.Models.Notificacion>
+
+@{
+    Layout = "_Layout";
+    var rol = Context.Session.GetString("ROL");
+}
+
+@if (rol == "USER")
+{
+    <div class="p-6 space-y-6">
+
+        <div>
+            <h1 class="text-3xl font-bold">
+                Historial de Notificaciones
+            </h1>
+
+            <p class="text-on-surface-variant">
+                Consulte todas las notificaciones recibidas.
+            </p>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="bg-surface-container rounded-2xl p-8 text-center shadow">
+
+                <span class="material-symbols-outlined text-6xl text-gray-500">
+                    notifications_off
+                </span>
+
+                <h2 class="text-xl font-semibold mt-4">
+                    No hay notificaciones
+                </h2>
+
+                <p class="text-on-surface-variant mt-2">
+                    Cuando reciba una notificación aparecerá aquí.
+                </p>
+
+            </div>
+        }
+        else
+        {
+            <div class="space-y-4">
+
+                @foreach (var item in Model)
+                {
+                    <div class="bg-surface-container rounded-2xl shadow p-5 border border-outline-variant">
+
+                        <div class="flex justify-between items-center">
+
+                            <div>
+
+                                <span class="text-xs uppercase tracking-wider text-primary font-semibold">
+                                    @item.tipo
+                                </span>
+
+                                <h3 class="text-lg font-bold mt-1">
+                                    @item.titulo
+                                </h3>
+
+                            </div>
+
+                            <span class="text-sm text-gray-400">
+                                @item.fecha.ToString("dd/MM/yyyy HH:mm")
+                            </span>
+
+                        </div>
+
+                        <p class="mt-4 text-on-surface">
+                            @item.mensaje
+                        </p>
+
+                    </div>
+                }
+
+            </div>
+        }
+
+    </div>
+}

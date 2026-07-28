@@ -1,0 +1,16 @@
+﻿@@model G2_SC603_KN_Proyecto.Models.Pago
+
+<h2>Comprobante de Pago</h2>
+
+<hr />
+
+<p><b>Cliente:</b> @Model.IdClienteMembresiaNavigation.IdClienteNavigation.Nombre</p>
+<p><b>Cédula:</b> @Model.IdClienteMembresiaNavigation.IdClienteNavigation.Cedula</p>
+<p><b>Monto:</b> ₡@Model.Monto</p>
+<p><b>Fecha:</b> @Model.FechaPago.ToString("dd/MM/yyyy")</p>
+<p><b>Método:</b> @Model.MetodoPago</p>
+<p><b>Descripción:</b> @Model.Descripcion</p>
+
+<hr />
+
+<button onclick="window.print()">Imprimir</button>

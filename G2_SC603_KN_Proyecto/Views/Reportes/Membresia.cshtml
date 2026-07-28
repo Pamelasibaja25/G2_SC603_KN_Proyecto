@@ -1,0 +1,192 @@
+﻿@model List<G2_SC603_KN_Proyecto.Models.ReporteMembresiaViewModel>
+
+@{
+    Layout = "_Layout";
+    var totalClientes = Model.Select(x => x.Cedula).Distinct().Count();
+    var totalMembresias = Model.Count();
+    var membresiasActivas = Model.Count(x => x.Estado == "Activa");
+    var membresiasVencidas = Model.Count(x => x.Estado == "Vencida");
+}
+<div id="page-reports" class="section-page active p-6 lg:p-8">
+    <div class="mb-8">
+        <h2 class="font-headline text-3xl font-bold tracking-tight">Reporte: Membresía</h2>
+        <p class="text-on-surface-variant text-xs mt-1">RMGM-DASH-007 al RMGM-DASH-009</p>
+    </div>
+
+    <!-- Cards Resumen -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+        <div class="bg-surface-container rounded-2xl p-5 shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-on-surface-variant uppercase">
+                        Clientes
+                    </p>
+                    <h3 class="text-3xl font-bold mt-2">
+                        @totalClientes
+                    </h3>
+                </div>
+
+                <span class="material-symbols-outlined text-4xl text-primary">
+                    groups
+                </span>
+            </div>
+        </div>
+
+        <div class="bg-surface-container rounded-2xl p-5 shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-on-surface-variant uppercase">
+                        Membresías
+                    </p>
+                    <h3 class="text-3xl font-bold mt-2">
+                        @totalMembresias
+                    </h3>
+                </div>
+
+                <span class="material-symbols-outlined text-4xl text-primary">
+                    card_membership
+                </span>
+            </div>
+        </div>
+
+        <div class="bg-surface-container rounded-2xl p-5 shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-on-surface-variant uppercase">
+                        Activas
+                    </p>
+                    <h3 class="text-3xl font-bold text-green-600 mt-2">
+                        @membresiasActivas
+                    </h3>
+                </div>
+
+                <span class="material-symbols-outlined text-4xl text-green-600">
+                    check_circle
+                </span>
+            </div>
+        </div>
+
+        <div class="bg-surface-container rounded-2xl p-5 shadow">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-on-surface-variant uppercase">
+                        Vencidas
+                    </p>
+                    <h3 class="text-3xl font-bold text-red-600 mt-2">
+                        @membresiasVencidas
+                    </h3>
+                </div>
+
+                <span class="material-symbols-outlined text-4xl text-red-600">
+                    warning
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+<form asp-action="Membresia" method="get">
+
+    <div class="flex flex-wrap gap-4 items-end">
+
+        <div class="flex-1 min-w-40">
+
+            <label class="label-float">
+                Estado
+            </label>
+
+                <select name="estado" class="input-field" id="reporteStatusFilter" onchange="filterReportMembresia()">
+
+                <option value="">--Seleccione Una Opción--</option>
+                    <option value="Todos">Todos</option>
+                <option value="Activa">Activa</option>
+
+                <option value="Vencida">Vencida</option>
+
+                <option value="Cancelada">Cancelada</option>
+
+            </select>
+
+        </div>
+
+        <button class="btn-primary">
+            Generar Reporte
+        </button>
+
+    </div>
+
+</form>
+
+<table class="data-table">
+
+    <thead>
+
+        <tr>
+
+            <th>Cédula</th>
+            <th>Cliente</th>
+            <th>Teléfono</th>
+            <th>Correo</th>
+            <th>Membresía</th>
+            <th>Precio</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Estado</th>
+
+        </tr>
+
+    </thead>
+
+        <tbody id="clientsTableBody">
+
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td>@item.Cedula</td>
+
+                <td>@item.NombreCliente</td>
+
+                <td>@item.Telefono</td>
+
+                <td>@item.Correo</td>
+
+                <td>@item.Membresia</td>
+
+                <td>₡ @item.Precio.ToString("N2")</td>
+
+                <td>@item.FechaInicio.ToString("dd/MM/yyyy")</td>
+
+                <td>@item.FechaFin.ToString("dd/MM/yyyy")</td>
+
+                <td>
+
+                    @if (item.Estado == "Activa")
+                    {
+                        <span class="badge badge-success">
+                            @item.Estado
+                        </span>
+                    }
+                    else if (item.Estado == "Vencida")
+                    {
+                        <span class="badge badge-error">
+                            @item.Estado
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-warning">
+                            @item.Estado
+                        </span>
+                    }
+
+                </td>
+
+            </tr>
+        }
+
+    </tbody>
+
+</table>
+</div>
