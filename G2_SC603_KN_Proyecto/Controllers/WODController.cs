@@ -31,11 +31,11 @@ namespace G2_SC603_KN_Proyecto.Controllers
         {
             // Obtener los ejercicios utilizando el procedimiento almacenado
             List<EjercicioResumen> ejercicios = await _context.EjerciciosResumen
-                .FromSqlRaw("CALL sp_ObtenerEjercicios()")
+                .FromSqlRaw("CALL sp_obtenerEjercicios()")
                 .ToListAsync();
             // Obtener los WODs con sus ejercicios utilizando el procedimiento almacenado
             List<WodResumen> wods = await _context.WodsResumen
-                .FromSqlRaw("CALL sp_ObtenerWODs()")
+                .FromSqlRaw("CALL sp_obtenerWODs()")
                 .ToListAsync();
 
             ViewBag.Wods = wods;
@@ -79,7 +79,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 string? rutaImagen = await GuardarImagenWod(imagen);
 
                 await _context.Database.ExecuteSqlRawAsync(
-                    "CALL sp_AgregarWOD({0}, {1}, {2}, {3}, {4})",
+                    "CALL sp_agregarWOD({0}, {1}, {2}, {3}, {4})",
                     entrenador.IdEntrenador,
                     nombre,
                     objetivo ?? string.Empty,
@@ -87,7 +87,15 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     ejerciciosJson
                 );
 
-                TempData["SuccessMessage"] = "WOD publicado correctamente.";
+                // El WOD recién creado es el de mayor Id (sp_AgregarWOD no retorna el Id).
+                int idRutinaNueva = await _context.Rutinas
+                    .OrderByDescending(r => r.IdRutina)
+                    .Select(r => r.IdRutina)
+                    .FirstAsync();
+
+                AsignarWodClientesParaManana(idRutinaNueva);
+
+                TempData["SuccessMessage"] = "WOD publicado correctamente para mañana.";
                 GenerarNotificacionWOD(nombre, objetivo);
             }
             catch (Exception ex)
@@ -98,6 +106,71 @@ namespace G2_SC603_KN_Proyecto.Controllers
             return RedirectToAction("MostrarWOD");
         }
         #endregion
+        // El WOD publicado hoy queda configurado como el WOD de mañana para
+        // todos los clientes activos, con estado PENDIENTE hasta que cada
+        // cliente confirme si asiste.
+        private void AsignarWodClientesParaManana(int idRutina)
+        {
+            DateOnly manana = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
+            var clientes = _context.Clientes.ToList();
+
+            foreach (var cliente in clientes)
+            {
+                _context.ClienteRutinas.Add(new ClienteRutina
+                {
+                    IdCliente = cliente.IdCliente,
+                    IdRutina = idRutina,
+                    FechaAsignacion = manana,
+                    EstadoAsistencia = "PENDIENTE"
+                });
+            }
+
+            _context.SaveChanges();
+        }
+
+        // Cliente marca si asistirá al WOD de mañana (RMGM-WOD-002).
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirmarAsistenciaWOD(int idClienteRutina, string estado)
+        {
+            if (estado != "ACEPTADO" && estado != "NO_ASISTE")
+            {
+                TempData["ErrorMessage"] = "Estado de asistencia inválido.";
+                return RedirectToAction(nameof(EntrenamientoDiario));
+            }
+
+            (int idUsuario, string rol) = ObtenerUsuarioActual();
+            int? idCliente = await _context.Clientes
+                .Where(c => c.IdUsuario == idUsuario)
+                .Select(c => (int?)c.IdCliente)
+                .FirstOrDefaultAsync();
+
+            var registro = await _context.ClienteRutinas
+                .FirstOrDefaultAsync(cr => cr.IdClienteRutina == idClienteRutina
+                    && cr.IdCliente == idCliente);
+
+            if (registro == null)
+            {
+                TempData["ErrorMessage"] = "No se encontró el WOD asignado.";
+                return RedirectToAction(nameof(EntrenamientoDiario));
+            }
+
+            registro.EstadoAsistencia = estado;
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = estado == "ACEPTADO"
+                ? "¡Confirmaste tu asistencia al WOD!"
+                : "Quedó registrado que no asistirás al WOD.";
+
+            string referer = Request.Headers["Referer"].ToString();
+            if (!string.IsNullOrEmpty(referer))
+            {
+                return Redirect(referer);
+            }
+
+            return RedirectToAction(nameof(EntrenamientoDiario));
+        }
+
         private void GenerarNotificacionWOD(string nombre, string objetivo)
         {
             var clientes = _context.Clientes.ToList();
@@ -177,7 +250,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 .ToListAsync();
 
             var todosEjercicios = await _context.EjerciciosResumen
-                .FromSqlRaw("CALL sp_ObtenerEjercicios()")
+                .FromSqlRaw("CALL sp_obtenerEjercicios()")
                 .ToListAsync();
 
             ViewBag.EjerciciosRutina = ejerciciosRutina;
@@ -286,20 +359,6 @@ namespace G2_SC603_KN_Proyecto.Controllers
         }
         #endregion
 
-        #region Historial de Entrenamientos (RMGM-WOD-003)
-        // la vista decide qué mostrar según si la lista viene vacía.
-        [HttpGet]
-        public async Task<IActionResult> HistorialEntrenamientos()
-        {
-            (int idUsuario, string rol) = ObtenerUsuarioActual();
-
-            List<WodHistorialItemViewModel> historial =
-                await _wodConsultaService.ObtenerHistorialAsync(idUsuario, rol);
-
-            return View(historial);
-        }
-        #endregion
-
         #region Detalle de Entrenamiento
         //  vista de detalle compartida,
         // ya que ambas historias piden lo mismo al seleccionar un entrenamiento.
@@ -314,7 +373,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
             if (detalle == null)
             {
                 TempData["ErrorMessage"] = "El entrenamiento no existe o no tiene acceso a este registro.";
-                return RedirectToAction(nameof(HistorialEntrenamientos));
+                return RedirectToAction(nameof(EntrenamientoDiario));
             }
 
             return View(detalle);
@@ -324,7 +383,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         /// Obtiene el id de usuario y el rol desde la sesión actual.
         /// Centraliza esta lectura para evitar duplicar el acceso a
         /// HttpContext.Session en cada acción (DRY).
-      
+
         private (int IdUsuario, string Rol) ObtenerUsuarioActual()
         {
             int idUsuario = HttpContext.Session.GetInt32("ID") ?? 0;

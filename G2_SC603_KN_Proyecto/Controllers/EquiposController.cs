@@ -41,7 +41,7 @@ public class EquiposController : Controller
         try
         {
             _context.Database.ExecuteSqlRaw(
-                "CALL SP_EditarEquipo({0}, {1}, {2}, {3}, {4})",
+                "CALL sp_editarEquipo({0}, {1}, {2}, {3}, {4})",
                 idEquipo,
                 nombre,
                 estado,
@@ -72,7 +72,7 @@ public class EquiposController : Controller
             string estado = "Disponible";
 
             _context.Database.ExecuteSqlRaw(
-                "CALL SP_AgregarEquipo({0}, {1}, {2}, {3})",
+                "CALL sp_agregarEquipo({0}, {1}, {2}, {3})",
                 Nombre,
                 estado,
                 FechaCompra,
@@ -151,7 +151,7 @@ public class EquiposController : Controller
         try
         {
             _context.Database.ExecuteSqlRaw(
-                "CALL SP_EliminarEquipo({0})",
+                "CALL sp_eliminarEquipo({0})",
                 idEquipo
             );
 

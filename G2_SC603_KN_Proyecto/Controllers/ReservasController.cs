@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace G2_SC603_KN_Proyecto.Controllers
 {
+    // la reserva ES la confirmación de asistencia al WOD (Cliente_Rutina).
+    // Flujo: admin publica el WOD de mañana -> cliente acepta/rechaza en
+    // WOD/EntrenamientoDiario -> esa confirmación se refleja acá.
     public class ReservasController : Controller
     {
         private readonly DbOrionFitContext _context;
@@ -13,231 +16,117 @@ namespace G2_SC603_KN_Proyecto.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? filtroEstado = null)
         {
             string rol = HttpContext.Session.GetString("Rol") ?? string.Empty;
             int? idUsuario = HttpContext.Session.GetInt32("ID");
 
             Cliente? cliente = await _context.Clientes
                 .FirstOrDefaultAsync(c => c.IdUsuario == idUsuario);
-
-            int idCliente = cliente?.IdCliente ?? 0;
 
             ReservasViewModel model = new ReservasViewModel();
             model.EsAdmin = rol == "ADMIN" || rol == "RECEPTION";
             model.EsCliente = cliente != null;
 
-            model.Clases = await _context.Clases
-                .OrderBy(c => c.Horario)
-                .Select(c => new ClaseDisponibleVM
-                {
-                    IdClase = c.IdClase,
-                    Nombre = c.Nombre,
-                    Entrenador = c.IdEntrenadorNavigation.Nombre,
-                    Horario = c.Horario,
-                    Cupo = c.Cupo,
-                    Reservados = c.Reservas.Count(r => r.Estado == "Activa"),
-                    Wod = c.IdRutinaNavigation != null ? c.IdRutinaNavigation.Nombre : null,
-                    WodImagen = c.IdRutinaNavigation != null ? c.IdRutinaNavigation.Imagen : null,
-                    YaReservada = idCliente != 0 && c.Reservas.Any(r =>
-                        r.IdCliente == idCliente &&
-                        r.Estado == "Activa")
-                })
-                .ToListAsync();
+            DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
 
             if (cliente != null)
             {
-                DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
-
-                model.AsistenciaHoy = await _context.Asistencia.AnyAsync(a =>
-                    a.IdCliente == idCliente &&
-                    a.Fecha == hoy);
-
-                model.MisReservas = await _context.Reservas
-                    .Include(r => r.IdClaseNavigation)
-                    .Where(r => r.IdCliente == idCliente && r.Estado == "Activa")
-                    .OrderBy(r => r.IdClaseNavigation.Horario)
+                model.MisConfirmaciones = await _context.ClienteRutinas
+                    .Include(cr => cr.IdRutinaNavigation)
+                    .Where(cr => cr.IdCliente == cliente.IdCliente)
+                    .OrderByDescending(cr => cr.FechaAsignacion)
+                    .Select(cr => new ConfirmacionWodVM
+                    {
+                        IdClienteRutina = cr.IdClienteRutina,
+                        IdRutina = cr.IdRutina,
+                        NombreWod = cr.IdRutinaNavigation.Nombre,
+                        Imagen = cr.IdRutinaNavigation.Imagen,
+                        Fecha = cr.FechaAsignacion,
+                        Estado = cr.EstadoAsistencia
+                    })
                     .ToListAsync();
             }
 
             if (model.EsAdmin)
             {
-                ViewBag.Entrenadores = await _context.Entrenadors.ToListAsync();
-                ViewBag.Wods = await _context.Rutinas.OrderByDescending(r => r.IdRutina).ToListAsync();
-
-                model.TodasReservas = await _context.Reservas
-                    .Include(r => r.IdClaseNavigation)
-                    .Include(r => r.IdClienteNavigation)
-                    .OrderByDescending(r => r.FechaReserva)
+                // Confirmados para HOY: el WOD que se publicó ayer, ya es el de hoy.
+                var confirmadosHoy = await _context.ClienteRutinas
+                    .Include(cr => cr.IdRutinaNavigation)
+                    .Include(cr => cr.IdClienteNavigation)
+                    .Where(cr => cr.FechaAsignacion == hoy && cr.EstadoAsistencia == "ACEPTADO")
+                    .OrderBy(cr => cr.IdClienteNavigation.Nombre)
                     .ToListAsync();
+
+                var idsClientesHoy = confirmadosHoy.Select(cr => cr.IdCliente).Distinct().ToList();
+                var yaAsistieron = await _context.Asistencia
+                    .Where(a => a.Fecha == hoy && idsClientesHoy.Contains(a.IdCliente))
+                    .Select(a => a.IdCliente)
+                    .ToListAsync();
+
+                model.ConfirmadosHoy = confirmadosHoy.Select(cr => new ConfirmacionWodVM
+                {
+                    IdClienteRutina = cr.IdClienteRutina,
+                    IdRutina = cr.IdRutina,
+                    NombreWod = cr.IdRutinaNavigation.Nombre,
+                    NombreCliente = cr.IdClienteNavigation.Nombre,
+                    Fecha = cr.FechaAsignacion,
+                    Estado = cr.EstadoAsistencia,
+                    AsistioHoy = yaAsistieron.Contains(cr.IdCliente)
+                }).ToList();
+
+                // Historial completo, filtrable por estado.
+                IQueryable<ClienteRutina> query = _context.ClienteRutinas
+                    .Include(cr => cr.IdRutinaNavigation)
+                    .Include(cr => cr.IdClienteNavigation);
+
+                if (filtroEstado == "ACEPTADO" || filtroEstado == "NO_ASISTE" || filtroEstado == "PENDIENTE")
+                {
+                    query = query.Where(cr => cr.EstadoAsistencia == filtroEstado);
+                }
+
+                model.TodasConfirmaciones = await query
+                    .OrderByDescending(cr => cr.FechaAsignacion)
+                    .Select(cr => new ConfirmacionWodVM
+                    {
+                        IdClienteRutina = cr.IdClienteRutina,
+                        IdRutina = cr.IdRutina,
+                        NombreWod = cr.IdRutinaNavigation.Nombre,
+                        NombreCliente = cr.IdClienteNavigation.Nombre,
+                        Fecha = cr.FechaAsignacion,
+                        Estado = cr.EstadoAsistencia
+                    })
+                    .ToListAsync();
+
+                ViewBag.FiltroEstado = filtroEstado ?? "Todas";
             }
 
             return View(model);
         }
 
+        // Admin: marca el check-in físico de un cliente que había confirmado asistencia.
         [HttpPost]
-        public async Task<IActionResult> CrearClase(string nombre, DateTime horario, int cupo, int idEntrenador, int? idRutina)
+        public async Task<IActionResult> RegistrarAsistencia(int idClienteRutina)
         {
             string rol = HttpContext.Session.GetString("Rol") ?? string.Empty;
-
             if (rol != "ADMIN" && rol != "RECEPTION")
             {
-                TempData["ErrorMessage"] = "No tiene permisos para crear clases.";
+                TempData["ErrorMessage"] = "No tiene permisos para esta acción.";
                 return RedirectToAction("Index");
             }
 
-            if (string.IsNullOrWhiteSpace(nombre) || cupo <= 0)
+            ClienteRutina? confirmacion = await _context.ClienteRutinas.FindAsync(idClienteRutina);
+
+            if (confirmacion == null || confirmacion.EstadoAsistencia != "ACEPTADO")
             {
-                TempData["ErrorMessage"] = "El nombre y un cupo mayor a cero son obligatorios.";
-                return RedirectToAction("Index");
-            }
-
-            bool entrenadorExiste = await _context.Entrenadors.AnyAsync(e => e.IdEntrenador == idEntrenador);
-
-            if (!entrenadorExiste)
-            {
-                TempData["ErrorMessage"] = "El entrenador seleccionado no existe.";
-                return RedirectToAction("Index");
-            }
-
-            Clase clase = new Clase
-            {
-                Nombre = nombre.Trim(),
-                Horario = horario,
-                Cupo = cupo,
-                IdEntrenador = idEntrenador,
-                IdRutina = idRutina
-            };
-
-            _context.Clases.Add(clase);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Clase creada correctamente.";
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Reservar(int idClase)
-        {
-            int? idUsuario = HttpContext.Session.GetInt32("ID");
-
-            Cliente? cliente = await _context.Clientes
-                .FirstOrDefaultAsync(c => c.IdUsuario == idUsuario);
-
-            if (cliente == null)
-            {
-                TempData["ErrorMessage"] = "Debe iniciar sesión como cliente para reservar.";
-                return RedirectToAction("Index");
-            }
-
-            DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
-
-            bool membresiaActiva = await _context.ClienteMembresia.AnyAsync(cm =>
-                cm.IdCliente == cliente.IdCliente &&
-                cm.Estado == "Activa" &&
-                cm.FechaFin >= hoy);
-
-            if (!membresiaActiva)
-            {
-                TempData["ErrorMessage"] = "No cuenta con una membresía activa, no es posible reservar.";
-                return RedirectToAction("Index");
-            }
-
-            Clase? clase = await _context.Clases
-                .FirstOrDefaultAsync(c => c.IdClase == idClase);
-
-            if (clase == null)
-            {
-                TempData["ErrorMessage"] = "La clase seleccionada no existe.";
-                return RedirectToAction("Index");
-            }
-
-            bool yaReservada = await _context.Reservas.AnyAsync(r =>
-                r.IdClase == idClase &&
-                r.IdCliente == cliente.IdCliente &&
-                r.Estado == "Activa");
-
-            if (yaReservada)
-            {
-                TempData["ErrorMessage"] = "Ya tiene una reserva activa para esta clase.";
-                return RedirectToAction("Index");
-            }
-
-            int reservasActivas = await _context.Reservas.CountAsync(r =>
-                r.IdClase == idClase &&
-                r.Estado == "Activa");
-
-            // Cupo lleno
-            if (reservasActivas >= clase.Cupo)
-            {
-                TempData["ErrorMessage"] = "La clase no tiene cupo disponible.";
-                return RedirectToAction("Index");
-            }
-
-            Reserva reserva = new Reserva
-            {
-                IdCliente = cliente.IdCliente,
-                IdClase = idClase,
-                FechaReserva = hoy,
-                Estado = "Activa"
-            };
-
-            _context.Reservas.Add(reserva);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Reserva registrada correctamente.";
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Cancelar(int idReserva)
-        {
-            Reserva? reserva = await _context.Reservas
-                .FirstOrDefaultAsync(r => r.IdReserva == idReserva && r.Estado == "Activa");
-
-            if (reserva == null)
-            {
-                TempData["ErrorMessage"] = "No existe una reserva activa para cancelar.";
-                return RedirectToAction("Index");
-            }
-
-            // Libera el cupo
-            reserva.Estado = "Cancelada";
-
-            // Revierte la asistencia del día
-            DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
-
-            Asistencium? asistenciaHoy = await _context.Asistencia
-                .FirstOrDefaultAsync(a => a.IdCliente == reserva.IdCliente && a.Fecha == hoy);
-
-            if (asistenciaHoy != null)
-            {
-                _context.Asistencia.Remove(asistenciaHoy);
-            }
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Reserva cancelada, el cupo quedó disponible.";
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> RegistrarAsistencia(int idReserva)
-        {
-            Reserva? reserva = await _context.Reservas
-                .FirstOrDefaultAsync(r => r.IdReserva == idReserva && r.Estado == "Activa");
-
-            if (reserva == null)
-            {
-                TempData["ErrorMessage"] = "No se encontró la reserva.";
+                TempData["ErrorMessage"] = "No se encontró una confirmación válida.";
                 return RedirectToAction("Index");
             }
 
             DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
 
             bool yaRegistrada = await _context.Asistencia.AnyAsync(a =>
-                a.IdCliente == reserva.IdCliente &&
-                a.Fecha == hoy);
+                a.IdCliente == confirmacion.IdCliente && a.Fecha == hoy);
 
             if (yaRegistrada)
             {
@@ -245,38 +134,17 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 return RedirectToAction("Index");
             }
 
-            Asistencium asistencia = new Asistencium
+            _context.Asistencia.Add(new Asistencium
             {
-                IdCliente = reserva.IdCliente,
+                IdCliente = confirmacion.IdCliente,
                 Fecha = hoy,
                 HoraEntrada = TimeOnly.FromDateTime(DateTime.Now)
-            };
+            });
 
-            // Actualiza contador
-            _context.Asistencia.Add(asistencia);
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Asistencia registrada correctamente.";
             return RedirectToAction("Index");
-        }
-
-        public async Task<IActionResult> Detalle(int id)
-        {
-            Reserva? reserva = await _context.Reservas
-                .Include(r => r.IdClienteNavigation)
-                .Include(r => r.IdClaseNavigation)
-                    .ThenInclude(c => c.IdEntrenadorNavigation)
-                .Include(r => r.IdClaseNavigation)
-                    .ThenInclude(c => c.IdRutinaNavigation)
-                .FirstOrDefaultAsync(r => r.IdReserva == id);
-
-            if (reserva == null)
-            {
-                TempData["ErrorMessage"] = "La reserva no existe.";
-                return RedirectToAction("Index");
-            }
-
-            return View(reserva);
         }
     }
 }

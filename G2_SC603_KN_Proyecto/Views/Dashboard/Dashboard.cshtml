@@ -52,6 +52,9 @@
                 <span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings:'wght' 300">directions_run</span>
             </div>
             <div class="font-headline text-4xl font-black tracking-tighter text-on-surface">@Model.AsistenciaHoy</div>
+            <div class="text-on-surface-variant text-[10px] mt-2">
+                @Model.ConfirmadosWodManana confirmado(s) para el WOD de mañana
+            </div>
         </div>
         <div class="metric-card bg-surface-container rounded-2xl p-5 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
             <div class="flex justify-between items-start mb-3">
@@ -206,7 +209,7 @@
     const asistenciaRango = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AsistenciaRango));
 
     document.getElementById('todayDate').textContent = new Date().toLocaleDateString('es-CR', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
 </script>
 <script src="~/js/graficos.js" asp-append-version="true"></script>

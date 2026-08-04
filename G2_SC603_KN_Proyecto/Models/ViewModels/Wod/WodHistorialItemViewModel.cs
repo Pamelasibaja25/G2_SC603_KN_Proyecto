@@ -10,11 +10,17 @@ namespace G2_SC603_KN_Proyecto.Models.ViewModels.Wod
     /// </summary>
     public class WodHistorialItemViewModel
     {
+        /// <summary>Id de la fila cliente_rutina (necesario para confirmar asistencia).</summary>
+        public int IdClienteRutina { get; set; }
         public int IdRutina { get; set; }
         public string Nombre { get; set; } = string.Empty;
         public string? Objetivo { get; set; }
+        public string? Imagen { get; set; }
         public string NombreEntrenador { get; set; } = string.Empty;
         public int CantidadEjercicios { get; set; }
+
+        /// <summary>PENDIENTE, ACEPTADO o NO_ASISTE.</summary>
+        public string EstadoAsistencia { get; set; } = "PENDIENTE";
 
         /// <summary>
         /// Fecha de asignación del entrenamiento (tabla cliente_rutina).

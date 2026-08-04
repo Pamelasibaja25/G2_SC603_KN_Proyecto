@@ -13,6 +13,8 @@ public partial class ClienteRutina
 
     public DateOnly FechaAsignacion { get; set; }
 
+    public string EstadoAsistencia { get; set; } = "PENDIENTE";
+
     public virtual Cliente IdClienteNavigation { get; set; } = null!;
 
     public virtual Rutina IdRutinaNavigation { get; set; } = null!;

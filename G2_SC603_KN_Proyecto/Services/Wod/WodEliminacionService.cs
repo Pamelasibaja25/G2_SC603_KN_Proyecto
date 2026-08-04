@@ -41,6 +41,16 @@ namespace G2_SC603_KN_Proyecto.Services.Wod
                     .Where(cr => cr.IdRutina == idRutina);
                 _context.ClienteRutinas.RemoveRange(asignacionesCliente);
 
+                // Las clases (Reservas) pueden referenciar este WOD como su
+                // entrenamiento asociado; se desvincula sin borrar la clase.
+                List<Clase> clasesAsociadas = await _context.Clases
+                    .Where(c => c.IdRutina == idRutina)
+                    .ToListAsync();
+                foreach (Clase clase in clasesAsociadas)
+                {
+                    clase.IdRutina = null;
+                }
+
                 _context.Rutinas.Remove(rutina);
 
                 await _context.SaveChangesAsync();

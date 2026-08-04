@@ -7,26 +7,29 @@ public class ReservasViewModel
 {
     public bool EsAdmin { get; set; }
     public bool EsCliente { get; set; }
-    public bool AsistenciaHoy { get; set; }
 
-    public List<ClaseDisponibleVM> Clases { get; set; } = new List<ClaseDisponibleVM>();
+    /// eHistorial de confirmaciones del cliente logueado (pasadas y futuras).
+    public List<ConfirmacionWodVM> MisConfirmaciones { get; set; } = new();
 
-    public List<Reserva> MisReservas { get; set; } = new List<Reserva>();
+    /// Admin: clientes que aceptaron el WOD de hoy, con estado de asistencia física.
+    public List<ConfirmacionWodVM> ConfirmadosHoy { get; set; } = new();
 
-    public List<Reserva> TodasReservas { get; set; } = new List<Reserva>();
+    /// Admin: historial completo de confirmaciones (con filtro de estado).
+    public List<ConfirmacionWodVM> TodasConfirmaciones { get; set; } = new();
 }
 
-public class ClaseDisponibleVM
+public class ConfirmacionWodVM
 {
-    public int IdClase { get; set; }
-    public string Nombre { get; set; }
-    public string Entrenador { get; set; }
-    public DateTime Horario { get; set; }
-    public int Cupo { get; set; }
-    public int Reservados { get; set; }
-    public bool YaReservada { get; set; }
-    public string? Wod { get; set; }
-    public string? WodImagen { get; set; }
+    public int IdClienteRutina { get; set; }
+    public int IdRutina { get; set; }
+    public string NombreWod { get; set; } = "";
+    public string? Imagen { get; set; }
+    public string? NombreCliente { get; set; }
+    public DateOnly Fecha { get; set; }
 
-    public int Disponibles => Cupo - Reservados;
+    /// PENDIENTE, ACEPTADO o NO_ASISTE.
+    public string Estado { get; set; } = "";
+
+    /// Si ya hizo check-in físico hoy (tabla Asistencia)
+    public bool AsistioHoy { get; set; }
 }

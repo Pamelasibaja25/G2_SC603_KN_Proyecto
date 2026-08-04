@@ -27,10 +27,7 @@
         </div>
         <div class="flex items-center gap-2">
             <a asp-controller="WOD" asp-action="EntrenamientoDiario" class="btn-secondary py-2.5 text-sm">
-                <span class="material-symbols-outlined text-[18px]">today</span> Hoy
-            </a>
-            <a asp-controller="WOD" asp-action="HistorialEntrenamientos" class="btn-secondary py-2.5 text-sm">
-                <span class="material-symbols-outlined text-[18px]">history</span> Historial
+                <span class="material-symbols-outlined text-[18px]">event_upcoming</span> WOD de Mañana
             </a>
             @if (rolActual == "ADMIN" || rolActual == "TRAINER")
             {
@@ -59,45 +56,35 @@
 
                     <div class="flex items-start justify-between mb-3">
                         <h3 class="font-headline font-bold text-base">@primeraFila.Nombre</h3>
-                            <div class="flex gap-1">
-                                @if (rolActual == "ADMIN" || rolActual == "TRAINER")
-                                {
-                                    <a asp-controller="WOD" asp-action="EditarWOD"
-                                       asp-route-id="@primeraFila.IdRutina"
-                                       class="btn-icon" title="Editar WOD">
-                                        <span class="material-symbols-outlined text-[18px]">edit</span>
-                                    </a>
-                                }
-                                @if (rolActual == "ADMIN")
-                                {
-                                    <button class="btn-icon" title="Eliminar WOD"
-                                            onclick="confirmarEliminar(@primeraFila.IdRutina, '@primeraFila.Nombre.Replace("'", "\\'")')">
-                                        <span class="material-symbols-outlined text-[18px] text-error">delete</span>
-                                    </button>
-                                }
-                            </div>
+                        <div class="flex gap-1">
+                            @if (rolActual == "ADMIN" || rolActual == "TRAINER")
+                            {
+                                <a asp-controller="WOD" asp-action="EditarWOD"
+                                   asp-route-id="@primeraFila.IdRutina"
+                                   class="btn-icon" title="Editar WOD">
+                                    <span class="material-symbols-outlined text-[18px]">edit</span>
+                                </a>
+                            }
+                            @if (rolActual == "ADMIN")
+                            {
+                                <button class="btn-icon" title="Eliminar WOD"
+                                        onclick="confirmarEliminar(@primeraFila.IdRutina, '@primeraFila.Nombre.Replace("'", "\\'")')">
+                                    <span class="material-symbols-outlined text-[18px] text-error">delete</span>
+                                </button>
+                            }
+                        </div>
                     </div>
-
 
                     @if (!string.IsNullOrEmpty(primeraFila.Imagen))
                     {
                         <img src="~/@primeraFila.Imagen" alt="@primeraFila.Nombre"
-                             class="w-full rounded-xl mb-3" style="height:180px; object-fit:cover; object-position:center; background:#2a2929;" />
+                             class="w-full rounded-xl" style="max-height:520px; object-fit:contain; object-position:center; background:#111;" />
                     }
-                    @if (!string.IsNullOrEmpty(primeraFila.Objetivo))
+                    else
                     {
-                        <p class="text-on-surface-variant text-xs mb-4">@primeraFila.Objetivo</p>
+                        <p class="text-on-surface-variant text-xs">Sin imagen.</p>
                     }
-                    <p class="text-xs text-outline mb-3">Coach: @primeraFila.NombreEntrenador</p>
-                    <div class="space-y-2">
-                        @foreach (var ej in grupo.Where(g => g.NombreEjercicio != null))
-                        {
-                            <div class="flex items-center justify-between bg-surface-container-high rounded-lg px-3 py-2">
-                                <span class="text-sm">@ej.NombreEjercicio</span>
-                                <span class="text-xs text-outline">@ej.Series×@ej.Repeticiones | @ej.Descanso s</span>
-                            </div>
-                        }
-                    </div>
+                    <p class="text-xs text-outline mt-3">Coach: @primeraFila.NombreEntrenador</p>
                 </div>
             }
         }
@@ -172,7 +159,7 @@
     const ejerciciosDisponibles = [
         @foreach (var ej in Model ?? Enumerable.Empty<G2_SC603_KN_Proyecto.Models.EjercicioResumen>())
         {
-                    @Html.Raw("{ id: " + ej.IdEjercicio + ", nombre: '" + ej.Nombre.Replace("'", "\\'") + "' },")
+                        @Html.Raw("{ id: " + ej.IdEjercicio + ", nombre: '" + ej.Nombre.Replace("'", "\\'") + "' },")
         }
     ];
 

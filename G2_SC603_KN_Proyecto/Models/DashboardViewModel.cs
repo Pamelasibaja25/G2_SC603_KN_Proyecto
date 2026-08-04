@@ -8,6 +8,7 @@ public class DashboardViewModel
     public int ClientesActivos { get; set; }
     public decimal IngresosMes { get; set; }
     public int AsistenciaHoy { get; set; }
+    public int ConfirmadosWodManana { get; set; }
     public int MembresiasPorVencer { get; set; }
 
     public List<AsistenciaSemanalVM> AsistenciaSemanal { get; set; } = new();

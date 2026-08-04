@@ -22,7 +22,7 @@
 <div id="page-memberships" class="section-page active p-6 lg:p-8">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-            <h2 class="font-headline text-3xl font-bold tracking-tight">Gestión de Membresías</h2>
+            <h2 class="font-headline text-3xl font-bold tracking-tight">Gestión de Mensualidades</h2>
         </div>
         <div class="relative flex-[2]">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
@@ -39,7 +39,7 @@
         @if (rolActual == "ADMIN" || rolActual == "RECEPTION")
         {
             <button class="btn-primary py-2.5 text-sm" onclick="openModal('membershipModal')">
-                <span class="material-symbols-outlined text-[18px]">add</span> Nueva Membresía
+                <span class="material-symbols-outlined text-[18px]">add</span> Nueva Mensualidad
             </button>
             <button class="btn-secondary py-2.5 text-sm"
                     onclick="mostrarMembresiasProximas()">
@@ -48,7 +48,41 @@
                 </span>
                 Próximas a Vencer
             </button>
+            <button class="btn-secondary py-2.5 text-sm" onclick="openModal('montoModal')">
+                <span class="material-symbols-outlined text-[18px]">payments</span>
+                Configurar Monto
+            </button>
         }
+    </div>
+
+    <!-- Modal: configurar monto fijo de la mensualidad -->
+    <div class="modal-overlay" id="montoModal">
+        <div class="modal-box">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-headline font-bold text-xl">Configurar Monto de la Mensualidad</h3>
+                <button onclick="closeModal('montoModal')" class="btn-icon">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form asp-action="EditarMontoMensualidad" method="post" class="space-y-4">
+                <div>
+                    <label class="label-float">Mensualidad</label>
+                    <input type="text" class="input-field" readonly
+                           value="@(ViewBag.MembresiaUnica != null ? $"{ViewBag.MembresiaUnica.Nombre} — ₡{((decimal)ViewBag.MembresiaUnica.Precio):N2} actual" : "No configurada")" />
+                    <input type="hidden" name="idMembresia" value="@(ViewBag.MembresiaUnica?.IdMembresia)" />
+                </div>
+                <div>
+                    <label class="label-float">Nuevo Monto (₡) *</label>
+                    <input type="number" step="0.01" min="0" name="precio" class="input-field" required />
+                </div>
+                <div class="flex gap-3 pt-2 justify-end">
+                    <button type="button" class="btn-secondary" onclick="closeModal('montoModal')">Cancelar</button>
+                    <button type="submit" class="btn-primary">
+                        <span class="material-symbols-outlined text-[16px]">save</span> Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
@@ -120,10 +154,10 @@
 <div class="modal-overlay" id="membershipModal">
     <div class="modal-box">
         <div class="flex items-center justify-between mb-6">
-            <h3 class="font-headline font-bold text-xl" id="membershipModalTitle">Nueva Membresía</h3>
+            <h3 class="font-headline font-bold text-xl" id="membershipModalTitle">Nueva Mensualidad</h3>
             <button onclick="closeModal('membershipModal')" class="btn-icon"><span class="material-symbols-outlined">close</span></button>
         </div>
-           <form asp-action="AgregarMembresia" method="post" id="membershipForm" class="space-y-4">
+        <form asp-action="AgregarMembresia" method="post" id="membershipForm" class="space-y-4">
             <input type="hidden" id="membershipId" />
             <div>
                 <label class="label-float">Cliente *</label>
@@ -137,13 +171,10 @@
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="label-float">Tipo de Plan *</label>
-                    <select id="membershipPlan" name="IdMembresia" class="input-field" required>
-                        @foreach (var listamembresias in ViewBag.Membresias as List<G2_SC603_KN_Proyecto.Models.Membresium>)
-                        {
-                            <option value="@listamembresias.IdMembresia">@listamembresias.Nombre - @listamembresias.Precio.ToString("N2")</option>
-                        }
-                    </select>
+                    <label class="label-float">Mensualidad</label>
+                    <input type="text" class="input-field" readonly
+                           value="@(ViewBag.MembresiaUnica != null ? $"₡{((decimal)ViewBag.MembresiaUnica.Precio):N2} por mes" : "No configurada")" />
+                    <input type="hidden" id="membershipPlan" name="IdMembresia" value="@(ViewBag.MembresiaUnica?.IdMembresia)" />
                 </div>
                 <div>
                     <label class="label-float">Estado</label>
@@ -155,14 +186,34 @@
                 </div>
                 <div>
                     <label class="label-float">Fecha de Inicio *</label>
-                    <input type="date" id="membershipStart" name="FechaInicio" class="input-field" required />
+                    <input type="date" id="membershipStart" name="FechaInicio" class="input-field" required onchange="calcularFechaFin()" />
 
+                </div>
+                <div>
+                    <label class="label-float">Periodo (pago adelantado)</label>
+                    <select id="membershipMeses" class="input-field" onchange="calcularFechaFin()">
+                        <option value="1">1 mes</option>
+                        <option value="2">2 meses</option>
+                        <option value="3">3 meses</option>
+                        <option value="6">6 meses</option>
+                        <option value="12">12 meses</option>
+                    </select>
                 </div>
                 <div>
                     <label class="label-float">Fecha de Vencimiento *</label>
                     <input type="date" id="membershipEnd" name="FechaFin" class="input-field" required />
                 </div>
             </div>
+            <script>
+                            function calcularFechaFin() {
+                                const inicio = document.getElementById('membershipStart').value;
+                                const meses = parseInt(document.getElementById('membershipMeses').value, 10);
+                                if (!inicio || !meses) return;
+                                const fecha = new Date(inicio + 'T00:00:00');
+                                fecha.setMonth(fecha.getMonth() + meses);
+                                document.getElementById('membershipEnd').value = fecha.toISOString().split('T')[0];
+                            }
+            </script>
             <div class="flex gap-3 pt-2 justify-end">
                 <button type="button" class="btn-secondary" onclick="closeModal('membershipModal')">Cancelar</button>
                 <button type="submit" class="btn-primary"><span class="material-symbols-outlined text-[16px]">save</span> Guardar</button>
@@ -205,17 +256,17 @@
                     </select>
                 </div>
             </div>
-                <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="label-float">Fecha de Inicio *</label>
                     <input type="date" id="editMembershipStart" name="FechaInicio" class="input-field" required />
                 </div>
 
                 <div>
-                <label class="label-float">Fecha de Vencimiento *</label>
+                    <label class="label-float">Fecha de Vencimiento *</label>
                     <input type="date" id="editMembershipEnd" name="FechaFin" class="input-field" required />
-                    </div>
                 </div>
+            </div>
             <div class="flex gap-3 pt-2 justify-end">
                 <button type="button" class="btn-secondary" onclick="closeModal('editModal')">Cancelar</button>
                 <button type="submit" class="btn-primary">
@@ -232,7 +283,7 @@
 
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-headline font-bold text-xl">
-                Historial de Membresías
+                Historial de Mensualidades
             </h3>
 
             <button onclick="closeModal('historialModal')" class="btn-icon">
@@ -243,7 +294,7 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Membresía</th>
+                    <th>Mensualidad</th>
                     <th>Inicio</th>
                     <th>Fin</th>
                 </tr>
@@ -262,7 +313,7 @@
 
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-headline font-bold text-xl">
-                Membresías Próximas a Vencer (Dentro de los 15 Días)
+                Mensualidades Próximas a Vencer (Dentro de los 15 Días)
             </h3>
 
             <button onclick="closeModal('proximasModal')" class="btn-icon">
@@ -274,7 +325,7 @@
             <thead>
                 <tr>
                     <th>Cliente</th>
-                    <th>Membresía</th>
+                    <th>Mensualidad</th>
                     <th>Vence</th>
                     <th>Días restantes</th>
                 </tr>

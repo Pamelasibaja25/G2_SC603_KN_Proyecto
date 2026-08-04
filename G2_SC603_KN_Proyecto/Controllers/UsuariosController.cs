@@ -18,7 +18,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         {
 
             var Usuarios = await _context.UsuarioNombre
-        .FromSqlRaw("CALL sp_ObtenerUsuariosConNombre()")
+        .FromSqlRaw("CALL sp_obtenerUsuariosConNombre()")
         .ToListAsync();
 
             return View(Usuarios);
@@ -32,12 +32,12 @@ namespace G2_SC603_KN_Proyecto.Controllers
             try
             {
                 await _context.Database.ExecuteSqlRawAsync(
-                "CALL sp_AgregarUsuario({0}, {1}, {2}, {3}, {4})",
-                nuevoUsuario.nombre,
-                nuevoUsuario.telefono,
-                nuevoUsuario.correo,
-                nuevoUsuario.rol,
-                nuevoUsuario.username
+                "CALL sp_agregarUsuario({0}, {1}, {2}, {3}, {4})",
+                nuevoUsuario.Nombre,
+                nuevoUsuario.Telefono,
+                nuevoUsuario.Correo,
+                nuevoUsuario.Rol,
+                nuevoUsuario.Username
             );
                 TempData["SuccessMessage"] = "Usuario agregado correctamente.";
             }
@@ -57,12 +57,12 @@ namespace G2_SC603_KN_Proyecto.Controllers
             try
             {
                 await _context.Database.ExecuteSqlRawAsync(
-                "CALL sp_EditarUsuario({0}, {1}, {2}, {3}, {4})",
-                nuevoUsuario.nombre,
-                nuevoUsuario.telefono,
-                nuevoUsuario.correo,
-                nuevoUsuario.rol,
-                nuevoUsuario.username
+                "CALL sp_editarUsuario({0}, {1}, {2}, {3}, {4})",
+                nuevoUsuario.Nombre,
+                nuevoUsuario.Telefono,
+                nuevoUsuario.Correo,
+                nuevoUsuario.Rol,
+                nuevoUsuario.Username
             );
                 TempData["SuccessMessage"] = "Usuario editado correctamente.";
             }
@@ -81,7 +81,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         {
             var idUsuario = HttpContext.Session.GetInt32("ID");
             var usuarios = await _context.UsuarioNombre
-    .FromSqlRaw("CALL sp_ObtenerUsuarioConNombre({0})", idUsuario)
+    .FromSqlRaw("CALL sp_obtenerUsuarioConNombre({0})", idUsuario)
     .ToListAsync();
 
             var usuario = usuarios.FirstOrDefault();
@@ -101,7 +101,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 var passwordActual = form["PasswordActual"].ToString().Trim();
                 var passwordNueva = form["PasswordNueva"].ToString().Trim();
                 await _context.Database.ExecuteSqlRawAsync(
-                "CALL sp_ActualizarContraseña({0}, {1}, {2})",
+                "CALL sp_actualizarContraseña({0}, {1}, {2})",
                 idUsuario,
                 passwordActual,
                 passwordNueva
@@ -124,12 +124,12 @@ namespace G2_SC603_KN_Proyecto.Controllers
             try
             {
                 await _context.Database.ExecuteSqlRawAsync(
-                "CALL sp_EditarUsuario({0}, {1}, {2}, {3}, {4})",
-                nuevoUsuario.nombre,
-                nuevoUsuario.telefono,
-                nuevoUsuario.correo,
-                nuevoUsuario.rol,
-                nuevoUsuario.username
+                "CALL sp_editarUsuario({0}, {1}, {2}, {3}, {4})",
+                nuevoUsuario.Nombre,
+                nuevoUsuario.Telefono,
+                nuevoUsuario.Correo,
+                nuevoUsuario.Rol,
+                nuevoUsuario.Username
             );
                 TempData["SuccessMessage"] = "Usuario editado correctamente.";
             }

@@ -238,6 +238,8 @@ CREATE TABLE Detalle_Venta (
     CONSTRAINT FK_DetalleVenta_Venta FOREIGN KEY (id_venta) REFERENCES Venta(id_venta),
     CONSTRAINT FK_DetalleVenta_Inventario FOREIGN KEY (id_producto) REFERENCES Inventario(id_producto)
 );
+
+use db_orion_fit
 /* =========================================================
    TABLA NOTIFICACION
 ========================================================= */

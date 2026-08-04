@@ -1,3 +1,4 @@
+USE DB_Orion_Fit;
 DELIMITER $$
 
 CREATE PROCEDURE SP_EditarEquipo(

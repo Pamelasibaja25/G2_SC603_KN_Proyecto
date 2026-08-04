@@ -19,148 +19,101 @@
     </div>
 }
 
-<div id="page-reservations" class="section-page active p-6 lg:p-8">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div>
-            <h2 class="font-headline text-3xl font-bold tracking-tight">Reservas de Horarios</h2>
-            <p class="text-on-surface-variant text-xs mt-1">RMGM-RES-001 al RMGM-RES-005</p>
-        </div>
-        @if (Model.EsAdmin)
-        {
-            <button class="btn-primary py-2.5 text-sm" onclick="openModal('classModal')">
-                <span class="material-symbols-outlined text-[18px]">add</span> Nueva Clase
-            </button>
-        }
-    </div>
+<div class="section-page active p-6 lg:p-8">
+    <h2 class="font-headline text-3xl font-bold tracking-tight mb-8">Reservas</h2>
 
-    <!-- Horarios disponibles -->
-    @if (!Model.Clases.Any())
-    {
-        <div class="bg-surface-container rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-            <p class="text-outline text-sm">No hay clases programadas por el momento.</p>
-        </div>
-    }
-    else
-    {
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            @foreach (var clase in Model.Clases)
-            {
-                bool lleno = clase.Disponibles <= 0;
-
-                <div class="reservation-slot @(clase.YaReservada ? "mine" : lleno ? "full" : "available")">
-                    @if (!string.IsNullOrEmpty(clase.WodImagen))
-                    {
-                        <img src="~/@clase.WodImagen" alt="@clase.Wod"
-                             class="w-full rounded-xl mb-3" style="height:140px; object-fit:cover; object-position:center; background:#2a2929;" />
-                    }
-                    <div class="flex items-start justify-between mb-2">
-                        <div>
-                            <p class="font-headline font-bold text-sm">@clase.Nombre</p>
-                            <p class="text-outline text-xs">@clase.Horario.ToString("dd/MM/yyyy · hh:mm tt")</p>
-                        </div>
-                        <div class="text-right">
-                            @if (clase.YaReservada)
-                            {
-                                <span class="badge-active inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase">Reservado</span>
-                            }
-                            else if (lleno)
-                            {
-                                <span class="badge-expired inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase">Lleno</span>
-                            }
-                            else
-                            {
-                                <span class="badge-active inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase">Disponible</span>
-                            }
-                        </div>
-                    </div>
-
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="material-symbols-outlined text-outline text-[14px]" style="font-variation-settings:'wght' 300">person</span>
-                        <span class="text-outline text-xs">@clase.Entrenador</span>
-                    </div>
-
-                    @if (!string.IsNullOrEmpty(clase.Wod))
-                    {
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="material-symbols-outlined text-outline text-[14px]" style="font-variation-settings:'wght' 300">fitness_center</span>
-                            <span class="text-outline text-xs">Entrenamiento: @clase.Wod</span>
-                        </div>
-                    }
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-outline text-xs">Cupos: @clase.Reservados / @clase.Cupo</span>
-                        <span class="text-outline text-xs">· @clase.Disponibles disponibles</span>
-                    </div>
-
-                    @if (Model.EsCliente && !clase.YaReservada && !lleno)
-                    {
-                        <form asp-controller="Reservas" asp-action="Reservar" method="post">
-                            <input type="hidden" name="idClase" value="@clase.IdClase" />
-                            <button type="submit" class="btn-primary text-xs py-1.5 px-3 w-full">Reservar</button>
-                        </form>
-                    }
-                </div>
-            }
-        </div>
-    }
-
-    <!-- Mis Reservas -->
     @if (Model.EsCliente)
     {
-        <div class="mt-8 bg-surface-container rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-            <h3 class="font-headline font-bold text-base mb-4">Mis Reservas Activas</h3>
-            <div class="space-y-3">
-                @if (!Model.MisReservas.Any())
+        var pendiente = Model.MisConfirmaciones
+           .Where(c => c.Estado == "PENDIENTE")
+           .OrderBy(c => c.Fecha)
+           .FirstOrDefault();
+
+        @if (pendiente != null)
+        {
+            <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)] mb-8 p-6">
+                <h3 class="font-headline font-bold text-xl mb-1">@pendiente.NombreWod</h3>
+                <p class="text-on-surface-variant text-sm mb-4">
+                    @pendiente.Fecha.ToString("dddd dd 'de' MMMM", new System.Globalization.CultureInfo("es-ES"))
+                </p>
+                @if (!string.IsNullOrEmpty(pendiente.Imagen))
                 {
-                    <p class="text-outline text-sm">No tienes reservas activas.</p>
+                    <img src="~/@pendiente.Imagen" alt="@pendiente.NombreWod" class="w-full rounded-xl mb-4"
+                         style="max-height:480px; object-fit:contain; object-position:center; background:#111;" />
+                }
+                <div class="flex gap-3">
+                    <form asp-controller="WOD" asp-action="ConfirmarAsistenciaWOD" method="post" class="flex-1">
+                        <input type="hidden" name="idClienteRutina" value="@pendiente.IdClienteRutina" />
+                        <input type="hidden" name="estado" value="ACEPTADO" />
+                        <button type="submit" class="btn-filled w-full">Aceptar</button>
+                    </form>
+                    <form asp-controller="WOD" asp-action="ConfirmarAsistenciaWOD" method="post" class="flex-1">
+                        <input type="hidden" name="idClienteRutina" value="@pendiente.IdClienteRutina" />
+                        <input type="hidden" name="estado" value="NO_ASISTE" />
+                        <button type="submit" class="btn-outlined w-full">No asistir</button>
+                    </form>
+                </div>
+            </div>
+        }
+
+        <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)] mb-8">
+            <div class="p-6 pb-0">
+                <h3 class="font-headline font-bold text-base mb-4">Mis confirmaciones</h3>
+            </div>
+            <div class="overflow-x-auto">
+                @if (!Model.MisConfirmaciones.Any())
+                {
+                    <p class="text-outline text-sm p-6 pt-0">Todavía no tenés confirmaciones registradas.</p>
                 }
                 else
                 {
-                    foreach (var reserva in Model.MisReservas)
-                    {
-                        <div class="flex items-center justify-between bg-surface-container-high rounded-xl px-4 py-3">
-                            <div>
-                                <p class="font-headline font-semibold text-sm">@reserva.IdClaseNavigation.Nombre</p>
-                                <p class="text-outline text-xs">@reserva.IdClaseNavigation.Horario.ToString("dd/MM/yyyy · hh:mm tt")</p>
-                            </div>
-                            <div class="flex gap-2">
-                                @if (Model.AsistenciaHoy)
-                                {
-                                    <button type="button" class="btn-secondary text-xs py-1.5 px-3" disabled style="opacity:0.5; cursor:default;">
-                                        <span class="material-symbols-outlined text-[14px]">check_circle</span> Asistencia de hoy registrada
-                                    </button>
-                                }
-                                else
-                                {
-                                    <form asp-controller="Reservas" asp-action="RegistrarAsistencia" method="post">
-                                        <input type="hidden" name="idReserva" value="@reserva.IdReserva" />
-                                        <button type="submit" class="btn-primary text-xs py-1.5 px-3">
-                                            <span class="material-symbols-outlined text-[14px]">how_to_reg</span> Registrar asistencia de hoy
-                                        </button>
-                                    </form>
-                                }
-                                <form asp-controller="Reservas" asp-action="Cancelar" method="post">
-                                    <input type="hidden" name="idReserva" value="@reserva.IdReserva" />
-                                    <button type="submit" class="btn-danger text-xs py-1.5 px-3">Cancelar</button>
-                                </form>
-                            </div>
-                        </div>
-                    }
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>WOD</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in Model.MisConfirmaciones)
+                            {
+                                <tr>
+                                    <td>@c.NombreWod</td>
+                                    <td>@c.Fecha.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (c.Estado == "ACEPTADO")
+                                        {
+                                            <span class="text-[#4ade80]">Confirmado</span>
+                                        }
+                                        else if (c.Estado == "NO_ASISTE")
+                                        {
+                                            <span class="text-[#ffb4ab]">No asistió</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-outline">Pendiente</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 }
             </div>
         </div>
     }
 
-    <!-- Gestión de reservas (admin) -->
     @if (Model.EsAdmin)
     {
-        <div class="mt-8 bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+        <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)] mb-8">
             <div class="p-6 pb-0">
-                <h3 class="font-headline font-bold text-base mb-4">Gestión de Reservas</h3>
+                <h3 class="font-headline font-bold text-base mb-4">Asistencia de Hoy</h3>
             </div>
             <div class="overflow-x-auto">
-                @if (!Model.TodasReservas.Any())
+                @if (!Model.ConfirmadosHoy.Any())
                 {
-                    <p class="text-outline text-sm p-6 pt-0">No existen reservas registradas.</p>
+                    <p class="text-outline text-sm p-6 pt-0">Nadie confirmó asistencia para hoy.</p>
                 }
                 else
                 {
@@ -168,24 +121,102 @@
                         <thead>
                             <tr>
                                 <th>Cliente</th>
-                                <th>Clase</th>
-                                <th>Fecha Reserva</th>
-                                <th>Estado</th>
+                                <th>WOD</th>
+                                <th>Check-in</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var reserva in Model.TodasReservas)
+                            @foreach (var c in Model.ConfirmadosHoy)
                             {
                                 <tr>
-                                    <td>@reserva.IdClienteNavigation.Nombre</td>
-                                    <td>@reserva.IdClaseNavigation.Nombre</td>
-                                    <td>@reserva.FechaReserva.ToString("dd/MM/yyyy")</td>
-                                    <td>@reserva.Estado</td>
+                                    <td>@c.NombreCliente</td>
+                                    <td>@c.NombreWod</td>
                                     <td>
-                                        <a asp-controller="Reservas" asp-action="Detalle" asp-route-id="@reserva.IdReserva" class="btn-secondary text-xs py-1.5 px-3">
-                                            Ver detalle
-                                        </a>
+                                        @if (c.AsistioHoy)
+                                        {
+                                            <span class="text-[#4ade80]">Ya ingresó</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-outline">Pendiente</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!c.AsistioHoy)
+                                        {
+                                            <form asp-controller="Reservas" asp-action="RegistrarAsistencia" method="post">
+                                                <input type="hidden" name="idClienteRutina" value="@c.IdClienteRutina" />
+                                                <button type="submit" class="btn-secondary text-xs py-1.5 px-3">Marcar ingreso</button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+
+        <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+            <div class="p-6 pb-0">
+                <h3 class="font-headline font-bold text-base mb-4">Historial de Confirmaciones</h3>
+                <div class="flex gap-2 mb-4">
+                    <a asp-controller="Reservas" asp-action="Index"
+                       class="btn-secondary text-xs py-1.5 px-3 @(ViewBag.FiltroEstado == "Todas" ? "btn-primary" : "")">
+                        Todas
+                    </a>
+                    <a asp-controller="Reservas" asp-action="Index" asp-route-filtroEstado="ACEPTADO"
+                       class="btn-secondary text-xs py-1.5 px-3 @(ViewBag.FiltroEstado == "ACEPTADO" ? "btn-primary" : "")">
+                        Confirmadas
+                    </a>
+                    <a asp-controller="Reservas" asp-action="Index" asp-route-filtroEstado="NO_ASISTE"
+                       class="btn-secondary text-xs py-1.5 px-3 @(ViewBag.FiltroEstado == "NO_ASISTE" ? "btn-primary" : "")">
+                        No asisten
+                    </a>
+                    <a asp-controller="Reservas" asp-action="Index" asp-route-filtroEstado="PENDIENTE"
+                       class="btn-secondary text-xs py-1.5 px-3 @(ViewBag.FiltroEstado == "PENDIENTE" ? "btn-primary" : "")">
+                        Pendientes
+                    </a>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                @if (!Model.TodasConfirmaciones.Any())
+                {
+                    <p class="text-outline text-sm p-6 pt-0">No hay confirmaciones registradas.</p>
+                }
+                else
+                {
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>WOD</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in Model.TodasConfirmaciones)
+                            {
+                                <tr>
+                                    <td>@c.NombreCliente</td>
+                                    <td>@c.NombreWod</td>
+                                    <td>@c.Fecha.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (c.Estado == "ACEPTADO")
+                                        {
+                                            <span class="text-[#4ade80]">Confirmado</span>
+                                        }
+                                        else if (c.Estado == "NO_ASISTE")
+                                        {
+                                            <span class="text-[#ffb4ab]">No asiste</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-outline">Pendiente</span>
+                                        }
                                     </td>
                                 </tr>
                             }
@@ -196,54 +227,3 @@
         </div>
     }
 </div>
-
-@if (Model.EsAdmin)
-{
-<div class="modal-overlay" id="classModal">
-    <div class="modal-box">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="font-headline font-bold text-xl">Nueva Clase</h3>
-            <button onclick="closeModal('classModal')" class="btn-icon"><span class="material-symbols-outlined">close</span></button>
-        </div>
-        <form asp-controller="Reservas" asp-action="CrearClase" method="post" class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-                <div class="col-span-2">
-                    <label class="label-float">Nombre de la Clase *</label>
-                    <input type="text" name="nombre" class="input-field" placeholder="Ej: CrossFit Intensivo" required />
-                </div>
-                <div>
-                    <label class="label-float">Horario *</label>
-                    <input type="datetime-local" name="horario" class="input-field" required />
-                </div>
-                <div>
-                    <label class="label-float">Cupo Maximo *</label>
-                    <input type="number" name="cupo" class="input-field" placeholder="15" min="1" max="50" required />
-                </div>
-                <div>
-                    <label class="label-float">Entrenador *</label>
-                    <select name="idEntrenador" class="input-field" required>
-                        @foreach (var entrenador in ViewBag.Entrenadores as List<G2_SC603_KN_Proyecto.Models.Entrenador> ?? new List<G2_SC603_KN_Proyecto.Models.Entrenador>())
-                        {
-                            <option value="@entrenador.IdEntrenador">@entrenador.Nombre</option>
-                        }
-                    </select>
-                </div>
-                <div>
-                    <label class="label-float">WOD (opcional)</label>
-                    <select name="idRutina" class="input-field">
-                        <option value="">Sin entrenamiento asignado</option>
-                        @foreach (var wod in ViewBag.Wods as List<G2_SC603_KN_Proyecto.Models.Rutina> ?? new List<G2_SC603_KN_Proyecto.Models.Rutina>())
-                        {
-                            <option value="@wod.IdRutina">@wod.Nombre</option>
-                        }
-                    </select>
-                </div>
-            </div>
-            <div class="flex gap-3 pt-2 justify-end">
-                <button type="button" class="btn-secondary" onclick="closeModal('classModal')">Cancelar</button>
-                <button type="submit" class="btn-primary"><span class="material-symbols-outlined text-[16px]">save</span> Crear Clase</button>
-            </div>
-        </form>
-    </div>
-</div>
-}
