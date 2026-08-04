@@ -6,11 +6,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<DbOrionFitContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        ServerVersion.AutoDetect(
-            builder.Configuration.GetConnectionString("DefaultConnection")
-        )
-    )
-);
+        new MySqlServerVersion(new Version(9, 4, 0)),
+        mySqlOptions =>
+        {
+            mySqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(10),
+                errorNumbersToAdd: null);
+        }
+    ));
 
 // Servicios de negocio de WOD
 builder.Services.AddScoped<IWodConsultaService, WodConsultaService>();
