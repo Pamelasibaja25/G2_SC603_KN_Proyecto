@@ -8,6 +8,8 @@ public class DashboardViewModel
     public int ClientesActivos { get; set; }
     public decimal IngresosMes { get; set; }
     public int AsistenciaHoy { get; set; }
+    public int ConfirmadosWodManana { get; set; }
+    public List<ConfirmadosDiaVM> ConfirmadosPorDia { get; set; } = new();
     public int MembresiasPorVencer { get; set; }
 
     public List<AsistenciaSemanalVM> AsistenciaSemanal { get; set; } = new();
@@ -29,6 +31,13 @@ public class AsistenciaSemanalVM
 {
     public string Dia { get; set; } = "";
     public int Cantidad { get; set; }
+}
+
+public class ConfirmadosDiaVM
+{
+    public DateOnly Fecha { get; set; }
+    public string NombreWod { get; set; } = "";
+    public int Confirmados { get; set; }
 }
 
 public class VencimientoVM

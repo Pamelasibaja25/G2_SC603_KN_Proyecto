@@ -17,5 +17,7 @@ public partial class Pago
 
     public string? Descripcion { get; set; }
 
+    public string? ComprobantePago { get; set; }
+
     public virtual ClienteMembresium IdClienteMembresiaNavigation { get; set; } = null!;
 }

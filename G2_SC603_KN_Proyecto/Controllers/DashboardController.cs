@@ -27,6 +27,22 @@ public class DashboardController : Controller
 
         model.AsistenciaHoy = _context.Asistencia.Count(a => a.Fecha == hoy);
 
+        DateOnly manana = hoy.AddDays(1);
+        model.ConfirmadosWodManana = _context.ClienteRutinas
+            .Count(cr => cr.FechaAsignacion == manana && cr.EstadoAsistencia == "ACEPTADO");
+
+        model.ConfirmadosPorDia = _context.ClienteRutinas
+            .Where(cr => cr.FechaAsignacion >= hoy && cr.EstadoAsistencia == "ACEPTADO")
+            .GroupBy(cr => new { cr.FechaAsignacion, Nombre = cr.IdRutinaNavigation.Nombre })
+            .Select(g => new ConfirmadosDiaVM
+            {
+                Fecha = g.Key.FechaAsignacion,
+                NombreWod = g.Key.Nombre,
+                Confirmados = g.Count()
+            })
+            .OrderBy(x => x.Fecha)
+            .ToList();
+
         model.MembresiasPorVencer = _context.ClienteMembresia
             .Count(c => c.FechaFin >= hoy && c.FechaFin <= hoy.AddDays(7));
 
@@ -133,30 +149,5 @@ public class DashboardController : Controller
             }).ToList();
 
         return View(model);
-    }
-
-    public IActionResult TopHorarios(DateOnly? fechaInicio, DateOnly? fechaFin)
-    {
-        IQueryable<Asistencium> query = _context.Asistencia;
-
-        if (fechaInicio.HasValue && fechaFin.HasValue)
-        {
-            if (fechaInicio > fechaFin)
-                ViewBag.RangoInvalido = true;
-            else
-                query = query.Where(a => a.Fecha >= fechaInicio && a.Fecha <= fechaFin);
-        }
-
-        List<TopHorarioVM> horarios = query
-            .ToList()
-            .GroupBy(a => a.HoraEntrada.Hour)
-            .Select(g => new TopHorarioVM { Hora = g.Key, Asistencias = g.Count() })
-            .OrderByDescending(x => x.Asistencias)
-            .ToList();
-
-        ViewBag.FechaInicio = fechaInicio;
-        ViewBag.FechaFin = fechaFin;
-
-        return View(horarios);
     }
 }

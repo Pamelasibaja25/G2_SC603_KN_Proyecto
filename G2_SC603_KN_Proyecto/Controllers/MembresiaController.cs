@@ -1,4 +1,4 @@
-using G2_SC603_KN_Proyecto.Models;
+﻿using G2_SC603_KN_Proyecto.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +17,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         public async Task<IActionResult> MostrarMembresia()
         {
             List<ClienteMembresiaResumen> clientes = await _context.ClienteMembresiaResumen
-                .FromSqlRaw("CALL sp_ObtenerClientesMembresias()")
+                .FromSqlRaw("CALL sp_obtenerClientesMembresias()")
                 .ToListAsync();
 
             var listaclientes = _context.Clientes.ToList();
@@ -25,6 +25,10 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             ViewBag.Clientes = listaclientes;
             ViewBag.Membresias = listamembresias;
+            // El negocio maneja una sola modalidad: la mensualidad (menor duración).
+            // Si existen planes viejos (trimestral, etc.) en la BD por datos históricos,
+            // no se muestran como opción nueva, solo se usa la mensual.
+            ViewBag.MembresiaUnica = listamembresias.OrderBy(m => m.DuracionDias).FirstOrDefault();
 
             return View(clientes);
         }
@@ -37,7 +41,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
             try
             {
                 await _context.Database.ExecuteSqlRawAsync(
-                    "CALL sp_AgregarClienteMembresia({0}, {1}, {2}, {3}, {4})",
+                    "CALL sp_agregarClienteMembresia({0}, {1}, {2}, {3}, {4})",
                     nuevoCliente.IdCliente,
                     nuevoCliente.IdMembresia,
                     nuevoCliente.FechaInicio,
@@ -62,7 +66,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
             try
             {
                 await _context.Database.ExecuteSqlRawAsync(
-                    "CALL sp_ActualizarClienteMembresia({0}, {1}, {2}, {3}, {4})",
+                    "CALL sp_actualizarClienteMembresia({0}, {1}, {2}, {3}, {4})",
                     clienteEditado.IdCliente,
                     clienteEditado.IdMembresia,
                     clienteEditado.FechaInicio,
@@ -84,7 +88,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         public async Task<IActionResult> ObtenerHistorial(int idCliente)
         {
             var historial = await _context.HistorialMembresias
-                .FromSqlRaw("CALL sp_ObtenerHistorialMembresia({0})", idCliente)
+                .FromSqlRaw("CALL sp_obtenerHistorialMembresia({0})", idCliente)
                 .ToListAsync();
 
             return Json(historial);
@@ -95,10 +99,38 @@ namespace G2_SC603_KN_Proyecto.Controllers
         public async Task<IActionResult> ObtenerMembresiasProximas()
         {
             var lista = await _context.MembresiasProximasVencer
-                .FromSqlRaw("CALL sp_ObtenerMembresiasProximasVencer()")
+                .FromSqlRaw("CALL sp_obtenerMembresiasProximasVencer()")
                 .ToListAsync();
 
             return Json(lista);
+        }
+        #endregion
+        #region Configurar Monto de la Mensualidad
+        [HttpPost]
+        public async Task<IActionResult> EditarMontoMensualidad(int idMembresia, decimal precio)
+        {
+            try
+            {
+                Membresium? membresia = await _context.Membresia
+                    .FirstOrDefaultAsync(m => m.IdMembresia == idMembresia);
+
+                if (membresia == null)
+                {
+                    TempData["ErrorMessage"] = "No se encontró la mensualidad a modificar.";
+                    return RedirectToAction("MostrarMembresia");
+                }
+
+                membresia.Precio = precio;
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Monto de la mensualidad actualizado correctamente.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error al actualizar el monto: " + ex.Message;
+            }
+
+            return RedirectToAction("MostrarMembresia");
         }
         #endregion
     }

@@ -84,7 +84,7 @@ public class MantenimientoController : Controller
         try
         {
             _context.Database.ExecuteSqlRaw(
-                "CALL SP_AgregarMantenimiento({0}, {1}, {2}, {3}, {4}, {5})",
+                "CALL sp_agregarMantenimiento({0}, {1}, {2}, {3}, {4}, {5})",
                 idEquipo,
                 tipo,
                 fecha.ToDateTime(TimeOnly.MinValue),
@@ -144,7 +144,7 @@ public class MantenimientoController : Controller
                 try
                 {
                     _context.Database.ExecuteSqlRaw(
-                        "CALL SP_CompletarMantenimiento({0}, {1}, {2}, {3}, {4})",
+                        "CALL sp_completarMantenimiento({0}, {1}, {2}, {3}, {4})",
                         idMantenimientoProgramado.Value,
                         tipo,
                         fecha.ToDateTime(TimeOnly.MinValue),
@@ -166,7 +166,7 @@ public class MantenimientoController : Controller
         try
         {
             _context.Database.ExecuteSqlRaw(
-                "CALL SP_AgregarMantenimiento({0}, {1}, {2}, {3}, {4}, {5})",
+                "CALL sp_agregarMantenimiento({0}, {1}, {2}, {3}, {4}, {5})",
                 idEquipo,
                 tipo,
                 fecha.ToDateTime(TimeOnly.MinValue),
@@ -288,7 +288,7 @@ public class MantenimientoController : Controller
         try
         {
             _context.Database.ExecuteSqlRaw(
-                "CALL SP_EditarMantenimiento({0}, {1}, {2}, {3}, {4}, {5}, {6})",
+                "CALL sp_editarMantenimiento({0}, {1}, {2}, {3}, {4}, {5}, {6})",
                 idMantenimiento,
                 idEquipo,
                 tipo,
@@ -321,7 +321,7 @@ public class MantenimientoController : Controller
         try
         {
             _context.Database.ExecuteSqlRaw(
-                "CALL SP_EliminarMantenimiento({0})",
+                "CALL sp_eliminarMantenimiento({0})",
                 idMantenimiento
             );
 

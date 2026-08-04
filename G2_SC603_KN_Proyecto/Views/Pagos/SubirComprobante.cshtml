@@ -1,0 +1,58 @@
+﻿@{
+    Layout = "_Layout";
+    var sinpe = ViewBag.Sinpe as G2_SC603_KN_Proyecto.Models.ConfiguracionSinpe;
+    var membresia = ViewBag.MembresiaActual as G2_SC603_KN_Proyecto.Models.ClienteMembresium;
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="toast show" style="background:#201f1f; color:#4ade80;">
+        <span class="material-symbols-outlined">check_circle</span>
+        <span>@TempData["SuccessMessage"]</span>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="toast show" style="background:#201f1f; color:#ffb4ab;">
+        <span class="material-symbols-outlined">error</span>
+        <span>@TempData["ErrorMessage"]</span>
+    </div>
+}
+
+<div class="section-page active p-6 lg:p-8">
+    <h2 class="font-headline text-3xl font-bold tracking-tight mb-8">Pago por SINPE</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-surface-container rounded-2xl p-6">
+            <h3 class="font-headline font-bold text-base mb-4">Datos para transferir</h3>
+            @if (sinpe != null)
+            {
+                <img src="~/@sinpe.ImagenQr" alt="QR SINPE" class="w-full max-w-xs mx-auto rounded-xl" />
+            }
+            else
+            {
+                <p class="text-on-surface-variant text-sm">El gimnasio aún no configuró los datos de SINPE.</p>
+            }
+        </div>
+
+        <div class="bg-surface-container rounded-2xl p-6">
+            <h3 class="font-headline font-bold text-base mb-4">Adjuntar comprobante</h3>
+            <form asp-action="SubirComprobante" method="post" enctype="multipart/form-data" class="space-y-4">
+                <input type="hidden" name="idClienteMembresia" value="@membresia?.IdClienteMembresia" />
+                <div>
+                    <label class="label-float">Monto pagado (₡) *</label>
+                    <input type="number" step="0.01" min="0" name="monto"
+                           value="@membresia?.IdMembresiaNavigation?.Precio" class="input-field" required />
+                </div>
+                <div>
+                    <label class="label-float">Comprobante (imagen) *</label>
+                    <input type="file" name="comprobante" accept="image/*" class="input-field" required />
+                </div>
+                <button type="submit" class="btn-primary w-full">
+                    <span class="material-symbols-outlined text-[16px]">upload</span> Enviar comprobante
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

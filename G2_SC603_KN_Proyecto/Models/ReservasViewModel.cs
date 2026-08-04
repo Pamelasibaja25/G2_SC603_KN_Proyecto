@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace G2_SC603_KN_Proyecto.Models;
@@ -7,26 +7,29 @@ public class ReservasViewModel
 {
     public bool EsAdmin { get; set; }
     public bool EsCliente { get; set; }
-    public bool AsistenciaHoy { get; set; }
 
-    public List<ClaseDisponibleVM> Clases { get; set; } = new List<ClaseDisponibleVM>();
+    /// <summary>Historial de confirmaciones del cliente logueado (pasadas y futuras).</summary>
+    public List<ConfirmacionWodVM> MisConfirmaciones { get; set; } = new();
 
-    public List<Reserva> MisReservas { get; set; } = new List<Reserva>();
+    /// <summary>Admin: clientes que aceptaron el WOD de hoy, con estado de asistencia física.</summary>
+    public List<ConfirmacionWodVM> ConfirmadosHoy { get; set; } = new();
 
-    public List<Reserva> TodasReservas { get; set; } = new List<Reserva>();
+    /// <summary>Admin: historial completo de confirmaciones (con filtro de estado).</summary>
+    public List<ConfirmacionWodVM> TodasConfirmaciones { get; set; } = new();
 }
 
-public class ClaseDisponibleVM
+public class ConfirmacionWodVM
 {
-    public int IdClase { get; set; }
-    public string Nombre { get; set; }
-    public string Entrenador { get; set; }
-    public DateTime Horario { get; set; }
-    public int Cupo { get; set; }
-    public int Reservados { get; set; }
-    public bool YaReservada { get; set; }
-    public string? Wod { get; set; }
-    public string? WodImagen { get; set; }
+    public int IdClienteRutina { get; set; }
+    public int IdRutina { get; set; }
+    public string NombreWod { get; set; } = "";
+    public string? Imagen { get; set; }
+    public string? NombreCliente { get; set; }
+    public DateOnly Fecha { get; set; }
 
-    public int Disponibles => Cupo - Reservados;
+    /// <summary>PENDIENTE, ACEPTADO o NO_ASISTE.</summary>
+    public string Estado { get; set; } = "";
+
+    /// <summary>Si ya hizo check-in físico hoy (tabla Asistencia).</summary>
+    public bool AsistioHoy { get; set; }
 }

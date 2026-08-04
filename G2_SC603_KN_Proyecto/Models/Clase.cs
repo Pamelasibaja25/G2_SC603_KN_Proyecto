@@ -17,6 +17,8 @@ public partial class Clase
 
     public int Cupo { get; set; }
 
+    public DateOnly FechaCreacion { get; set; }
+
     public virtual Entrenador IdEntrenadorNavigation { get; set; } = null!;
 
     public virtual Rutina? IdRutinaNavigation { get; set; }

@@ -30,6 +30,19 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 .OrderByDescending(n => n.Fecha)
                 .ToList();
 
+            // Al abrir la pantalla se marcan todas como leídas, así el
+            // contador (badge) de la campanita se limpia.
+            bool huboSinLeer = false;
+            foreach (var n in notificaciones.Where(n => !n.Leida))
+            {
+                n.Leida = true;
+                huboSinLeer = true;
+            }
+            if (huboSinLeer)
+            {
+                _context.SaveChanges();
+            }
+
             return View(notificaciones);
         }
     }

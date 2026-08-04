@@ -1,4 +1,4 @@
-using G2_SC603_KN_Proyecto.Models;
+﻿using G2_SC603_KN_Proyecto.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +17,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         public async Task<IActionResult> MostrarClientes()
         {
             List<ClienteResumen> clientes = await _context.ClientesResumen
-                .FromSqlRaw("CALL sp_ObtenerClientesResumen()")
+                .FromSqlRaw("CALL sp_obtenerClientesResumen()")
                 .ToListAsync();
 
             return View(clientes);
@@ -31,7 +31,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
             try
             {
                 await _context.Database.ExecuteSqlRawAsync(
-                    "CALL sp_AgregarCliente({0}, {1}, {2}, {3}, {4}, {5})",
+                    "CALL sp_agregarCliente({0}, {1}, {2}, {3}, {4}, {5})",
                     nuevoCliente.Nombre,
                     nuevoCliente.Cedula,
                     nuevoCliente.Telefono,
@@ -57,7 +57,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
             try
             {
                 await _context.Database.ExecuteSqlRawAsync(
-                    "CALL sp_EditarCliente({0}, {1}, {2}, {3}, {4}, {5}, {6})",
+                    "CALL sp_editarCliente({0}, {1}, {2}, {3}, {4}, {5}, {6})",
                     clienteEditado.id_cliente,
                     clienteEditado.Nombre,
                     clienteEditado.Cedula,
@@ -84,7 +84,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
             try
             {
                 await _context.Database.ExecuteSqlRawAsync(
-                    "CALL sp_EliminarCliente({0})",
+                    "CALL sp_eliminarCliente({0})",
                     idCliente
                 );
                 TempData["SuccessMessage"] = "Cliente eliminado correctamente.";

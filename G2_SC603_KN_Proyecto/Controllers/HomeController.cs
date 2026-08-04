@@ -146,7 +146,49 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             ViewBag.MembresiaActiva = membresiaActiva;
 
+            if (membresiaActiva != null)
+            {
+                GenerarNotificacionVencimientoSiCorresponde(cliente.IdCliente, membresiaActiva.FechaFin);
+            }
+
             return View();
+        }
+
+        // Notifica al cliente cuando su mensualidad vence en 5 días o menos.
+        // Evita duplicar la notificación si ya se generó hoy mismo.
+        private void GenerarNotificacionVencimientoSiCorresponde(int idCliente, DateOnly fechaFin)
+        {
+            DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
+            int diasRestantes = fechaFin.DayNumber - hoy.DayNumber;
+
+            if (diasRestantes < 0 || diasRestantes > 5)
+            {
+                return;
+            }
+
+            bool yaNotificadoHoy = _context.Notificaciones.Any(n =>
+                n.IdCliente == idCliente &&
+                n.Tipo == "Vencimiento" &&
+                n.Fecha.Date == DateTime.Today);
+
+            if (yaNotificadoHoy)
+            {
+                return;
+            }
+
+            _context.Notificaciones.Add(new Notificacion
+            {
+                IdCliente = idCliente,
+                Tipo = "Vencimiento",
+                Titulo = "Tu mensualidad está por vencer",
+                Mensaje = diasRestantes == 0
+                    ? "Tu mensualidad vence hoy. Renová para seguir entrenando sin interrupciones."
+                    : $"Tu mensualidad vence en {diasRestantes} día(s). Renová a tiempo.",
+                Fecha = DateTime.Now,
+                Leida = false
+            });
+
+            _context.SaveChanges();
         }
         #region Logout
         public IActionResult Logout()

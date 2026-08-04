@@ -27,8 +27,8 @@
             <span class="material-symbols-outlined">arrow_back</span>
         </a>
         <div>
-            <h2 class="font-headline text-3xl font-bold tracking-tight">Entrenamiento Diario</h2>
-            <p class="text-on-surface-variant text-xs mt-1"> @DateTime.Today.ToString("dddd dd 'de' MMMM, yyyy",
+            <h2 class="font-headline text-3xl font-bold tracking-tight">WOD de Mañana</h2>
+            <p class="text-on-surface-variant text-xs mt-1"> @DateTime.Today.AddDays(1).ToString("dddd dd 'de' MMMM, yyyy",
                                  new System.Globalization.CultureInfo("es-ES"))
             </p>
         </div>
@@ -40,6 +40,10 @@
             @foreach (var item in Model)
             {
                 <div class="bg-surface-container rounded-2xl p-5 shadow-[0_8px_24px_rgba(0,0,0,0.4)]">
+                    @if (!string.IsNullOrEmpty(item.Imagen))
+                    {
+                        <img src="~/@item.Imagen" alt="@item.Nombre" class="w-full rounded-xl mb-3" style="max-height:420px; object-fit:contain; object-position:center; background:#111;" />
+                    }
                     <div class="flex items-start justify-between mb-2">
                         <h3 class="font-headline font-bold text-base">@item.Nombre</h3>
                         <a asp-controller="WOD" asp-action="DetalleEntrenamiento"
@@ -71,9 +75,36 @@
                         </span>
                     </div>
 
-                    <p class="text-xs text-on-surface-variant">
+                    <p class="text-xs text-on-surface-variant mb-3">
                         @item.CantidadEjercicios ejercicio(s) — ver detalle para series, repeticiones y descanso.
                     </p>
+
+                    @if (rolActual == "USER")
+                    {
+                        @if (item.EstadoAsistencia == "PENDIENTE")
+                        {
+                            <div class="flex gap-2">
+                                <form asp-controller="WOD" asp-action="ConfirmarAsistenciaWOD" method="post" class="flex-1">
+                                    <input type="hidden" name="idClienteRutina" value="@item.IdClienteRutina" />
+                                    <input type="hidden" name="estado" value="ACEPTADO" />
+                                    <button type="submit" class="btn-filled w-full text-xs py-2">Aceptar</button>
+                                </form>
+                                <form asp-controller="WOD" asp-action="ConfirmarAsistenciaWOD" method="post" class="flex-1">
+                                    <input type="hidden" name="idClienteRutina" value="@item.IdClienteRutina" />
+                                    <input type="hidden" name="estado" value="NO_ASISTE" />
+                                    <button type="submit" class="btn-outlined w-full text-xs py-2">No asistir</button>
+                                </form>
+                            </div>
+                        }
+                        else if (item.EstadoAsistencia == "ACEPTADO")
+                        {
+                            <span class="text-xs text-[#4ade80]">✓ Confirmaste tu asistencia</span>
+                        }
+                        else
+                        {
+                            <span class="text-xs text-[#ffb4ab]">No asistirás</span>
+                        }
+                    }
                 </div>
             }
         </div>

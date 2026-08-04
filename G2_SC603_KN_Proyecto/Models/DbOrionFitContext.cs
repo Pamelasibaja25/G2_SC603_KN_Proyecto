@@ -45,6 +45,8 @@ public partial class DbOrionFitContext : DbContext
 
     public virtual DbSet<Pago> Pagos { get; set; }
 
+    public virtual DbSet<ConfiguracionSinpe> ConfiguracionSinpe { get; set; }
+
     public virtual DbSet<Reserva> Reservas { get; set; }
 
     public virtual DbSet<Rutina> Rutinas { get; set; }
@@ -157,6 +159,7 @@ public partial class DbOrionFitContext : DbContext
 
             entity.Property(e => e.IdClase).HasColumnName("id_clase");
             entity.Property(e => e.Cupo).HasColumnName("cupo");
+            entity.Property(e => e.FechaCreacion).HasColumnName("fecha_creacion");
             entity.Property(e => e.Horario)
                 .HasColumnType("datetime")
                 .HasColumnName("horario");
@@ -250,6 +253,10 @@ public partial class DbOrionFitContext : DbContext
 
             entity.Property(e => e.IdClienteRutina).HasColumnName("id_cliente_rutina");
             entity.Property(e => e.FechaAsignacion).HasColumnName("fecha_asignacion");
+            entity.Property(e => e.EstadoAsistencia)
+                .HasColumnName("estado_asistencia")
+                .HasMaxLength(20)
+                .HasDefaultValue("PENDIENTE");
             entity.Property(e => e.IdCliente).HasColumnName("id_cliente");
             entity.Property(e => e.IdRutina).HasColumnName("id_rutina");
 
@@ -453,11 +460,27 @@ public partial class DbOrionFitContext : DbContext
             entity.Property(e => e.Monto)
                 .HasPrecision(10, 2)
                 .HasColumnName("monto");
+            entity.Property(e => e.ComprobantePago)
+                .HasMaxLength(255)
+                .HasColumnName("comprobante_pago");
 
             entity.HasOne(d => d.IdClienteMembresiaNavigation).WithMany(p => p.Pagos)
                 .HasForeignKey(d => d.IdClienteMembresia)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Pago_ClienteMembresia");
+        });
+
+        modelBuilder.Entity<ConfiguracionSinpe>(entity =>
+        {
+            entity.HasKey(e => e.IdConfiguracion).HasName("PRIMARY");
+
+            entity.ToTable("configuracion_sinpe");
+
+            entity.Property(e => e.IdConfiguracion).HasColumnName("id_configuracion");
+            entity.Property(e => e.ImagenQr)
+                .HasMaxLength(255)
+                .HasColumnName("imagen_qr");
+            entity.Property(e => e.ActualizadoEn).HasColumnName("actualizado_en");
         });
 
         modelBuilder.Entity<Reserva>(entity =>
@@ -596,7 +619,7 @@ public partial class DbOrionFitContext : DbContext
         {
             entity.HasKey(e => e.IdNotificacion);
 
-            entity.ToTable("Notificacion");
+            entity.ToTable("notificacion");
 
             entity.Property(e => e.IdNotificacion)
                 .HasColumnName("id_notificacion");

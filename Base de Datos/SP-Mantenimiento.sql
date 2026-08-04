@@ -1,3 +1,4 @@
+use db_orion_fit
 ALTER TABLE `mantenimiento`
     ADD COLUMN `tipo` ENUM('Preventivo','Correctivo','Calibracion','Limpieza')
     NOT NULL DEFAULT 'Preventivo'
@@ -22,7 +23,7 @@ CREATE PROCEDURE SP_AgregarMantenimiento(
 BEGIN
     INSERT INTO mantenimiento (
         id_equipo,
-        tipo,
+        tclienteipo,
         fecha,
         descripcion,
         costo,

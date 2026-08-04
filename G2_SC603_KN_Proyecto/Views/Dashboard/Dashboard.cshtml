@@ -52,6 +52,9 @@
                 <span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings:'wght' 300">directions_run</span>
             </div>
             <div class="font-headline text-4xl font-black tracking-tighter text-on-surface">@Model.AsistenciaHoy</div>
+            <div class="text-on-surface-variant text-[10px] mt-2">
+                @Model.ConfirmadosWodManana confirmado(s) para el WOD de mañana
+            </div>
         </div>
         <div class="metric-card bg-surface-container rounded-2xl p-5 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
             <div class="flex justify-between items-start mb-3">
@@ -118,6 +121,39 @@
                 <p class="text-on-surface-variant text-sm">No hay alertas de vencimiento en los próximos 7 días.</p>
             }
         </div>
+    </div>
+
+    <div class="bg-surface-container rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)] mb-6">
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="font-headline font-bold text-base">Confirmados por Día (WOD)</h3>
+            <span class="material-symbols-outlined text-secondary text-[20px]">groups</span>
+        </div>
+        @if (Model.ConfirmadosPorDia != null && Model.ConfirmadosPorDia.Any())
+        {
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>WOD</th>
+                        <th>Confirmados</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ConfirmadosPorDia)
+                    {
+                        <tr>
+                            <td>@item.Fecha.ToString("dddd dd/MM", new System.Globalization.CultureInfo("es-ES"))</td>
+                            <td>@item.NombreWod</td>
+                            <td>@item.Confirmados</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="text-on-surface-variant text-sm">Todavía no hay confirmaciones para los próximos días.</p>
+        }
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

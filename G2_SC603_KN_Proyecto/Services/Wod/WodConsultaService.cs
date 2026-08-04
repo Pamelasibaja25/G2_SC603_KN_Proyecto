@@ -25,26 +25,9 @@ namespace G2_SC603_KN_Proyecto.Services.Wod
             _context = context;
         }
 
-        public async Task<List<WodHistorialItemViewModel>> ObtenerHistorialAsync(int idUsuario, string rol)
-        {
-            if (rol == RolCliente)
-            {
-                return await ObtenerHistorialClienteAsync(idUsuario);
-            }
-
-            if (rol == RolEntrenador)
-            {
-                int? idEntrenador = await ObtenerIdEntrenadorAsync(idUsuario);
-                return await ObtenerHistorialEntrenadorAsync(idEntrenador);
-            }
-
-            // Administrador (u otro rol con visibilidad total): se muestran todas las rutinas.
-            return await ObtenerHistorialEntrenadorAsync(idEntrenador: null);
-        }
-
         public async Task<List<WodHistorialItemViewModel>> ObtenerEntrenamientoDiarioAsync(int idUsuario, string rol)
         {
-            DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
+            DateOnly manana = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
 
             if (rol == RolCliente)
             {
@@ -56,32 +39,38 @@ namespace G2_SC603_KN_Proyecto.Services.Wod
 
                 return await _context.ClienteRutinas
                     .AsNoTracking()
-                    .Where(cr => cr.IdCliente == idCliente.Value && cr.FechaAsignacion == hoy)
+                    .Where(cr => cr.IdCliente == idCliente.Value && cr.FechaAsignacion == manana)
                     .OrderByDescending(cr => cr.IdClienteRutina)
                     .Select(cr => new WodHistorialItemViewModel
                     {
+                        IdClienteRutina = cr.IdClienteRutina,
                         IdRutina = cr.IdRutina,
                         Nombre = cr.IdRutinaNavigation.Nombre,
                         Objetivo = cr.IdRutinaNavigation.Objetivo,
+                        Imagen = cr.IdRutinaNavigation.Imagen,
                         NombreEntrenador = cr.IdRutinaNavigation.IdEntrenadorNavigation.Nombre,
                         Fecha = cr.FechaAsignacion,
+                        EstadoAsistencia = cr.EstadoAsistencia,
                         CantidadEjercicios = cr.IdRutinaNavigation.RutinaEjercicios.Count
                     })
                     .ToListAsync();
             }
 
-            // Entrenador / Administrador: ven todo lo asignado hoy, junto con el cliente correspondiente.
+            // Entrenador / Administrador: ven lo asignado para mañana, junto con el cliente correspondiente.
             return await _context.ClienteRutinas
                 .AsNoTracking()
-                .Where(cr => cr.FechaAsignacion == hoy)
+                .Where(cr => cr.FechaAsignacion == manana)
                 .OrderBy(cr => cr.IdClienteNavigation.Nombre)
                 .Select(cr => new WodHistorialItemViewModel
                 {
+                    IdClienteRutina = cr.IdClienteRutina,
                     IdRutina = cr.IdRutina,
                     Nombre = cr.IdRutinaNavigation.Nombre,
                     Objetivo = cr.IdRutinaNavigation.Objetivo,
+                    Imagen = cr.IdRutinaNavigation.Imagen,
                     NombreEntrenador = cr.IdRutinaNavigation.IdEntrenadorNavigation.Nombre,
                     Fecha = cr.FechaAsignacion,
+                    EstadoAsistencia = cr.EstadoAsistencia,
                     CantidadEjercicios = cr.IdRutinaNavigation.RutinaEjercicios.Count,
                     NombreCliente = cr.IdClienteNavigation.Nombre
                 })
@@ -159,58 +148,6 @@ namespace G2_SC603_KN_Proyecto.Services.Wod
             }
 
             return false;
-        }
-
-        private async Task<List<WodHistorialItemViewModel>> ObtenerHistorialClienteAsync(int idUsuario)
-        {
-            int? idCliente = await ObtenerIdClienteAsync(idUsuario);
-            if (idCliente == null)
-            {
-                return new List<WodHistorialItemViewModel>();
-            }
-
-            return await _context.ClienteRutinas
-                .AsNoTracking()
-                .Where(cr => cr.IdCliente == idCliente.Value)
-                .OrderByDescending(cr => cr.FechaAsignacion)
-                .Select(cr => new WodHistorialItemViewModel
-                {
-                    IdRutina = cr.IdRutina,
-                    Nombre = cr.IdRutinaNavigation.Nombre,
-                    Objetivo = cr.IdRutinaNavigation.Objetivo,
-                    NombreEntrenador = cr.IdRutinaNavigation.IdEntrenadorNavigation.Nombre,
-                    Fecha = cr.FechaAsignacion,
-                    CantidadEjercicios = cr.IdRutinaNavigation.RutinaEjercicios.Count
-                })
-                .ToListAsync();
-        }
-
-        private async Task<List<WodHistorialItemViewModel>> ObtenerHistorialEntrenadorAsync(int? idEntrenador)
-        {
-            IQueryable<Rutina> query = _context.Rutinas.AsNoTracking();
-
-            if (idEntrenador.HasValue)
-            {
-                query = query.Where(r => r.IdEntrenador == idEntrenador.Value);
-            }
-
-            return await query
-                .OrderByDescending(r => r.IdRutina)
-                .Select(r => new WodHistorialItemViewModel
-                {
-                    IdRutina = r.IdRutina,
-                    Nombre = r.Nombre,
-                    Objetivo = r.Objetivo,
-                    NombreEntrenador = r.IdEntrenadorNavigation.Nombre,
-                    CantidadEjercicios = r.RutinaEjercicios.Count,
-                    // No existe columna de fecha en Rutina: se usa la fecha de
-                    // asignación más reciente entre sus clientes como referencia.
-                    Fecha = r.ClienteRutinas
-                        .OrderByDescending(cr => cr.FechaAsignacion)
-                        .Select(cr => (DateOnly?)cr.FechaAsignacion)
-                        .FirstOrDefault()
-                })
-                .ToListAsync();
         }
 
         private async Task<int?> ObtenerIdClienteAsync(int idUsuario)
