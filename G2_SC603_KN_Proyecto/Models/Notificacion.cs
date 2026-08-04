@@ -2,19 +2,19 @@
 {
     public partial class Notificacion
     {
-        public int idNotificacion { get; set; }
+        public int IdNotificacion { get; set; }
 
-        public int idCliente { get; set; }
+        public int IdCliente { get; set; }
 
-        public string tipo { get; set; } = null!;
+        public string Tipo { get; set; } = null!;
 
-        public string titulo { get; set; } = null!;
+        public string Titulo { get; set; } = null!;
 
-        public string mensaje { get; set; } = null!;
+        public string Mensaje { get; set; } = null!;
 
-        public DateTime fecha { get; set; }
+        public DateTime Fecha { get; set; }
 
-        public bool leida { get; set; }
+        public bool Leida { get; set; }
 
     }
 }

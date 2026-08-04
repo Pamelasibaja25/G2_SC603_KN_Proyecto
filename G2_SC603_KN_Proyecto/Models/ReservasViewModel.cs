@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace G2_SC603_KN_Proyecto.Models;
@@ -8,13 +8,13 @@ public class ReservasViewModel
     public bool EsAdmin { get; set; }
     public bool EsCliente { get; set; }
 
-    /// eHistorial de confirmaciones del cliente logueado (pasadas y futuras).
+    /// <summary>Historial de confirmaciones del cliente logueado (pasadas y futuras).</summary>
     public List<ConfirmacionWodVM> MisConfirmaciones { get; set; } = new();
 
-    /// Admin: clientes que aceptaron el WOD de hoy, con estado de asistencia física.
+    /// <summary>Admin: clientes que aceptaron el WOD de hoy, con estado de asistencia física.</summary>
     public List<ConfirmacionWodVM> ConfirmadosHoy { get; set; } = new();
 
-    /// Admin: historial completo de confirmaciones (con filtro de estado).
+    /// <summary>Admin: historial completo de confirmaciones (con filtro de estado).</summary>
     public List<ConfirmacionWodVM> TodasConfirmaciones { get; set; } = new();
 }
 
@@ -27,9 +27,9 @@ public class ConfirmacionWodVM
     public string? NombreCliente { get; set; }
     public DateOnly Fecha { get; set; }
 
-    /// PENDIENTE, ACEPTADO o NO_ASISTE.
+    /// <summary>PENDIENTE, ACEPTADO o NO_ASISTE.</summary>
     public string Estado { get; set; } = "";
 
-    /// Si ya hizo check-in físico hoy (tabla Asistencia)
+    /// <summary>Si ya hizo check-in físico hoy (tabla Asistencia).</summary>
     public bool AsistioHoy { get; set; }
 }

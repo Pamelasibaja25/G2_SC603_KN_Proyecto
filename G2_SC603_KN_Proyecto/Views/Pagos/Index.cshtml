@@ -47,25 +47,25 @@
                         {
                             <tr>
                                 <td>
-                                    @(pago.idClienteMembresiaNavigation?.IdClienteNavigation?.Cedula)
+                                    @(pago.IdClienteMembresiaNavigation?.IdClienteNavigation?.Cedula)
                                     -
-                                    @(pago.idClienteMembresiaNavigation?.IdClienteNavigation?.Nombre)
+                                    @(pago.IdClienteMembresiaNavigation?.IdClienteNavigation?.Nombre)
                                 </td>
 
                                 <td>
-                                    @pago.fechaPago.ToString("dd/MM/yyyy")
+                                    @pago.FechaPago.ToString("dd/MM/yyyy")
                                 </td>
 
                                 <td>
-                                    ₡ @pago.monto.ToString("N2")
+                                    ₡ @pago.Monto.ToString("N2")
                                 </td>
 
                                 <td>
-                                    @pago.metodoPago
+                                    @pago.MetodoPago
                                 </td>
 
                                 <td>
-                                    @pago.descripcion
+                                    @pago.Descripcion
                                 </td>
 
                                 <td>
@@ -212,15 +212,15 @@
                 </div>
 
                 <script>
-                                function calcularMontoPago() {
-                                    const select = document.getElementById('pagoCliente');
-                                    const opcion = select.options[select.selectedIndex];
-                                    const precio = parseFloat(opcion?.dataset?.precio) || 0;
-                                    const meses = parseInt(document.getElementById('pagoMeses').value, 10) || 1;
-                                    if (precio > 0) {
-                                        document.getElementById('pagoMonto').value = (precio * meses).toFixed(2);
-                                    }
-                                }
+                    function calcularMontoPago() {
+                        const select = document.getElementById('pagoCliente');
+                        const opcion = select.options[select.selectedIndex];
+                        const precio = parseFloat(opcion?.dataset?.precio) || 0;
+                        const meses = parseInt(document.getElementById('pagoMeses').value, 10) || 1;
+                        if (precio > 0) {
+                            document.getElementById('pagoMonto').value = (precio * meses).toFixed(2);
+                        }
+                    }
                 </script>
 
                 <div>
@@ -228,23 +228,19 @@
                     <input type="date" name="FechaPago" class="input-field" required />
                 </div>
 
-               <div>
-    <label class="label-float">Método de Pago</label>
-    <select name="MetodoPago" class="input-field">
-        <option value="Efectivo">Efectivo</option>
-        <option value="SINPE">SINPE</option>
-    </select>
-</div>
+                <div>
+                    <label class="label-float">Método de Pago</label>
+                    <select name="MetodoPago" class="input-field">
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="SINPE">SINPE</option>
+                        <option value="Tarjeta">Tarjeta</option>
+                    </select>
+                </div>
 
-<div>
-    <label class="label-float">Comprobante SINPE</label>
-    <input type="file" name="Comprobante" accept="image/*" class="input-field" />
-</div>
-
-<div>
-    <label class="label-float">Descripción</label>
-    <input type="text" name="Descripcion" class="input-field" />
-</div>
+                <div>
+                    <label class="label-float">Descripción</label>
+                    <input type="text" name="Descripcion" class="input-field" />
+                </div>
 
                 <div class="flex gap-3 pt-2 justify-end">
                     <button type="button" class="btn-secondary" onclick="closeModal('paymentModal')">

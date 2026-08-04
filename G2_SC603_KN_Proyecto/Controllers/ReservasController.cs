@@ -1,9 +1,10 @@
-﻿using G2_SC603_KN_Proyecto.Models;
+using G2_SC603_KN_Proyecto.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace G2_SC603_KN_Proyecto.Controllers
 {
+    // La "reserva" ya no es un sistema de clases con horario/cupo:
     // la reserva ES la confirmación de asistencia al WOD (Cliente_Rutina).
     // Flujo: admin publica el WOD de mañana -> cliente acepta/rechaza en
     // WOD/EntrenamientoDiario -> esa confirmación se refleja acá.

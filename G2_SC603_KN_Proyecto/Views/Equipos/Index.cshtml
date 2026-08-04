@@ -74,13 +74,13 @@
                 <tbody>
                     @foreach (var equipo in Model)
                     {
-                        <tr class="@(equipo.estado == "No Disponible" ? "row-disabled" : "")">
+                        <tr class="@(equipo.Estado == "No Disponible" ? "row-disabled" : "")">
 
-                            <td>@equipo.nombre</td>
+                            <td>@equipo.Nombre</td>
                             <td>Equipamiento</td>
                             <td>1</td>
                             <td>
-                                @if (equipo.estado == "Disponible")
+                                @if (equipo.Estado == "Disponible")
                                 {
                                     <span class="badge-status badge-disponible">
                                         Disponible
@@ -94,26 +94,26 @@
                                 }
                             </td>
 
-                            <td>@equipo.fechaCompra?.ToString("dd/MM/yyyy")</td>
+                            <td>@equipo.FechaCompra?.ToString("dd/MM/yyyy")</td>
 
-                            <td>₡@equipo.costo</td>
+                            <td>₡@equipo.Costo</td>
 
                             <td class="flex gap-2">
 
                                 <button class="btn-secondary px-3 py-1 text-sm"
                                         onclick="openEditEquipoModal(
-                                                    '@equipo.idEquipo',
-                                                    '@equipo.nombre',
-                                                    '@equipo.estado',
-                                                    '@(equipo.fechaCompra?.ToString("yyyy-MM-dd"))',
-                                                    '@equipo.costo'
+                                                    '@equipo.IdEquipo',
+                                                    '@equipo.Nombre',
+                                                    '@equipo.Estado',
+                                                    '@(equipo.FechaCompra?.ToString("yyyy-MM-dd"))',
+                                                    '@equipo.Costo'
                                                 )">
                                     Editar
                                 </button>
 
-                                @if (equipo.estado == "No Disponible")
+                                @if (equipo.Estado == "No Disponible")
                                 {
-                                    <form asp-action="Activar" asp-route-id="@equipo.idEquipo" method="post">
+                                    <form asp-action="Activar" asp-route-id="@equipo.IdEquipo" method="post">
                                         <button type="submit" class="btn-primary px-3 py-1 text-sm">
                                             Activar
                                         </button>
@@ -121,7 +121,7 @@
                                 }
                                 else
                                 {
-                                    <form asp-action="Desactivar" asp-route-id="@equipo.idEquipo" method="post">
+                                    <form asp-action="Desactivar" asp-route-id="@equipo.IdEquipo" method="post">
                                         <button type="submit" class="btn-primary px-3 py-1 text-sm">
                                             Desactivar
                                         </button>
@@ -133,7 +133,7 @@
                                       onsubmit="return confirm('¿Seguro que deseas eliminar este equipo?');"
                                       style="display:inline;">
 
-                                    <input type="hidden" name="idEquipo" value="@equipo.idEquipo" />
+                                    <input type="hidden" name="idEquipo" value="@equipo.IdEquipo" />
 
                                     <button type="submit" class="btn-danger px-3 py-1 text-sm">
                                         Eliminar

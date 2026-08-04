@@ -5,17 +5,17 @@ namespace G2_SC603_KN_Proyecto.Models;
 
 public partial class Equipo
 {
-    public int idEquipo { get; set; }
+    public int IdEquipo { get; set; }
 
-    public string nombre { get; set; } = null!;
+    public string Nombre { get; set; } = null!;
 
-    public string estado { get; set; } = null!;
+    public string Estado { get; set; } = null!;
 
-    public DateOnly? fechaCompra { get; set; }
+    public DateOnly? FechaCompra { get; set; }
 
-    public decimal? costo { get; set; }
+    public decimal? Costo { get; set; }
 
-    public virtual ICollection<Ejercicio> ejercicios { get; set; } = new List<Ejercicio>();
+    public virtual ICollection<Ejercicio> Ejercicios { get; set; } = new List<Ejercicio>();
 
-    public virtual ICollection<Mantenimiento> mantenimientos { get; set; } = new List<Mantenimiento>();
+    public virtual ICollection<Mantenimiento> Mantenimientos { get; set; } = new List<Mantenimiento>();
 }

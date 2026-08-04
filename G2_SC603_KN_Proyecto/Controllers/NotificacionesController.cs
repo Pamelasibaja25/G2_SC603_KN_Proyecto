@@ -26,8 +26,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 return RedirectToAction("Home", "Home");
 
             var notificaciones = _context.Notificaciones
-                .Where(n => n.idCliente == cliente.IdCliente)
-                .OrderByDescending(n => n.fecha)
+                .Where(n => n.IdCliente == cliente.IdCliente)
+                .OrderByDescending(n => n.Fecha)
                 .ToList();
 
             // Al abrir la pantalla se marcan todas como leídas, así el

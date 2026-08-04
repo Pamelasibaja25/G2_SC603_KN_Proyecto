@@ -1,9 +1,9 @@
 ﻿@model List<G2_SC603_KN_Proyecto.Models.Equipo>
 @{
     Layout = "_Layout";
-    var activos = Model?.Count(e => e.estado == "Disponible") ?? 0;
-    var inactivos = Model?.Count(e => e.estado == "No Disponible") ?? 0;
-    var enMant = Model?.Count(e => e.estado != "Disponible" && e.estado != "No Disponible") ?? 0;
+    var activos = Model?.Count(e => e.Estado == "Disponible") ?? 0;
+    var inactivos = Model?.Count(e => e.Estado == "No Disponible") ?? 0;
+    var enMant = Model?.Count(e => e.Estado != "Disponible" && e.Estado != "No Disponible") ?? 0;
     bool vacio = ViewBag.Vacio == true || Model == null || !Model.Any();
 }
 
@@ -72,20 +72,20 @@
                     <tbody>
                         @foreach (var eq in Model)
                         {
-                            <tr class="@(eq.estado == "No Disponible" ? "row-disabled" : "")">
-                                <td>@eq.nombre</td>
+                            <tr class="@(eq.Estado == "No Disponible" ? "row-disabled" : "")">
+                                <td>@eq.Nombre</td>
                                 <td>
-                                    @if (eq.estado == "Disponible")
+                                    @if (eq.Estado == "Disponible")
                                     {
-                                        <span class="badge-status badge-disponible">@eq.estado</span>
+                                        <span class="badge-status badge-disponible">@eq.Estado</span>
                                     }
                                     else
                                     {
-                                        <span class="badge-status badge-no-disponible">@eq.estado</span>
+                                        <span class="badge-status badge-no-disponible">@eq.Estado</span>
                                     }
                                 </td>
-                                <td>@(eq.fechaCompra?.ToString("dd/MM/yyyy") ?? "—")</td>
-                                <td>@(eq.costo.HasValue ? "₡" + eq.costo.Value.ToString("N2") : "—")</td>
+                                <td>@(eq.FechaCompra?.ToString("dd/MM/yyyy") ?? "—")</td>
+                                <td>@(eq.Costo.HasValue ? "₡" + eq.Costo.Value.ToString("N2") : "—")</td>
                             </tr>
                         }
                     </tbody>

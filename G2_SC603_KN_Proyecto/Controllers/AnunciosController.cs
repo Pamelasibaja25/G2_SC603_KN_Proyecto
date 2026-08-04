@@ -38,12 +38,12 @@ namespace G2_SC603_KN_Proyecto.Controllers
             {
                 _context.Notificaciones.Add(new Notificacion
                 {
-                    idCliente = cliente.IdCliente,
-                    tipo = "Anuncio",
-                    titulo = anuncio.titulo,
-                    mensaje = anuncio.mensaje,
-                    fecha = DateTime.Now,
-                    leida = false
+                    IdCliente = cliente.IdCliente,
+                    Tipo = "Anuncio",
+                    Titulo = anuncio.Titulo,
+                    Mensaje = anuncio.Mensaje,
+                    Fecha = DateTime.Now,
+                    Leida = false
                 });
             }
 

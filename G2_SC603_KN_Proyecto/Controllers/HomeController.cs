@@ -28,11 +28,11 @@ namespace G2_SC603_KN_Proyecto.Controllers
         public IActionResult Index(string username, string password)
         {
             var user = _context.Usuarios
-                .Include(u => u.clientes)
-                .FirstOrDefault(u => u.username == username);
+                .Include(u => u.Clientes)
+                .FirstOrDefault(u => u.Username == username);
 
-            Console.WriteLine($"Usuario encontrado: {user?.username}");
-            Console.WriteLine($"Hash en DB: {user?.contrasena}");
+            Console.WriteLine($"Usuario encontrado: {user?.Username}");
+            Console.WriteLine($"Hash en DB: {user?.Contrasena}");
 
             if (user != null)
             {
@@ -44,14 +44,14 @@ namespace G2_SC603_KN_Proyecto.Controllers
                         .ToLower();
 
                     Console.WriteLine($"Hash ingresado: {hashIngresado}");
-                    Console.WriteLine($"Son iguales: {hashIngresado == user.contrasena.ToLower()}");
+                    Console.WriteLine($"Son iguales: {hashIngresado == user.Contrasena.ToLower()}");
 
-                    if (hashIngresado == user.contrasena.ToLower())
+                    if (hashIngresado == user.Contrasena.ToLower())
                     {
                         // Validar membresía activa únicamente para usuarios USER
-                        if (user.rol.ToUpper() == "USER")
+                        if (user.Rol.ToUpper() == "USER")
                         {
-                            var cliente = user.clientes.FirstOrDefault();
+                            var cliente = user.Clientes.FirstOrDefault();
 
                             if (cliente == null)
                             {
@@ -71,9 +71,9 @@ namespace G2_SC603_KN_Proyecto.Controllers
                             }
                         }
 
-                        HttpContext.Session.SetString("Usuario", user.username);
-                        HttpContext.Session.SetString("Rol", user.rol);
-                        HttpContext.Session.SetInt32("ID", user.idUsuario);
+                        HttpContext.Session.SetString("Usuario", user.Username);
+                        HttpContext.Session.SetString("Rol", user.Rol);
+                        HttpContext.Session.SetInt32("ID", user.IdUsuario);
 
                         return RedirectToAction("Home", "Home");
                     }

@@ -64,8 +64,8 @@
                         @foreach (var eq in disponibles)
                         {
                             <tr>
-                                <td>@eq.nombre</td>
-                                <td><span class="badge-status badge-disponible">@eq.estado</span></td>
+                                <td>@eq.Nombre</td>
+                                <td><span class="badge-status badge-disponible">@eq.Estado</span></td>
                             </tr>
                         }
                     </tbody>
@@ -97,7 +97,7 @@
                         @foreach (var item in noDisponibles!)
                         {
                             <tr>
-                                <td>@item.Equipo?.nombre</td>
+                                <td>@item.Equipo?.Nombre</td>
                                 <td>@item.Motivo</td>
                             </tr>
                         }

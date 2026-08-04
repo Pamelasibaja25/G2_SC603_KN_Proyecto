@@ -157,7 +157,7 @@
             <h3 class="font-headline font-bold text-xl" id="membershipModalTitle">Nueva Mensualidad</h3>
             <button onclick="closeModal('membershipModal')" class="btn-icon"><span class="material-symbols-outlined">close</span></button>
         </div>
-        <form asp-action="AgregarMembresia" method="post" id="membershipForm" class="space-y-4">
+           <form asp-action="AgregarMembresia" method="post" id="membershipForm" class="space-y-4">
             <input type="hidden" id="membershipId" />
             <div>
                 <label class="label-float">Cliente *</label>
@@ -205,14 +205,14 @@
                 </div>
             </div>
             <script>
-                            function calcularFechaFin() {
-                                const inicio = document.getElementById('membershipStart').value;
-                                const meses = parseInt(document.getElementById('membershipMeses').value, 10);
-                                if (!inicio || !meses) return;
-                                const fecha = new Date(inicio + 'T00:00:00');
-                                fecha.setMonth(fecha.getMonth() + meses);
-                                document.getElementById('membershipEnd').value = fecha.toISOString().split('T')[0];
-                            }
+                function calcularFechaFin() {
+                    const inicio = document.getElementById('membershipStart').value;
+                    const meses = parseInt(document.getElementById('membershipMeses').value, 10);
+                    if (!inicio || !meses) return;
+                    const fecha = new Date(inicio + 'T00:00:00');
+                    fecha.setMonth(fecha.getMonth() + meses);
+                    document.getElementById('membershipEnd').value = fecha.toISOString().split('T')[0];
+                }
             </script>
             <div class="flex gap-3 pt-2 justify-end">
                 <button type="button" class="btn-secondary" onclick="closeModal('membershipModal')">Cancelar</button>
@@ -256,17 +256,17 @@
                     </select>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="label-float">Fecha de Inicio *</label>
                     <input type="date" id="editMembershipStart" name="FechaInicio" class="input-field" required />
                 </div>
 
                 <div>
-                    <label class="label-float">Fecha de Vencimiento *</label>
+                <label class="label-float">Fecha de Vencimiento *</label>
                     <input type="date" id="editMembershipEnd" name="FechaFin" class="input-field" required />
+                    </div>
                 </div>
-            </div>
             <div class="flex gap-3 pt-2 justify-end">
                 <button type="button" class="btn-secondary" onclick="closeModal('editModal')">Cancelar</button>
                 <button type="submit" class="btn-primary">

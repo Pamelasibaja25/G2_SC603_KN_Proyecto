@@ -119,7 +119,7 @@ public partial class DbOrionFitContext : DbContext
                 .HasMaxLength(20)
                 .HasColumnName("telefono");
 
-            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.administradors)
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Administradors)
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Administrador_Usuario");
@@ -205,7 +205,7 @@ public partial class DbOrionFitContext : DbContext
                 .HasMaxLength(20)
                 .HasColumnName("telefono");
 
-            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.clientes)
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Clientes)
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Cliente_Usuario");
@@ -320,7 +320,7 @@ public partial class DbOrionFitContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("nombre");
 
-            entity.HasOne(d => d.IdEquipoNavigation).WithMany(p => p.ejercicios)
+            entity.HasOne(d => d.IdEquipoNavigation).WithMany(p => p.Ejercicios)
                 .HasForeignKey(d => d.IdEquipo)
                 .HasConstraintName("FK_Equipo_Ejercicio");
         });
@@ -345,7 +345,7 @@ public partial class DbOrionFitContext : DbContext
                 .HasMaxLength(20)
                 .HasColumnName("telefono");
 
-            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.entrenadors)
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Entrenadors)
                 .HasForeignKey(d => d.IdUsuario)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Entrenador_Usuario");
@@ -353,19 +353,19 @@ public partial class DbOrionFitContext : DbContext
 
         modelBuilder.Entity<Equipo>(entity =>
         {
-            entity.HasKey(e => e.idEquipo).HasName("PRIMARY");
+            entity.HasKey(e => e.IdEquipo).HasName("PRIMARY");
 
             entity.ToTable("equipo");
 
-            entity.Property(e => e.idEquipo).HasColumnName("id_equipo");
-            entity.Property(e => e.costo)
+            entity.Property(e => e.IdEquipo).HasColumnName("id_equipo");
+            entity.Property(e => e.Costo)
                 .HasPrecision(10, 2)
                 .HasColumnName("costo");
-            entity.Property(e => e.estado)
+            entity.Property(e => e.Estado)
                 .HasMaxLength(30)
                 .HasColumnName("estado");
-            entity.Property(e => e.fechaCompra).HasColumnName("fecha_compra");
-            entity.Property(e => e.nombre)
+            entity.Property(e => e.FechaCompra).HasColumnName("fecha_compra");
+            entity.Property(e => e.Nombre)
                 .HasMaxLength(100)
                 .HasColumnName("nombre");
         });
@@ -418,7 +418,7 @@ public partial class DbOrionFitContext : DbContext
             entity.Property(e => e.Fecha).HasColumnName("fecha");
             entity.Property(e => e.IdEquipo).HasColumnName("id_equipo");
 
-            entity.HasOne(d => d.IdEquipoNavigation).WithMany(p => p.mantenimientos)
+            entity.HasOne(d => d.IdEquipoNavigation).WithMany(p => p.Mantenimientos)
                 .HasForeignKey(d => d.IdEquipo)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Mantenimiento_Equipo");
@@ -442,30 +442,30 @@ public partial class DbOrionFitContext : DbContext
 
         modelBuilder.Entity<Pago>(entity =>
         {
-            entity.HasKey(e => e.idPago).HasName("PRIMARY");
+            entity.HasKey(e => e.IdPago).HasName("PRIMARY");
 
             entity.ToTable("pago");
 
-            entity.HasIndex(e => e.idClienteMembresia, "FK_Pago_ClienteMembresia");
+            entity.HasIndex(e => e.IdClienteMembresia, "FK_Pago_ClienteMembresia");
 
-            entity.Property(e => e.idPago).HasColumnName("id_pago");
-            entity.Property(e => e.descripcion)
+            entity.Property(e => e.IdPago).HasColumnName("id_pago");
+            entity.Property(e => e.Descripcion)
                 .HasMaxLength(255)
                 .HasColumnName("descripcion");
-            entity.Property(e => e.fechaPago).HasColumnName("fecha_pago");
-            entity.Property(e => e.idClienteMembresia).HasColumnName("id_cliente_membresia");
-            entity.Property(e => e.metodoPago)
+            entity.Property(e => e.FechaPago).HasColumnName("fecha_pago");
+            entity.Property(e => e.IdClienteMembresia).HasColumnName("id_cliente_membresia");
+            entity.Property(e => e.MetodoPago)
                 .HasMaxLength(50)
                 .HasColumnName("metodo_pago");
-            entity.Property(e => e.monto)
+            entity.Property(e => e.Monto)
                 .HasPrecision(10, 2)
                 .HasColumnName("monto");
             entity.Property(e => e.ComprobantePago)
                 .HasMaxLength(255)
                 .HasColumnName("comprobante_pago");
 
-            entity.HasOne(d => d.idClienteMembresiaNavigation).WithMany(p => p.Pagos)
-                .HasForeignKey(d => d.idClienteMembresia)
+            entity.HasOne(d => d.IdClienteMembresiaNavigation).WithMany(p => p.Pagos)
+                .HasForeignKey(d => d.IdClienteMembresia)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Pago_ClienteMembresia");
         });
@@ -576,20 +576,20 @@ public partial class DbOrionFitContext : DbContext
 
         modelBuilder.Entity<Usuario>(entity =>
         {
-            entity.HasKey(e => e.idUsuario).HasName("PRIMARY");
+            entity.HasKey(e => e.IdUsuario).HasName("PRIMARY");
 
             entity.ToTable("usuario");
 
-            entity.HasIndex(e => e.username, "username").IsUnique();
+            entity.HasIndex(e => e.Username, "username").IsUnique();
 
-            entity.Property(e => e.idUsuario).HasColumnName("id_usuario");
-            entity.Property(e => e.contrasena)
+            entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
+            entity.Property(e => e.Contrasena)
                 .HasMaxLength(255)
                 .HasColumnName("contrasena");
-            entity.Property(e => e.rol)
+            entity.Property(e => e.Rol)
                 .HasMaxLength(30)
                 .HasColumnName("rol");
-            entity.Property(e => e.username)
+            entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .HasColumnName("username");
         });
@@ -617,32 +617,32 @@ public partial class DbOrionFitContext : DbContext
 
         modelBuilder.Entity<Notificacion>(entity =>
         {
-            entity.HasKey(e => e.idNotificacion);
+            entity.HasKey(e => e.IdNotificacion);
 
             entity.ToTable("notificacion");
 
-            entity.Property(e => e.idNotificacion)
+            entity.Property(e => e.IdNotificacion)
                 .HasColumnName("id_notificacion");
 
-            entity.Property(e => e.idCliente)
+            entity.Property(e => e.IdCliente)
                 .HasColumnName("id_cliente");
 
-            entity.Property(e => e.tipo)
+            entity.Property(e => e.Tipo)
                 .HasMaxLength(30)
                 .HasColumnName("tipo");
 
-            entity.Property(e => e.titulo)
+            entity.Property(e => e.Titulo)
                 .HasMaxLength(100)
                 .HasColumnName("titulo");
 
-            entity.Property(e => e.mensaje)
+            entity.Property(e => e.Mensaje)
                 .HasMaxLength(255)
                 .HasColumnName("mensaje");
 
-            entity.Property(e => e.fecha)
+            entity.Property(e => e.Fecha)
                 .HasColumnName("fecha");
 
-            entity.Property(e => e.leida)
+            entity.Property(e => e.Leida)
                 .HasColumnName("leida");
         });
 

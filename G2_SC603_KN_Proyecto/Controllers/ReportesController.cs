@@ -28,7 +28,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
             var reporte = (from c in _context.Clientes
                            join cm in _context.ClienteMembresia on c.IdCliente equals cm.IdCliente
                            join m in _context.Membresia on cm.IdMembresia equals m.IdMembresia
-                           join p in _context.Pagos on cm.IdClienteMembresia equals p.idClienteMembresia
+                           join p in _context.Pagos on cm.IdClienteMembresia equals p.IdClienteMembresia
                            select new ReporteAnalisis
                            {
                                IdCliente = c.IdCliente,
@@ -41,9 +41,9 @@ namespace G2_SC603_KN_Proyecto.Controllers
                                FechaInicio = cm.FechaInicio,
                                FechaFin = cm.FechaFin,
                                Estado = cm.Estado,
-                               MetodoPago = p.metodoPago,
-                               FechaPago = p.fechaPago,
-                               Monto = p.monto
+                               MetodoPago = p.MetodoPago,
+                               FechaPago = p.FechaPago,
+                               Monto = p.Monto
                            });
 
             if (!string.IsNullOrEmpty(membresiaFilter) && membresiaFilter != "Todos")
@@ -221,10 +221,10 @@ namespace G2_SC603_KN_Proyecto.Controllers
             int fila = 2;
             foreach (var eq in equipos)
             {
-                ws.Cell(fila, 1).Value = eq.nombre;
-                ws.Cell(fila, 2).Value = eq.estado;
-                ws.Cell(fila, 3).Value = eq.fechaCompra?.ToString() ?? "";
-                ws.Cell(fila, 4).Value = eq.costo ?? 0;
+                ws.Cell(fila, 1).Value = eq.Nombre;
+                ws.Cell(fila, 2).Value = eq.Estado;
+                ws.Cell(fila, 3).Value = eq.FechaCompra?.ToString() ?? "";
+                ws.Cell(fila, 4).Value = eq.Costo ?? 0;
                 fila++;
             }
             ws.Columns().AdjustToContents();
@@ -240,9 +240,9 @@ namespace G2_SC603_KN_Proyecto.Controllers
         {
             QuestPDF.Settings.License = LicenseType.Community;
 
-            var activos = equipos.Count(e => e.estado == "Disponible");
-            var inactivos = equipos.Count(e => e.estado == "No Disponible");
-            var enMant = equipos.Count(e => e.estado != "Disponible" && e.estado != "No Disponible");
+            var activos = equipos.Count(e => e.Estado == "Disponible");
+            var inactivos = equipos.Count(e => e.Estado == "No Disponible");
+            var enMant = equipos.Count(e => e.Estado != "Disponible" && e.Estado != "No Disponible");
 
             var pdf = QuestPDF.Fluent.Document.Create(container =>
             {
@@ -297,10 +297,10 @@ namespace G2_SC603_KN_Proyecto.Controllers
                             foreach (var eq in equipos)
                             {
                                 var bg = alt ? "#f5f5f5" : "#ffffff";
-                                table.Cell().Background(bg).Padding(4).Text(eq.nombre);
-                                table.Cell().Background(bg).Padding(4).Text(eq.estado);
-                                table.Cell().Background(bg).Padding(4).Text(eq.fechaCompra?.ToString("dd/MM/yyyy") ?? "—");
-                                table.Cell().Background(bg).Padding(4).Text(eq.costo.HasValue ? $"₡{eq.costo    :N2}" : "—");
+                                table.Cell().Background(bg).Padding(4).Text(eq.Nombre);
+                                table.Cell().Background(bg).Padding(4).Text(eq.Estado);
+                                table.Cell().Background(bg).Padding(4).Text(eq.FechaCompra?.ToString("dd/MM/yyyy") ?? "—");
+                                table.Cell().Background(bg).Padding(4).Text(eq.Costo.HasValue ? $"₡{eq.Costo:N2}" : "—");
                                 alt = !alt;
                             }
                         });

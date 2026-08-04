@@ -63,13 +63,13 @@
                         foreach (var cliente in Model)
                         {
                             <tr>
-                                <td>@cliente.username</td>
-                                <td>@cliente.rol</td>
-                                <td>@cliente.nombre</td>
-                                <td>@cliente.correo</td>
+                                <td>@cliente.Username</td>
+                                <td>@cliente.Rol</td>
+                                <td>@cliente.Nombre</td>
+                                <td>@cliente.Correo</td>
                                 <td class="flex gap-3 items-center">
                                     <a href="javascript:void(0)"
-                                       onclick="openEditUserModal('@cliente.username', '@cliente.nombre', '@cliente.correo', '@cliente.rol', '@cliente.telefono')"
+                                       onclick="openEditUserModal('@cliente.Username', '@cliente.Nombre', '@cliente.Correo', '@cliente.Rol', '@cliente.Telefono')"
                                        class="btn-secondary">Editar</a>
 
                                 </td>

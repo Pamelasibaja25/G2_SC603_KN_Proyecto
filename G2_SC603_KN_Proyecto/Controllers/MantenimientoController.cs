@@ -26,7 +26,7 @@ public class MantenimientoController : Controller
             .ToList();
 
         ViewBag.Equipos = _context.Equipo
-            .OrderBy(e => e.nombre)
+            .OrderBy(e => e.Nombre)
             .ToList();
 
         ViewBag.Responsable = HttpContext.Session.GetString("Usuario") ?? "—";
@@ -37,7 +37,7 @@ public class MantenimientoController : Controller
     [HttpPost]
     public IActionResult Programar(int idEquipo, DateOnly fecha, string tipo, string? descripcion, decimal? costo, bool confirmarConflicto = false)
     {
-        var equipo = _context.Equipo.FirstOrDefault(e => e.idEquipo == idEquipo);
+        var equipo = _context.Equipo.FirstOrDefault(e => e.IdEquipo == idEquipo);
         if (equipo == null)
         {
             TempData["ErrorMessage"] = "Debe seleccionar un equipo valido.";
@@ -70,7 +70,7 @@ public class MantenimientoController : Controller
             TempData["ConflictoDescripcion"] = descripcion;
             TempData["ConflictoCosto"] = costo?.ToString() ?? "";
             TempData["WarningMessage"] =
-                $"Ya existe un mantenimiento programado para \"{equipo.nombre}\" el {fecha:dd/MM/yyyy}. " +
+                $"Ya existe un mantenimiento programado para \"{equipo.Nombre}\" el {fecha:dd/MM/yyyy}. " +
                 "Confirma si deseas continuar de todos modos.";
             return RedirectToAction("MostrarMantenimiento");
         }
@@ -93,7 +93,7 @@ public class MantenimientoController : Controller
                 "Programado"
             );
 
-            TempData["MensajeExito"] = $"Mantenimiento programado correctamente para \"{equipo.nombre}\".";
+            TempData["MensajeExito"] = $"Mantenimiento programado correctamente para \"{equipo.Nombre}\".";
         }
         catch (Exception ex)
         {
@@ -118,7 +118,7 @@ public class MantenimientoController : Controller
     [HttpPost]
     public IActionResult RegistrarRealizado(int? idMantenimientoProgramado, int idEquipo, DateOnly fecha, string tipo, string? descripcion, decimal? costo)
     {
-        var equipo = _context.Equipo.FirstOrDefault(e => e.idEquipo == idEquipo);
+        var equipo = _context.Equipo.FirstOrDefault(e => e.IdEquipo == idEquipo);
         if (equipo == null)
         {
             TempData["ErrorMessage"] = "Debe seleccionar un equipo valido.";
@@ -152,7 +152,7 @@ public class MantenimientoController : Controller
                         costo.HasValue ? costo.Value : (object)DBNull.Value
                     );
 
-                    TempData["MensajeExito"] = $"Mantenimiento programado para \"{equipo.nombre}\" marcado como completado.";
+                    TempData["MensajeExito"] = $"Mantenimiento programado para \"{equipo.Nombre}\" marcado como completado.";
                 }
                 catch (Exception ex)
                 {
@@ -175,7 +175,7 @@ public class MantenimientoController : Controller
                 "Completado"
             );
 
-            TempData["MensajeExito"] = $"Mantenimiento registrado en el historial de \"{equipo.nombre}\".";
+            TempData["MensajeExito"] = $"Mantenimiento registrado en el historial de \"{equipo.Nombre}\".";
         }
         catch (Exception ex)
         {
@@ -188,7 +188,7 @@ public class MantenimientoController : Controller
     [HttpGet]
     public IActionResult Historial(int id)
     {
-        var equipo = _context.Equipo.FirstOrDefault(e => e.idEquipo == id);
+        var equipo = _context.Equipo.FirstOrDefault(e => e.IdEquipo == id);
         if (equipo == null)
         {
             TempData["ErrorMessage"] = "Equipo no encontrado.";
@@ -219,7 +219,7 @@ public class MantenimientoController : Controller
 
         return Json(new
         {
-            equipo = mantenimiento.IdEquipoNavigation?.nombre,
+            equipo = mantenimiento.IdEquipoNavigation?.Nombre,
             tipo = mantenimiento.Tipo,
             fecha = mantenimiento.Fecha.ToString("dd/MM/yyyy"),
             estado = mantenimiento.Estado,
@@ -241,16 +241,16 @@ public class MantenimientoController : Controller
             .ToHashSet();
 
         var disponibles = equipos
-            .Where(e => e.estado == "Disponible" && !idsConMantenimiento.Contains(e.idEquipo))
+            .Where(e => e.Estado == "Disponible" && !idsConMantenimiento.Contains(e.IdEquipo))
             .ToList();
 
         var noDisponibles = equipos
-            .Where(e => e.estado != "Disponible" || idsConMantenimiento.Contains(e.idEquipo))
+            .Where(e => e.Estado != "Disponible" || idsConMantenimiento.Contains(e.IdEquipo))
             .Select(e => new EquipoNoDisponibleViewModel
             {
                 Equipo = e,
-                Motivo = e.estado != "Disponible"
-                    ? "Equipo inactivo (" + e.estado + ")"
+                Motivo = e.Estado != "Disponible"
+                    ? "Equipo inactivo (" + e.Estado + ")"
                     : "Mantenimiento programado para esta fecha"
             })
             .ToList();
@@ -272,7 +272,7 @@ public class MantenimientoController : Controller
             return RedirectToAction("MostrarMantenimiento");
         }
 
-        var equipo = _context.Equipo.FirstOrDefault(e => e.idEquipo == idEquipo);
+        var equipo = _context.Equipo.FirstOrDefault(e => e.IdEquipo == idEquipo);
         if (equipo == null)
         {
             TempData["ErrorMessage"] = "Debe seleccionar un equipo valido.";

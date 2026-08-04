@@ -10,6 +10,7 @@
 <div id="page-reports" class="section-page active p-6 lg:p-8">
     <div class="mb-8">
         <h2 class="font-headline text-3xl font-bold tracking-tight">Reporte: Mensualidad</h2>
+        <p class="text-on-surface-variant text-xs mt-1">RMGM-DASH-007 al RMGM-DASH-009</p>
     </div>
 
     <!-- Cards Resumen -->
@@ -85,107 +86,107 @@
 
     </div>
 
-    <form asp-action="Membresia" method="get">
+<form asp-action="Membresia" method="get">
 
-        <div class="flex flex-wrap gap-4 items-end">
+    <div class="flex flex-wrap gap-4 items-end">
 
-            <div class="flex-1 min-w-40">
+        <div class="flex-1 min-w-40">
 
-                <label class="label-float">
-                    Estado
-                </label>
+            <label class="label-float">
+                Estado
+            </label>
 
                 <select name="estado" class="input-field" id="reporteStatusFilter" onchange="filterReportMembresia()">
 
-                    <option value="">--Seleccione Una Opción--</option>
+                <option value="">--Seleccione Una Opción--</option>
                     <option value="Todos">Todos</option>
-                    <option value="Activa">Activa</option>
+                <option value="Activa">Activa</option>
 
-                    <option value="Vencida">Vencida</option>
+                <option value="Vencida">Vencida</option>
 
-                    <option value="Cancelada">Cancelada</option>
+                <option value="Cancelada">Cancelada</option>
 
-                </select>
-
-            </div>
-
-            <button class="btn-primary">
-                Generar Reporte
-            </button>
+            </select>
 
         </div>
 
-    </form>
+        <button class="btn-primary">
+            Generar Reporte
+        </button>
 
-    <table class="data-table">
+    </div>
 
-        <thead>
+</form>
 
-            <tr>
+<table class="data-table">
 
-                <th>Cédula</th>
-                <th>Cliente</th>
-                <th>Teléfono</th>
-                <th>Correo</th>
-                <th>Mensualidad</th>
-                <th>Precio</th>
-                <th>Inicio</th>
-                <th>Fin</th>
-                <th>Estado</th>
+    <thead>
 
-            </tr>
+        <tr>
 
-        </thead>
+            <th>Cédula</th>
+            <th>Cliente</th>
+            <th>Teléfono</th>
+            <th>Correo</th>
+            <th>Mensualidad</th>
+            <th>Precio</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Estado</th>
+
+        </tr>
+
+    </thead>
 
         <tbody id="clientsTableBody">
 
-            @foreach (var item in Model)
-            {
-                <tr>
+        @foreach (var item in Model)
+        {
+            <tr>
 
-                    <td>@item.Cedula</td>
+                <td>@item.Cedula</td>
 
-                    <td>@item.NombreCliente</td>
+                <td>@item.NombreCliente</td>
 
-                    <td>@item.Telefono</td>
+                <td>@item.Telefono</td>
 
-                    <td>@item.Correo</td>
+                <td>@item.Correo</td>
 
-                    <td>@item.Membresia</td>
+                <td>@item.Membresia</td>
 
-                    <td>₡ @item.Precio.ToString("N2")</td>
+                <td>₡ @item.Precio.ToString("N2")</td>
 
-                    <td>@item.FechaInicio.ToString("dd/MM/yyyy")</td>
+                <td>@item.FechaInicio.ToString("dd/MM/yyyy")</td>
 
-                    <td>@item.FechaFin.ToString("dd/MM/yyyy")</td>
+                <td>@item.FechaFin.ToString("dd/MM/yyyy")</td>
 
-                    <td>
+                <td>
 
-                        @if (item.Estado == "Activa")
-                        {
-                            <span class="badge badge-success">
-                                @item.Estado
-                            </span>
-                        }
-                        else if (item.Estado == "Vencida")
-                        {
-                            <span class="badge badge-error">
-                                @item.Estado
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="badge badge-warning">
-                                @item.Estado
-                            </span>
-                        }
+                    @if (item.Estado == "Activa")
+                    {
+                        <span class="badge badge-success">
+                            @item.Estado
+                        </span>
+                    }
+                    else if (item.Estado == "Vencida")
+                    {
+                        <span class="badge badge-error">
+                            @item.Estado
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-warning">
+                            @item.Estado
+                        </span>
+                    }
 
-                    </td>
+                </td>
 
-                </tr>
-            }
+            </tr>
+        }
 
-        </tbody>
+    </tbody>
 
-    </table>
+</table>
 </div>

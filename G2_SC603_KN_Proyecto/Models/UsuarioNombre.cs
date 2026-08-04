@@ -6,11 +6,11 @@ namespace G2_SC603_KN_Proyecto.Models;
 public partial class UsuarioNombre
 {
 
-    public string username { get; set; } = null!;
+    public string Username { get; set; } = null!;
 
-    public string? nombre { get; set; } = null!;
-    public string rol { get; set; } = null!;
-    public string? telefono { get; set; } = null!;
+    public string? Nombre { get; set; } = null!;
+    public string Rol { get; set; } = null!;
+    public string? Telefono { get; set; } = null!;
 
-    public string? correo { get; set; } = null!;
+    public string? Correo { get; set; } = null!;
 }

@@ -21,14 +21,14 @@ namespace G2_SC603_KN_Proyecto.Controllers
             int? idUsuario = HttpContext.Session.GetInt32("ID");
 
             IQueryable<Pago> query = _context.Pagos
-                .Include(p => p.idClienteMembresiaNavigation)
+                .Include(p => p.IdClienteMembresiaNavigation)
                 .ThenInclude(cm => cm.IdClienteNavigation);
 
             // Si es USER, filtrar solo sus pagos
             if (rol == "USER")
             {
                 query = query.Where(p =>
-                    p.idClienteMembresiaNavigation.IdClienteNavigation.IdUsuario == idUsuario
+                    p.IdClienteMembresiaNavigation.IdClienteNavigation.IdUsuario == idUsuario
                 );
             }
 
@@ -50,38 +50,23 @@ namespace G2_SC603_KN_Proyecto.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RegistrarPago(Pago pago, IFormFile Comprobante)
+        public IActionResult RegistrarPago(Pago pago)
         {
-            if (Comprobante != null)
-            {
-                var nombreArchivo = Guid.NewGuid().ToString() + Path.GetExtension(Comprobante.FileName);
-
-                var carpeta = Path.Combine(
-                    Directory.GetCurrentDirectory(),
-                    "wwwroot/comprobantes"
-                );
-
-                if (!Directory.Exists(carpeta))
-                {
-                    Directory.CreateDirectory(carpeta);
-                }
-
-                var ruta = Path.Combine(carpeta, nombreArchivo);
-
-                using (var stream = new FileStream(ruta, FileMode.Create))
-                {
-                    await Comprobante.CopyToAsync(stream);
-                }
-
-                pago.comprobante = "/comprobantes/" + nombreArchivo;
-            }
-
             _context.Pagos.Add(pago);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
-            GenerarNotificacionPago(pago.idClienteMembresia, pago.monto);
+            GenerarNotificacionPago(pago.IdClienteMembresia, pago.Monto);
 
             return RedirectToAction("Index");
+        }
+        public IActionResult HistorialCliente(int idCliente)
+        {
+            List<Pago> pagos = _context.Pagos
+                .Include(p => p.IdClienteMembresiaNavigation)
+                .Where(p => p.IdClienteMembresiaNavigation.IdCliente == idCliente)
+                .ToList();
+
+            return View(pagos);
         }
         private void GenerarNotificacionPago(int idClienteMembresia, decimal monto)
         {
@@ -92,12 +77,12 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             var notificacion = new Notificacion
             {
-                idCliente = clienteMembresia.IdCliente,
-                tipo = "Pago",
-                titulo = "Pago registrado",
-                mensaje = $"Se registró un pago de ₡{monto}",
-                fecha = DateTime.Now,
-                leida = false
+                IdCliente = clienteMembresia.IdCliente,
+                Tipo = "Pago",
+                Titulo = "Pago registrado",
+                Mensaje = $"Se registró un pago de ₡{monto}",
+                Fecha = DateTime.Now,
+                Leida = false
             };
 
             _context.Notificaciones.Add(notificacion);
@@ -113,9 +98,9 @@ namespace G2_SC603_KN_Proyecto.Controllers
         public IActionResult Comprobante(int idPago)
         {
             var pago = _context.Pagos
-                .Include(p => p.idClienteMembresiaNavigation)
+                .Include(p => p.IdClienteMembresiaNavigation)
                 .ThenInclude(cm => cm.IdClienteNavigation)
-                .FirstOrDefault(p => p.idPago == idPago);
+                .FirstOrDefault(p => p.IdPago == idPago);
 
             if (pago == null)
                 return NotFound();

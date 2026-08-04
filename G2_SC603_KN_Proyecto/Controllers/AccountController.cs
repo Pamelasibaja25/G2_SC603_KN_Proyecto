@@ -42,7 +42,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         public IActionResult Recuperar(string username, string nuevaPassword)
         {
             var usuario = _context.Usuarios
-                .FirstOrDefault(u => u.username == username);
+                .FirstOrDefault(u => u.Username == username);
 
             if (usuario == null)
             {
@@ -50,7 +50,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 return View();
             }
 
-            usuario.contrasena = HashSHA256(nuevaPassword.Trim());
+            usuario.Contrasena = HashSHA256(nuevaPassword.Trim());
             _context.SaveChanges();
 
             ViewBag.Mensaje = "Contraseña actualizada correctamente";
@@ -74,20 +74,20 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 return RedirectToAction("Index", "Home");
 
             var usuario = _context.Usuarios
-                .FirstOrDefault(u => u.idUsuario == id);
+                .FirstOrDefault(u => u.IdUsuario == id);
 
             if (usuario == null)
                 return RedirectToAction("Index", "Home");
 
             string actualHash = HashSHA256(actual.Trim());
 
-            if (usuario.contrasena != actualHash)
+            if (usuario.Contrasena != actualHash)
             {
                 ViewBag.Error = "Contraseña actual incorrecta";
                 return View();
             }
 
-            usuario.contrasena = HashSHA256(nueva.Trim());
+            usuario.Contrasena = HashSHA256(nueva.Trim());
             _context.SaveChanges();
 
             ViewBag.Mensaje = "Contraseña actualizada correctamente";

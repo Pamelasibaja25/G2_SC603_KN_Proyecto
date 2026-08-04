@@ -123,6 +123,39 @@
         </div>
     </div>
 
+    <div class="bg-surface-container rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)] mb-6">
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="font-headline font-bold text-base">Confirmados por Día (WOD)</h3>
+            <span class="material-symbols-outlined text-secondary text-[20px]">groups</span>
+        </div>
+        @if (Model.ConfirmadosPorDia != null && Model.ConfirmadosPorDia.Any())
+        {
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>WOD</th>
+                        <th>Confirmados</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ConfirmadosPorDia)
+                    {
+                        <tr>
+                            <td>@item.Fecha.ToString("dddd dd/MM", new System.Globalization.CultureInfo("es-ES"))</td>
+                            <td>@item.NombreWod</td>
+                            <td>@item.Confirmados</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="text-on-surface-variant text-sm">Todavía no hay confirmaciones para los próximos días.</p>
+        }
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         <div class="bg-surface-container rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
@@ -209,7 +242,7 @@
     const asistenciaRango = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AsistenciaRango));
 
     document.getElementById('todayDate').textContent = new Date().toLocaleDateString('es-CR', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
 </script>
 <script src="~/js/graficos.js" asp-append-version="true"></script>

@@ -67,7 +67,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
                 Entrenador? entrenador = await _context.Entrenadors
                     .Include(e => e.IdUsuarioNavigation)
-                    .FirstOrDefaultAsync(e => e.IdUsuarioNavigation.username == usernameActual);
+                    .FirstOrDefaultAsync(e => e.IdUsuarioNavigation.Username == usernameActual);
 
                 if (entrenador == null)
                 {
@@ -179,12 +179,12 @@ namespace G2_SC603_KN_Proyecto.Controllers
             {
                 _context.Notificaciones.Add(new Notificacion
                 {
-                    idCliente = cliente.IdCliente,
-                    tipo = "WOD",
-                    titulo = "Nuevo entrenamiento disponible",
-                    mensaje = $"Se publicó el WOD: {nombre}. Objetivo: {objetivo}",
-                    fecha = DateTime.Now,
-                    leida = false
+                    IdCliente = cliente.IdCliente,
+                    Tipo = "WOD",
+                    Titulo = "Nuevo entrenamiento disponible",
+                    Mensaje = $"Se publicó el WOD: {nombre}. Objetivo: {objetivo}",
+                    Fecha = DateTime.Now,
+                    Leida = false
                 });
             }
 
@@ -383,7 +383,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         /// Obtiene el id de usuario y el rol desde la sesión actual.
         /// Centraliza esta lectura para evitar duplicar el acceso a
         /// HttpContext.Session en cada acción (DRY).
-
+      
         private (int IdUsuario, string Rol) ObtenerUsuarioActual()
         {
             int idUsuario = HttpContext.Session.GetInt32("ID") ?? 0;

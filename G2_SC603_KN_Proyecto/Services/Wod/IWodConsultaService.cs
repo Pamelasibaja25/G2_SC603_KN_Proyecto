@@ -9,14 +9,7 @@ namespace G2_SC603_KN_Proyecto.Services.Wod
 
     public interface IWodConsultaService
     {
-        /// <summary>
-        /// RMGM-WOD-003: historial de entrenamientos, filtrado según el rol
-        /// de quien consulta (Cliente ve los suyos, Entrenador ve los que él
-        /// publicó, Administrador ve todos), ordenado por fecha descendente.
-        /// </summary>
-        Task<List<WodHistorialItemViewModel>> ObtenerHistorialAsync(int idUsuario, string rol);
-
-        /// entrenamientos asignados/publicados para el día de hoy.
+        /// entrenamientos asignados/publicados para el día siguiente (mañana).
         Task<List<WodHistorialItemViewModel>> ObtenerEntrenamientoDiarioAsync(int idUsuario, string rol);
 
 

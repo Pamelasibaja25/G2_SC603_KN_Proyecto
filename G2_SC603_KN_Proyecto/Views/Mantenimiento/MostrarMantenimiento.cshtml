@@ -77,7 +77,7 @@
                         {
                             <tr class="@(m.Estado == "Completado" ? "row-disabled" : "")">
 
-                                <td>@m.IdEquipoNavigation?.nombre</td>
+                                <td>@m.IdEquipoNavigation?.Nombre</td>
                                 <td>@m.Tipo</td>
                                 <td>@m.Fecha.ToString("dd/MM/yyyy")</td>
                                 <td>
@@ -109,7 +109,7 @@
                                             <button type="button" class="btn-icon" title="Marcar como completado"
                                                     data-id-mantenimiento="@m.IdMantenimiento"
                                                     data-id-equipo="@m.IdEquipo"
-                                                    data-nombre-equipo="@m.IdEquipoNavigation?.nombre"
+                                                    data-nombre-equipo="@m.IdEquipoNavigation?.Nombre"
                                                     onclick="openCompletarModalFromButton(this)">
                                                 <span class="material-symbols-outlined text-[18px]">check_circle</span>
                                             </button>
@@ -165,8 +165,8 @@
                         {
                             @foreach (var eq in equipos)
                             {
-                                <option value="@eq.idEquipo" data-estado="@eq.estado">
-                                    @eq.nombre (@eq.estado)
+                                <option value="@eq.IdEquipo" data-estado="@eq.Estado">
+                                    @eq.Nombre (@eq.Estado)
                                 </option>
                             }
                         }

@@ -1,4 +1,4 @@
-﻿@model G2_SC603_KN_Proyecto.Models.ReservasViewModel
+@model G2_SC603_KN_Proyecto.Models.ReservasViewModel
 @{
     Layout = "_Layout";
 }
@@ -24,10 +24,7 @@
 
     @if (Model.EsCliente)
     {
-        var pendiente = Model.MisConfirmaciones
-           .Where(c => c.Estado == "PENDIENTE")
-           .OrderBy(c => c.Fecha)
-           .FirstOrDefault();
+        var pendiente = Model.MisConfirmaciones.FirstOrDefault(c => c.Estado == "PENDIENTE" && c.Fecha >= DateOnly.FromDateTime(DateTime.Today));
 
         @if (pendiente != null)
         {

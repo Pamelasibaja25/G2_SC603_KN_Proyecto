@@ -22,14 +22,26 @@ public class DashboardController : Controller
         model.ClientesActivos = _context.Clientes.Count(c => c.Estado == "Activo");
 
         model.IngresosMes = _context.Pagos
-            .Where(p => p.fechaPago >= inicioMes)
-            .Sum(p => (decimal?)p.monto) ?? 0;
+            .Where(p => p.FechaPago >= inicioMes)
+            .Sum(p => (decimal?)p.Monto) ?? 0;
 
         model.AsistenciaHoy = _context.Asistencia.Count(a => a.Fecha == hoy);
 
         DateOnly manana = hoy.AddDays(1);
         model.ConfirmadosWodManana = _context.ClienteRutinas
             .Count(cr => cr.FechaAsignacion == manana && cr.EstadoAsistencia == "ACEPTADO");
+
+        model.ConfirmadosPorDia = _context.ClienteRutinas
+            .Where(cr => cr.FechaAsignacion >= hoy && cr.EstadoAsistencia == "ACEPTADO")
+            .GroupBy(cr => new { cr.FechaAsignacion, Nombre = cr.IdRutinaNavigation.Nombre })
+            .Select(g => new ConfirmadosDiaVM
+            {
+                Fecha = g.Key.FechaAsignacion,
+                NombreWod = g.Key.Nombre,
+                Confirmados = g.Count()
+            })
+            .OrderBy(x => x.Fecha)
+            .ToList();
 
         model.MembresiasPorVencer = _context.ClienteMembresia
             .Count(c => c.FechaFin >= hoy && c.FechaFin <= hoy.AddDays(7));
@@ -113,18 +125,18 @@ public class DashboardController : Controller
             .ToList();
 
         model.IngresosHoy = _context.Pagos
-            .Where(x => x.fechaPago == hoy)
-            .Sum(x => (decimal?)x.monto) ?? 0;
+            .Where(x => x.FechaPago == hoy)
+            .Sum(x => (decimal?)x.Monto) ?? 0;
 
         model.PagosHoy = _context.Pagos
-            .Include(p => p.idClienteMembresiaNavigation)
+            .Include(p => p.IdClienteMembresiaNavigation)
                 .ThenInclude(cm => cm.IdClienteNavigation)
-            .Where(p => p.fechaPago == hoy)
+            .Where(p => p.FechaPago == hoy)
             .Select(p => new PagoHoyVM
             {
-                Cliente = p.idClienteMembresiaNavigation.IdClienteNavigation.Nombre,
-                Monto = p.monto,
-                Metodo = p.metodoPago 
+                Cliente = p.IdClienteMembresiaNavigation.IdClienteNavigation.Nombre,
+                Monto = p.Monto,
+                Metodo = p.MetodoPago
             }).ToList();
 
         model.AlertasStock = _context.Inventarios

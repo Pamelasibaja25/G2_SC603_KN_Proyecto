@@ -21,8 +21,8 @@ public class EquiposController : Controller
             buscar = buscar.ToLower();
 
             equipos = equipos.Where(e =>
-                e.nombre.ToLower().Contains(buscar) ||
-                e.estado.ToLower().Contains(buscar) ||
+                e.Nombre.ToLower().Contains(buscar) ||
+                e.Estado.ToLower().Contains(buscar) ||
                 "equipamiento".Contains(buscar));
         }
 
@@ -93,7 +93,7 @@ public class EquiposController : Controller
     public IActionResult Edit(int id)
     {
         var equipo = _context.Equipo
-            .FirstOrDefault(e => e.idEquipo == id);
+            .FirstOrDefault(e => e.IdEquipo == id);
 
         if (equipo == null)
         {
@@ -107,14 +107,14 @@ public class EquiposController : Controller
     public IActionResult Activar(int id)
     {
         var equipo = _context.Equipo
-            .FirstOrDefault(e => e.idEquipo == id);
+            .FirstOrDefault(e => e.IdEquipo == id);
 
         if (equipo == null)
         {
             return NotFound();
         }
 
-        equipo.estado = "Disponible";
+        equipo.Estado = "Disponible";
 
         _context.SaveChanges();
 
@@ -128,14 +128,14 @@ public class EquiposController : Controller
     public IActionResult Desactivar(int id)
     {
         var equipo = _context.Equipo
-            .FirstOrDefault(e => e.idEquipo == id);
+            .FirstOrDefault(e => e.IdEquipo == id);
 
         if (equipo == null)
         {
             return NotFound();
         }
 
-        equipo.estado = "No Disponible";
+        equipo.Estado = "No Disponible";
 
         _context.SaveChanges();
 

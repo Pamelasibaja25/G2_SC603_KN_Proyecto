@@ -152,17 +152,13 @@
             </div>
         </nav>
 
-  
-     <!-- MAIN -->
-<div class="flex-1 md:ml-72 flex flex-col h-screen min-w-0">
+        <!-- MAIN -->
+        <div class="flex-1 md:ml-72 flex flex-col h-screen min-w-0">
 
-    <header class="flex items-center justify-between px-6 h-16 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10">
-
-        <div class="flex items-center gap-3">
-            <span class="text-primary-container font-headline font-black italic text-xl md:hidden">
-                Orion Fit
-            </span>
-        </div>
+            <header class="flex items-center justify-between px-6 h-16 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10">
+                <div class="flex items-center gap-3">
+                    <span class="text-primary-container font-headline font-black italic text-xl md:hidden">Orion Fit</span>
+                </div>
 
                 <div class="flex items-center gap-3">
                     @if (rol != "ADMIN")
@@ -197,11 +193,12 @@
                 </div>
             </header>
 
-    <main class="flex-1 overflow-y-auto bg-surface">
-        @RenderBody()
-    </main>
+            <main class="flex-1 overflow-y-auto bg-surface">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
 
-</div>
- <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
 </body>
 </html>
