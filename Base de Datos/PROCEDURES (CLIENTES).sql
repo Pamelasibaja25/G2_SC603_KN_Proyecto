@@ -1,40 +1,39 @@
 USE DB_Orion_Fit;
-DROP PROCEDURE IF EXISTS sp_ObtenerClientesResumen;
-DROP PROCEDURE IF EXISTS sp_AgregarCliente;
+drop procedure if exists sp_obtenerclientesresumen;
+drop procedure if exists sp_agregarcliente;
 
-DELIMITER $$
-CREATE PROCEDURE sp_ObtenerClientesResumen()
-BEGIN
-    SELECT 
+delimiter $$
+create procedure sp_obtenerclientesresumen()
+begin
+    select 
         c.*,
-        cm.estado AS EstadoMembresia,
-        cm.fecha_fin AS Vencimiento
-    FROM Cliente c
-    LEFT JOIN Cliente_Membresia cm ON c.id_cliente = cm.id_cliente
-    LEFT JOIN Membresia m ON cm.id_membresia = m.id_membresia;
-END$$
-DELIMITER ;
+        cm.estado as estadomembresia,
+        cm.fecha_fin as vencimiento
+    from cliente c
+    left join cliente_membresia cm on c.id_cliente = cm.id_cliente
+    left join membresia m on cm.id_membresia = m.id_membresia;
+end$$
+delimiter ;
 
-DELIMITER $$
-CREATE PROCEDURE sp_AgregarCliente(
-    IN pNombre VARCHAR(100),
-    IN pCedula VARCHAR(20),
-    IN pTelefono VARCHAR(20),
-    IN pCorreo VARCHAR(100),
-    IN pFechaNacimiento DATE,
-    IN pEstado VARCHAR(20)
+delimiter $$
+create procedure sp_agregarcliente(
+    in pnombre varchar(100),
+    in pcedula varchar(20),
+    in ptelefono varchar(20),
+    in pcorreo varchar(100),
+    in pfechanacimiento date,
+    in pestado varchar(20)
 )
-BEGIN
-	IF EXISTS (SELECT 1 FROM Usuario WHERE username = pCedula) THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Revisa el Cliente, ya que se encuentra duplicado';
-    ELSE
-		INSERT INTO Usuario (username, contrasena, rol)
-		VALUES (pCedula, SHA2(pCedula, 256), 'USER');
-		SET @nuevoUsuarioId = LAST_INSERT_ID();
-		INSERT INTO cliente (id_usuario, nombre, cedula, telefono, correo, fecha_nacimiento, estado)
-		VALUES (@nuevoUsuarioId, pNombre, pCedula, pTelefono, pCorreo, pFechaNacimiento, pEstado);
-	END IF;
-END $$
-DELIMITER ;
-
+begin
+	if exists (select 1 from usuario where username = pcedula) then
+        signal sqlstate '45000'
+            set message_text = 'revisa el cliente, ya que se encuentra duplicado';
+    else
+		insert into usuario (username, contrasena, rol)
+		values (pcedula, sha2(pcedula, 256), 'user');
+		set @nuevousuarioid = last_insert_id();
+		insert into cliente (id_usuario, nombre, cedula, telefono, correo, fecha_nacimiento, estado)
+		values (@nuevousuarioid, pnombre, pcedula, ptelefono, pcorreo, pfechanacimiento, pestado);
+	end if;
+end $$
+delimiter ;

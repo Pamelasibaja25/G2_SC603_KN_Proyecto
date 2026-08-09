@@ -1,192 +1,188 @@
 USE DB_Orion_Fit;
-DROP PROCEDURE IF EXISTS sp_ObtenerUsuariosConNombre;
-DROP PROCEDURE IF EXISTS sp_AgregarUsuario;
-DROP PROCEDURE IF EXISTS sp_EditarUsuario;
-DROP PROCEDURE IF EXISTS sp_ObtenerUsuarioConNombre;
-DROP PROCEDURE IF EXISTS sp_ActualizarContraseña;
+drop procedure if exists sp_obtenerusuariosconnombre;
+drop procedure if exists sp_agregarusuario;
+drop procedure if exists sp_editarusuario;
+drop procedure if exists sp_obtenerusuarioconnombre;
+drop procedure if exists sp_actualizarcontraseña;
 
-DELIMITER $$
+delimiter $$
 
-CREATE PROCEDURE sp_ObtenerUsuariosConNombre()
-BEGIN
-    SELECT u.username,
+create procedure sp_obtenerusuariosconnombre()
+begin
+    select u.username,
            u.rol,
-           CASE 
-               WHEN u.rol = 'ADMIN' or u.rol = 'RECEPTION' THEN a.nombre
-               WHEN u.rol = 'USER' THEN c.nombre
-               WHEN u.rol = 'TRAINER' THEN e.nombre
-               ELSE ''
-           END AS nombre,
-           CASE 
-               WHEN u.rol = 'ADMIN' or u.rol = 'RECEPTION' THEN a.telefono
-               WHEN u.rol = 'USER' THEN c.telefono
-               WHEN u.rol = 'TRAINER' THEN e.telefono
-               ELSE ''
-           END AS telefono,
-           CASE 
-               WHEN u.rol = 'ADMIN' or u.rol = 'RECEPTION' THEN a.correo
-               WHEN u.rol = 'USER' THEN c.correo
-               WHEN u.rol = 'TRAINER' THEN e.correo
-               ELSE ''
-           END AS correo
-    FROM Usuario u
-    LEFT JOIN Administrador a ON u.id_usuario = a.id_usuario
-    LEFT JOIN Cliente c ON u.id_usuario = c.id_usuario
-    LEFT JOIN Entrenador e ON u.id_usuario = e.id_usuario;
-END $$
+           case 
+               when u.rol = 'admin' or u.rol = 'reception' then a.nombre
+               when u.rol = 'user' then c.nombre
+               when u.rol = 'trainer' then e.nombre
+               else ''
+           end as nombre,
+           case 
+               when u.rol = 'admin' or u.rol = 'reception' then a.telefono
+               when u.rol = 'user' then c.telefono
+               when u.rol = 'trainer' then e.telefono
+               else ''
+           end as telefono,
+           case 
+               when u.rol = 'admin' or u.rol = 'reception' then a.correo
+               when u.rol = 'user' then c.correo
+               when u.rol = 'trainer' then e.correo
+               else ''
+           end as correo
+    from usuario u
+    left join administrador a on u.id_usuario = a.id_usuario
+    left join cliente c on u.id_usuario = c.id_usuario
+    left join entrenador e on u.id_usuario = e.id_usuario;
+end $$
 
-DELIMITER ;
+delimiter ;
 
-DELIMITER $$
-CREATE PROCEDURE sp_AgregarUsuario(
-    IN pNombre VARCHAR(100),
-    IN pTelefono VARCHAR(20),
-    IN pCorreo VARCHAR(100),
-    IN pRol VARCHAR(100),
-    IN pUsername VARCHAR(100)
+delimiter $$
+create procedure sp_agregarusuario(
+    in pnombre varchar(100),
+    in ptelefono varchar(20),
+    in pcorreo varchar(100),
+    in prol varchar(100),
+    in pusername varchar(100)
 )
-BEGIN
-	IF EXISTS (SELECT 1 FROM Usuario WHERE username = pUsername) THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Revisa el User, ya que se encuentra duplicado';
-    ELSE
-		INSERT INTO Usuario (username, contrasena, rol)
-		VALUES (pUsername, SHA2(pUsername, 256), pRol);
-		SET @nuevoUsuarioId = LAST_INSERT_ID();
+begin
+	if exists (select 1 from usuario where username = pusername) then
+        signal sqlstate '45000'
+            set message_text = 'revisa el user, ya que se encuentra duplicado';
+    else
+		insert into usuario (username, contrasena, rol)
+		values (pusername, sha2(pusername, 256), prol);
+		set @nuevousuarioid = last_insert_id();
         
-        IF pRol = 'ADMIN' or pRol = 'RECEPTION' THEN
-			INSERT INTO Administrador (id_usuario, nombre, telefono, correo)
-			VALUES (@nuevoUsuarioId, pNombre, pTelefono, pCorreo);
+        if prol = 'admin' or prol = 'reception' then
+			insert into administrador (id_usuario, nombre, telefono, correo)
+			values (@nuevousuarioid, pnombre, ptelefono, pcorreo);
         
         else
-			INSERT INTO Entrenador (id_usuario, nombre, telefono, correo)
-			VALUES (@nuevoUsuarioId, pNombre, pTelefono, pCorreo);
+			insert into entrenador (id_usuario, nombre, telefono, correo)
+			values (@nuevousuarioid, pnombre, ptelefono, pcorreo);
         
-        END IF;
-	END IF;
-END $$
-DELIMITER ;
+        end if;
+	end if;
+end $$
+delimiter ;
 
-DELIMITER $$
+delimiter $$
 
-CREATE PROCEDURE sp_EditarUsuario(
-    IN pNombre VARCHAR(100),
-    IN pTelefono VARCHAR(20),
-    IN pCorreo VARCHAR(100),
-    IN pRol VARCHAR(100),
-    IN pUsername VARCHAR(100)
+create procedure sp_editarusuario(
+    in pnombre varchar(100),
+    in ptelefono varchar(20),
+    in pcorreo varchar(100),
+    in prol varchar(100),
+    in pusername varchar(100)
 )
-BEGIN
-    DECLARE nuevoUsuarioId INT;
+begin
+    declare nuevousuarioid int;
 
-    -- Verificar si existe el usuario
-    SELECT id_usuario INTO nuevoUsuarioId
-    FROM Usuario
-    WHERE username = pUsername;
+    -- verificar si existe el usuario
+    select id_usuario into nuevousuarioid
+    from usuario
+    where username = pusername;
 
-    IF nuevoUsuarioId IS NULL THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Revisa el User, ya que no se encuentra';
-    ELSE
-        UPDATE Usuario
-        SET rol = pRol
-        WHERE id_usuario = nuevoUsuarioId;
+    if nuevousuarioid is null then
+        signal sqlstate '45000'
+            set message_text = 'revisa el user, ya que no se encuentra';
+    else
+        update usuario
+        set rol = prol
+        where id_usuario = nuevousuarioid;
 
-        CASE 
-        WHEN pRol = 'ADMIN' OR pRol = 'RECEPTION' THEN
-            IF EXISTS (SELECT 1 FROM Administrador WHERE id_usuario = nuevoUsuarioId) THEN
-                UPDATE Administrador
-                SET nombre = pNombre, telefono = pTelefono, correo = pCorreo
-                WHERE id_usuario = nuevoUsuarioId;
-            ELSE
-                INSERT INTO Administrador (id_usuario, nombre, telefono, correo)
-                VALUES (nuevoUsuarioId, pNombre, pTelefono, pCorreo);
-            END IF;
-		WHEN pRol = 'USER' THEN
-            IF EXISTS (SELECT 1 FROM cliente WHERE id_usuario = nuevoUsuarioId) THEN
-                UPDATE cliente
-                SET nombre = pNombre, telefono = pTelefono, correo = pCorreo
-                WHERE id_usuario = nuevoUsuarioId;
-            ELSE
-                INSERT INTO cliente (id_usuario, nombre, telefono, correo)
-                VALUES (nuevoUsuarioId, pNombre, pTelefono, pCorreo);
-            END IF;
-        WHEN pRol = 'TRAINER' tHEN
-            IF EXISTS (SELECT 1 FROM Entrenador WHERE id_usuario = nuevoUsuarioId) THEN
-                UPDATE Entrenador
-                SET nombre = pNombre, telefono = pTelefono, correo = pCorreo
-                WHERE id_usuario = nuevoUsuarioId;
-            ELSE
-                INSERT INTO Entrenador (id_usuario, nombre, telefono, correo)
-                VALUES (nuevoUsuarioId, pNombre, pTelefono, pCorreo);
-            END IF;
-		END CASE;
-    END IF;
-END $$
+        case 
+        when prol = 'admin' or prol = 'reception' then
+            if exists (select 1 from administrador where id_usuario = nuevousuarioid) then
+                update administrador
+                set nombre = pnombre, telefono = ptelefono, correo = pcorreo
+                where id_usuario = nuevousuarioid;
+            else
+                insert into administrador (id_usuario, nombre, telefono, correo)
+                values (nuevousuarioid, pnombre, ptelefono, pcorreo);
+            end if;
+		when prol = 'user' then
+            if exists (select 1 from cliente where id_usuario = nuevousuarioid) then
+                update cliente
+                set nombre = pnombre, telefono = ptelefono, correo = pcorreo
+                where id_usuario = nuevousuarioid;
+            else
+                insert into cliente (id_usuario, nombre, telefono, correo)
+                values (nuevousuarioid, pnombre, ptelefono, pcorreo);
+            end if;
+        when prol = 'trainer' then
+            if exists (select 1 from entrenador where id_usuario = nuevousuarioid) then
+                update entrenador
+                set nombre = pnombre, telefono = ptelefono, correo = pcorreo
+                where id_usuario = nuevousuarioid;
+            else
+                insert into entrenador (id_usuario, nombre, telefono, correo)
+                values (nuevousuarioid, pnombre, ptelefono, pcorreo);
+            end if;
+		end case;
+    end if;
+end $$
 
-DELIMITER ;
+delimiter ;
 
-DELIMITER $$
+delimiter $$
 
-CREATE PROCEDURE sp_ObtenerUsuarioConNombre(IN pId INT)
-BEGIN
-    SELECT u.username,
+create procedure sp_obtenerusuarioconnombre(in pid int)
+begin
+    select u.username,
            u.rol,
-           CASE 
-               WHEN u.rol = 'ADMIN' OR u.rol = 'RECEPTION' THEN a.nombre
-               WHEN u.rol = 'USER' THEN c.nombre
-               WHEN u.rol = 'TRAINER' THEN e.nombre
-               ELSE ''
-           END AS nombre,
-           CASE 
-               WHEN u.rol = 'ADMIN' OR u.rol = 'RECEPTION' THEN a.telefono
-               WHEN u.rol = 'USER' THEN c.telefono
-               WHEN u.rol = 'TRAINER' THEN e.telefono
-               ELSE ''
-           END AS telefono,
-           CASE 
-               WHEN u.rol = 'ADMIN' OR u.rol = 'RECEPTION' THEN a.correo
-               WHEN u.rol = 'USER' THEN c.correo
-               WHEN u.rol = 'TRAINER' THEN e.correo
-               ELSE ''
-           END AS correo
-    FROM Usuario u
-    LEFT JOIN Administrador a ON u.id_usuario = a.id_usuario
-    LEFT JOIN Cliente c ON u.id_usuario = c.id_usuario
-    LEFT JOIN Entrenador e ON u.id_usuario = e.id_usuario
-    WHERE u.id_usuario = pId;
-END$$
+           case 
+               when u.rol = 'admin' or u.rol = 'reception' then a.nombre
+               when u.rol = 'user' then c.nombre
+               when u.rol = 'trainer' then e.nombre
+               else ''
+           end as nombre,
+           case 
+               when u.rol = 'admin' or u.rol = 'reception' then a.telefono
+               when u.rol = 'user' then c.telefono
+               when u.rol = 'trainer' then e.telefono
+               else ''
+           end as telefono,
+           case 
+               when u.rol = 'admin' or u.rol = 'reception' then a.correo
+               when u.rol = 'user' then c.correo
+               when u.rol = 'trainer' then e.correo
+               else ''
+           end as correo
+    from usuario u
+    left join administrador a on u.id_usuario = a.id_usuario
+    left join cliente c on u.id_usuario = c.id_usuario
+    left join entrenador e on u.id_usuario = e.id_usuario
+    where u.id_usuario = pid;
+end$$
 
-DELIMITER ;
+delimiter ;
 
-DELIMITER $$
+delimiter $$
 
-CREATE PROCEDURE sp_ActualizarContraseña(
-    IN pIdUsuario INT,
-    IN pPasswordActual VARCHAR(255),
-    IN pPasswordNueva VARCHAR(255)
+create procedure sp_actualizarcontraseña(
+    in pidusuario int,
+    in ppasswordactual varchar(255),
+    in ppasswordnueva varchar(255)
 )
-BEGIN
-    DECLARE vPassword VARCHAR(255);
+begin
+    declare vpassword varchar(255);
 
-    -- Obtener la contraseña actual (hash) del usuario
-    SELECT contrasena INTO vPassword
-    FROM Usuario
-    WHERE id_usuario = pIdUsuario;
+    -- obtener la contraseña actual (hash) del usuario
+    select contrasena into vpassword
+    from usuario
+    where id_usuario = pidusuario;
 
-    -- Validar si coincide el hash
-    IF vPassword = SHA2(pPasswordActual,256) THEN
-        UPDATE Usuario
-        SET contrasena = SHA2(pPasswordNueva, 256)
-        WHERE id_usuario = pIdUsuario;
-    ELSE
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'La contraseña actual no es correcta';
-    END IF;
-END$$
+    -- validar si coincide el hash
+    if vpassword = sha2(ppasswordactual,256) then
+        update usuario
+        set contrasena = sha2(ppasswordnueva, 256)
+        where id_usuario = pidusuario;
+    else
+        signal sqlstate '45000'
+            set message_text = 'la contraseña actual no es correcta';
+    end if;
+end$$
 
-DELIMITER ;
-
-
-
-
+delimiter ;

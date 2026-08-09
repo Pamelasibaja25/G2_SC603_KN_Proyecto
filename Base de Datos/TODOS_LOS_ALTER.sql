@@ -4,7 +4,7 @@
 -- El script de renombrado de SPs (MIGRACION_Rename_SPs_CamelCase.sql)
 -- se corre APARTE.
 -- =====================================================================
-
+USE DB_Orion_Fit;
 -- Modulo 2 (WOD): estado de asistencia Aceptar/No asistir
 ALTER TABLE cliente_rutina
     ADD COLUMN estado_asistencia VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE'

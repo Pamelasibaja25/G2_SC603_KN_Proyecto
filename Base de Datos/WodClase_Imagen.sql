@@ -1,83 +1,82 @@
 USE DB_Orion_Fit;
+/* imagen del tipo de entrenamiento */
+alter table rutina add column imagen varchar(255) null;
 
-/* Imagen del tipo de entrenamiento */
-ALTER TABLE Rutina ADD COLUMN imagen VARCHAR(255) NULL;
+/* vinculo opcional entre clase y wod */
+alter table clase add column id_rutina int null;
 
-/* Vinculo opcional entre Clase y WOD */
-ALTER TABLE Clase ADD COLUMN id_rutina INT NULL;
+alter table clase
+    add constraint fk_clase_rutina foreign key (id_rutina) references rutina(id_rutina);
 
-ALTER TABLE Clase
-    ADD CONSTRAINT FK_Clase_Rutina FOREIGN KEY (id_rutina) REFERENCES Rutina(id_rutina);
+drop procedure if exists sp_obtenerwods;
+drop procedure if exists sp_agregarwod;
 
-DROP PROCEDURE IF EXISTS sp_ObtenerWODs;
-DROP PROCEDURE IF EXISTS sp_AgregarWOD;
+delimiter $$
 
-DELIMITER $$
+create procedure sp_obtenerwods()
+begin
+    select
+        r.id_rutina      as idrutina,
+        r.nombre         as nombre,
+        r.objetivo       as objetivo,
+        r.imagen         as imagen,
+        e.id_entrenador  as identrenador,
+        e.nombre         as nombreentrenador,
+        re.id_rutina_ejercicio as idrutinaejercicio,
+        ej.nombre        as nombreejercicio,
+        re.series        as series,
+        re.repeticiones  as repeticiones,
+        re.descanso      as descanso
+    from rutina r
+    inner join entrenador e  on r.id_entrenador = e.id_entrenador
+    left join rutina_ejercicio re on r.id_rutina = re.id_rutina
+    left join ejercicio ej   on re.id_ejercicio = ej.id_ejercicio
+    order by r.id_rutina desc;
+end$$
 
-CREATE PROCEDURE sp_ObtenerWODs()
-BEGIN
-    SELECT
-        r.id_rutina      AS IdRutina,
-        r.nombre         AS Nombre,
-        r.objetivo       AS Objetivo,
-        r.imagen         AS Imagen,
-        e.id_entrenador  AS IdEntrenador,
-        e.nombre         AS NombreEntrenador,
-        re.id_rutina_ejercicio AS IdRutinaEjercicio,
-        ej.nombre        AS NombreEjercicio,
-        re.series        AS Series,
-        re.repeticiones  AS Repeticiones,
-        re.descanso      AS Descanso
-    FROM Rutina r
-    INNER JOIN Entrenador e  ON r.id_entrenador = e.id_entrenador
-    LEFT JOIN Rutina_Ejercicio re ON r.id_rutina = re.id_rutina
-    LEFT JOIN Ejercicio ej   ON re.id_ejercicio = ej.id_ejercicio
-    ORDER BY r.id_rutina DESC;
-END$$
-
-CREATE PROCEDURE sp_AgregarWOD(
-    IN pIdEntrenador INT,
-    IN pNombre       VARCHAR(100),
-    IN pObjetivo     VARCHAR(255),
-    IN pImagen       VARCHAR(255),
-    IN pEjercicios   LONGTEXT
+create procedure sp_agregarwod(
+    in pidentrenador int,
+    in pnombre       varchar(100),
+    in pobjetivo     varchar(255),
+    in pimagen       varchar(255),
+    in pejercicios   longtext
 )
-BEGIN
-    DECLARE nuevaRutinaId INT;
-    DECLARE totalEjercicios INT;
-    DECLARE indice INT DEFAULT 0;
-    DECLARE pIdEjercicio INT;
-    DECLARE pSeries INT;
-    DECLARE pRepeticiones INT;
-    DECLARE pDescanso INT;
+begin
+    declare nuevarutinaid int;
+    declare totalejercicios int;
+    declare indice int default 0;
+    declare pidejercicio int;
+    declare pseries int;
+    declare prepeticiones int;
+    declare pdescanso int;
 
-    IF pNombre IS NULL OR TRIM(pNombre) = '' THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'El nombre del entrenamiento es obligatorio.';
-    END IF;
+    if pnombre is null or trim(pnombre) = '' then
+        signal sqlstate '45000'
+            set message_text = 'el nombre del entrenamiento es obligatorio.';
+    end if;
 
-    IF JSON_LENGTH(pEjercicios) = 0 THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Debe incluir al menos un ejercicio en el WOD.';
-    END IF;
+    if json_length(pejercicios) = 0 then
+        signal sqlstate '45000'
+            set message_text = 'debe incluir al menos un ejercicio en el wod.';
+    end if;
 
-    INSERT INTO Rutina (id_entrenador, nombre, objetivo, imagen)
-    VALUES (pIdEntrenador, pNombre, pObjetivo, pImagen);
+    insert into rutina (id_entrenador, nombre, objetivo, imagen)
+    values (pidentrenador, pnombre, pobjetivo, pimagen);
 
-    SET nuevaRutinaId = LAST_INSERT_ID();
-    SET totalEjercicios = JSON_LENGTH(pEjercicios);
+    set nuevarutinaid = last_insert_id();
+    set totalejercicios = json_length(pejercicios);
 
-    WHILE indice < totalEjercicios DO
-        SET pIdEjercicio  = JSON_UNQUOTE(JSON_EXTRACT(pEjercicios, CONCAT('$[', indice, '].IdEjercicio')));
-        SET pSeries       = JSON_UNQUOTE(JSON_EXTRACT(pEjercicios, CONCAT('$[', indice, '].Series')));
-        SET pRepeticiones = JSON_UNQUOTE(JSON_EXTRACT(pEjercicios, CONCAT('$[', indice, '].Repeticiones')));
-        SET pDescanso     = JSON_UNQUOTE(JSON_EXTRACT(pEjercicios, CONCAT('$[', indice, '].Descanso')));
+    while indice < totalejercicios do
+        set pidejercicio  = json_unquote(json_extract(pejercicios, concat('$[', indice, '].idejercicio')));
+        set pseries       = json_unquote(json_extract(pejercicios, concat('$[', indice, '].series')));
+        set prepeticiones = json_unquote(json_extract(pejercicios, concat('$[', indice, '].repeticiones')));
+        set pdescanso     = json_unquote(json_extract(pejercicios, concat('$[', indice, '].descanso')));
 
-        INSERT INTO Rutina_Ejercicio (id_rutina, id_reserva, id_ejercicio, series, repeticiones, descanso)
-        VALUES (nuevaRutinaId, 1, pIdEjercicio, pSeries, pRepeticiones, pDescanso);
+        insert into rutina_ejercicio (id_rutina, id_reserva, id_ejercicio, series, repeticiones, descanso)
+        values (nuevarutinaid, 1, pidejercicio, pseries, prepeticiones, pdescanso);
 
-        SET indice = indice + 1;
-    END WHILE;
-END$$
+        set indice = indice + 1;
+    end while;
+end$$
 
-DELIMITER ;
+delimiter ;

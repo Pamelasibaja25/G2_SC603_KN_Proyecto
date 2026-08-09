@@ -1,27 +1,27 @@
-use db_orion_fit
-ALTER TABLE `mantenimiento`
-    ADD COLUMN `tipo` ENUM('Preventivo','Correctivo','Calibracion','Limpieza')
-    NOT NULL DEFAULT 'Preventivo'
-    AFTER `id_equipo`;
+USE DB_Orion_Fit;
+alter table `mantenimiento`
+    add column `tipo` enum('preventivo','correctivo','calibracion','limpieza')
+    not null default 'preventivo'
+    after `id_equipo`;
     
     -- =====================================================================
--- Stored Procedures para la tabla `mantenimiento`.
--- Mismo estilo y convenciones que SP-Equipos.sql (prefijo p_ en
--- parametros, un bloque DELIMITER por procedimiento).
+-- stored procedures para la tabla `mantenimiento`.
+-- mismo estilo y convenciones que sp-equipos.sql (prefijo p_ en
+-- parametros, un bloque delimiter por procedimiento).
 -- =====================================================================
 
-DELIMITER $$
+delimiter $$
 
-CREATE PROCEDURE SP_AgregarMantenimiento(
-    IN p_id_equipo INT,
-    IN p_tipo VARCHAR(30),
-    IN p_fecha DATE,
-    IN p_descripcion VARCHAR(255),
-    IN p_costo DECIMAL(10,2),
-    IN p_estado VARCHAR(30)
+create procedure sp_agregarmantenimiento(
+    in p_id_equipo int,
+    in p_tipo varchar(30),
+    in p_fecha date,
+    in p_descripcion varchar(255),
+    in p_costo decimal(10,2),
+    in p_estado varchar(30)
 )
-BEGIN
-    INSERT INTO mantenimiento (
+begin
+    insert into mantenimiento (
         id_equipo,
         tclienteipo,
         fecha,
@@ -29,7 +29,7 @@ BEGIN
         costo,
         estado
     )
-    VALUES (
+    values (
         p_id_equipo,
         p_tipo,
         p_fecha,
@@ -37,67 +37,67 @@ BEGIN
         p_costo,
         p_estado
     );
-END $$
+end $$
 
-DELIMITER ;
+delimiter ;
 
-DELIMITER $$
+delimiter $$
 
-CREATE PROCEDURE SP_EditarMantenimiento(
-    IN p_id_mantenimiento INT,
-    IN p_id_equipo INT,
-    IN p_tipo VARCHAR(30),
-    IN p_fecha DATE,
-    IN p_descripcion VARCHAR(255),
-    IN p_costo DECIMAL(10,2),
-    IN p_estado VARCHAR(30)
+create procedure sp_editarmantenimiento(
+    in p_id_mantenimiento int,
+    in p_id_equipo int,
+    in p_tipo varchar(30),
+    in p_fecha date,
+    in p_descripcion varchar(255),
+    in p_costo decimal(10,2),
+    in p_estado varchar(30)
 )
-BEGIN
-    UPDATE mantenimiento
-    SET
+begin
+    update mantenimiento
+    set
         id_equipo = p_id_equipo,
         tipo = p_tipo,
         fecha = p_fecha,
         descripcion = p_descripcion,
         costo = p_costo,
         estado = p_estado
-    WHERE id_mantenimiento = p_id_mantenimiento;
-END $$
+    where id_mantenimiento = p_id_mantenimiento;
+end $$
 
-DELIMITER ;
+delimiter ;
 
-DELIMITER $$
+delimiter $$
 
-CREATE PROCEDURE SP_EliminarMantenimiento(
-    IN p_id_mantenimiento INT
+create procedure sp_eliminarmantenimiento(
+    in p_id_mantenimiento int
 )
-BEGIN
-    DELETE FROM mantenimiento
-    WHERE id_mantenimiento = p_id_mantenimiento;
-END $$
+begin
+    delete from mantenimiento
+    where id_mantenimiento = p_id_mantenimiento;
+end $$
 
-DELIMITER ;
+delimiter ;
 
--- HU #39: cierra un mantenimiento programado, marcandolo como Completado
+-- hu #39: cierra un mantenimiento programado, marcandolo como completado
 -- y actualizando fecha/tipo/costo/descripcion con los datos reales.
-DELIMITER $$
+delimiter $$
 
-CREATE PROCEDURE SP_CompletarMantenimiento(
-    IN p_id_mantenimiento INT,
-    IN p_tipo VARCHAR(30),
-    IN p_fecha DATE,
-    IN p_descripcion VARCHAR(255),
-    IN p_costo DECIMAL(10,2)
+create procedure sp_completarmantenimiento(
+    in p_id_mantenimiento int,
+    in p_tipo varchar(30),
+    in p_fecha date,
+    in p_descripcion varchar(255),
+    in p_costo decimal(10,2)
 )
-BEGIN
-    UPDATE mantenimiento
-    SET
+begin
+    update mantenimiento
+    set
         tipo = p_tipo,
         fecha = p_fecha,
         descripcion = p_descripcion,
         costo = p_costo,
-        estado = 'Completado'
-    WHERE id_mantenimiento = p_id_mantenimiento;
-END $$
+        estado = 'completado'
+    where id_mantenimiento = p_id_mantenimiento;
+end $$
 
-DELIMITER ;
+delimiter ;

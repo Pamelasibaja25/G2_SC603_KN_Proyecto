@@ -3,186 +3,186 @@
 -- (sp_EditarEquipo -> sp_editarEquipo, etc.)
 -- Ejecutar completo en local Y en Railway. Es re-ejecutable (idempotente).
 -- =====================================================================
+USE DB_Orion_Fit;
+-- 1) eliminar los sps viejos (con mayuscula despues de sp_)
+drop procedure if exists sp_actualizarclientemembresia;
+drop procedure if exists sp_actualizarcontraseña;
+drop procedure if exists sp_actualizarestadosmembresias;
+drop procedure if exists sp_agregarcliente;
+drop procedure if exists sp_agregarclientemembresia;
+drop procedure if exists sp_agregarequipo;
+drop procedure if exists sp_agregarmantenimiento;
+drop procedure if exists sp_agregarusuario;
+drop procedure if exists sp_agregarwod;
+drop procedure if exists sp_completarmantenimiento;
+drop procedure if exists sp_editarcliente;
+drop procedure if exists sp_editarequipo;
+drop procedure if exists sp_editarmantenimiento;
+drop procedure if exists sp_editarusuario;
+drop procedure if exists sp_eliminarcliente;
+drop procedure if exists sp_eliminarequipo;
+drop procedure if exists sp_eliminarmantenimiento;
+drop procedure if exists sp_obtenerclientesmembresias;
+drop procedure if exists sp_obtenerclientesresumen;
+drop procedure if exists sp_obtenerejercicios;
+drop procedure if exists sp_obtenerhistorialmembresia;
+drop procedure if exists sp_obtenermembresiasproximasvencer;
+drop procedure if exists sp_obtenerusuarioconnombre;
+drop procedure if exists sp_obtenerusuariosconnombre;
+drop procedure if exists sp_obtenerwods;
 
--- 1) Eliminar los SPs viejos (con mayuscula despues de sp_)
-DROP PROCEDURE IF EXISTS sp_ActualizarClienteMembresia;
-DROP PROCEDURE IF EXISTS sp_ActualizarContraseña;
-DROP PROCEDURE IF EXISTS sp_ActualizarEstadosMembresias;
-DROP PROCEDURE IF EXISTS sp_AgregarCliente;
-DROP PROCEDURE IF EXISTS sp_AgregarClienteMembresia;
-DROP PROCEDURE IF EXISTS sp_AgregarEquipo;
-DROP PROCEDURE IF EXISTS sp_AgregarMantenimiento;
-DROP PROCEDURE IF EXISTS sp_AgregarUsuario;
-DROP PROCEDURE IF EXISTS sp_AgregarWOD;
-DROP PROCEDURE IF EXISTS sp_CompletarMantenimiento;
-DROP PROCEDURE IF EXISTS sp_EditarCliente;
-DROP PROCEDURE IF EXISTS sp_EditarEquipo;
-DROP PROCEDURE IF EXISTS sp_EditarMantenimiento;
-DROP PROCEDURE IF EXISTS sp_EditarUsuario;
-DROP PROCEDURE IF EXISTS sp_EliminarCliente;
-DROP PROCEDURE IF EXISTS sp_EliminarEquipo;
-DROP PROCEDURE IF EXISTS sp_EliminarMantenimiento;
-DROP PROCEDURE IF EXISTS sp_ObtenerClientesMembresias;
-DROP PROCEDURE IF EXISTS sp_ObtenerClientesResumen;
-DROP PROCEDURE IF EXISTS sp_ObtenerEjercicios;
-DROP PROCEDURE IF EXISTS sp_ObtenerHistorialMembresia;
-DROP PROCEDURE IF EXISTS sp_ObtenerMembresiasProximasVencer;
-DROP PROCEDURE IF EXISTS sp_ObtenerUsuarioConNombre;
-DROP PROCEDURE IF EXISTS sp_ObtenerUsuariosConNombre;
-DROP PROCEDURE IF EXISTS sp_ObtenerWODs;
+-- 2) eliminar por si ya existieran los nuevos (re-ejecucion segura)
+drop procedure if exists sp_actualizarclientemembresia;
+drop procedure if exists sp_actualizarcontraseña;
+drop procedure if exists sp_actualizarestadosmembresias;
+drop procedure if exists sp_agregarcliente;
+drop procedure if exists sp_agregarclientemembresia;
+drop procedure if exists sp_agregarequipo;
+drop procedure if exists sp_agregarmantenimiento;
+drop procedure if exists sp_agregarusuario;
+drop procedure if exists sp_agregarwod;
+drop procedure if exists sp_completarmantenimiento;
+drop procedure if exists sp_editarcliente;
+drop procedure if exists sp_editarequipo;
+drop procedure if exists sp_editarmantenimiento;
+drop procedure if exists sp_editarusuario;
+drop procedure if exists sp_eliminarcliente;
+drop procedure if exists sp_eliminarequipo;
+drop procedure if exists sp_eliminarmantenimiento;
+drop procedure if exists sp_obtenerclientesmembresias;
+drop procedure if exists sp_obtenerclientesresumen;
+drop procedure if exists sp_obtenerejercicios;
+drop procedure if exists sp_obtenerhistorialmembresia;
+drop procedure if exists sp_obtenermembresiasproximasvencer;
+drop procedure if exists sp_obtenerusuarioconnombre;
+drop procedure if exists sp_obtenerusuariosconnombre;
+drop procedure if exists sp_obtenerwods;
 
--- 2) Eliminar por si ya existieran los nuevos (re-ejecucion segura)
-DROP PROCEDURE IF EXISTS sp_actualizarClienteMembresia;
-DROP PROCEDURE IF EXISTS sp_actualizarContraseña;
-DROP PROCEDURE IF EXISTS sp_actualizarEstadosMembresias;
-DROP PROCEDURE IF EXISTS sp_agregarCliente;
-DROP PROCEDURE IF EXISTS sp_agregarClienteMembresia;
-DROP PROCEDURE IF EXISTS sp_agregarEquipo;
-DROP PROCEDURE IF EXISTS sp_agregarMantenimiento;
-DROP PROCEDURE IF EXISTS sp_agregarUsuario;
-DROP PROCEDURE IF EXISTS sp_agregarWOD;
-DROP PROCEDURE IF EXISTS sp_completarMantenimiento;
-DROP PROCEDURE IF EXISTS sp_editarCliente;
-DROP PROCEDURE IF EXISTS sp_editarEquipo;
-DROP PROCEDURE IF EXISTS sp_editarMantenimiento;
-DROP PROCEDURE IF EXISTS sp_editarUsuario;
-DROP PROCEDURE IF EXISTS sp_eliminarCliente;
-DROP PROCEDURE IF EXISTS sp_eliminarEquipo;
-DROP PROCEDURE IF EXISTS sp_eliminarMantenimiento;
-DROP PROCEDURE IF EXISTS sp_obtenerClientesMembresias;
-DROP PROCEDURE IF EXISTS sp_obtenerClientesResumen;
-DROP PROCEDURE IF EXISTS sp_obtenerEjercicios;
-DROP PROCEDURE IF EXISTS sp_obtenerHistorialMembresia;
-DROP PROCEDURE IF EXISTS sp_obtenerMembresiasProximasVencer;
-DROP PROCEDURE IF EXISTS sp_obtenerUsuarioConNombre;
-DROP PROCEDURE IF EXISTS sp_obtenerUsuariosConNombre;
-DROP PROCEDURE IF EXISTS sp_obtenerWODs;
+-- 3) crear los sps con el nombre camelcase correcto
+delimiter $$
 
--- 3) Crear los SPs con el nombre camelCase correcto
-DELIMITER $$
-
-CREATE PROCEDURE sp_agregarWOD(
-    IN pIdEntrenador INT,
-    IN pNombre       VARCHAR(100),
-    IN pObjetivo     VARCHAR(255),
-    IN pImagen       VARCHAR(255),
-    IN pEjercicios   LONGTEXT
+create procedure sp_agregarwod(
+    in pidentrenador int,
+    in pnombre       varchar(100),
+    in pobjetivo     varchar(255),
+    in pimagen       varchar(255),
+    in pejercicios   longtext
 )
-BEGIN
-    DECLARE nuevaRutinaId INT;
-    DECLARE totalEjercicios INT;
-    DECLARE indice INT DEFAULT 0;
-    DECLARE pIdEjercicio INT;
-    DECLARE pSeries INT;
-    DECLARE pRepeticiones INT;
-    DECLARE pDescanso INT;
+begin
+    declare nuevarutinaid int;
+    declare totalejercicios int;
+    declare indice int default 0;
+    declare pidejercicio int;
+    declare pseries int;
+    declare prepeticiones int;
+    declare pdescanso int;
 
-    IF pNombre IS NULL OR TRIM(pNombre) = '' THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'El nombre del entrenamiento es obligatorio.';
-    END IF;
+    if pnombre is null or trim(pnombre) = '' then
+        signal sqlstate '45000'
+            set message_text = 'el nombre del entrenamiento es obligatorio.';
+    end if;
 
-    IF JSON_LENGTH(pEjercicios) = 0 THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Debe incluir al menos un ejercicio en el WOD.';
-    END IF;
+    if json_length(pejercicios) = 0 then
+        signal sqlstate '45000'
+            set message_text = 'debe incluir al menos un ejercicio en el wod.';
+    end if;
 
-    INSERT INTO Rutina (id_entrenador, nombre, objetivo, imagen)
-    VALUES (pIdEntrenador, pNombre, pObjetivo, pImagen);
+    insert into rutina (id_entrenador, nombre, objetivo, imagen)
+    values (pidentrenador, pnombre, pobjetivo, pimagen);
 
-    SET nuevaRutinaId = LAST_INSERT_ID();
-    SET totalEjercicios = JSON_LENGTH(pEjercicios);
+    set nuevarutinaid = last_insert_id();
+    set totalejercicios = json_length(pejercicios);
 
-    WHILE indice < totalEjercicios DO
-        SET pIdEjercicio  = JSON_UNQUOTE(JSON_EXTRACT(pEjercicios, CONCAT('$[', indice, '].IdEjercicio')));
-        SET pSeries       = JSON_UNQUOTE(JSON_EXTRACT(pEjercicios, CONCAT('$[', indice, '].Series')));
-        SET pRepeticiones = JSON_UNQUOTE(JSON_EXTRACT(pEjercicios, CONCAT('$[', indice, '].Repeticiones')));
-        SET pDescanso     = JSON_UNQUOTE(JSON_EXTRACT(pEjercicios, CONCAT('$[', indice, '].Descanso')));
+    while indice < totalejercicios do
+        set pidejercicio  = json_unquote(json_extract(pejercicios, concat('$[', indice, '].idejercicio')));
+        set pseries       = json_unquote(json_extract(pejercicios, concat('$[', indice, '].series')));
+        set prepeticiones = json_unquote(json_extract(pejercicios, concat('$[', indice, '].repeticiones')));
+        set pdescanso     = json_unquote(json_extract(pejercicios, concat('$[', indice, '].descanso')));
 
-        INSERT INTO Rutina_Ejercicio (id_rutina, id_reserva, id_ejercicio, series, repeticiones, descanso)
-        VALUES (nuevaRutinaId, 1, pIdEjercicio, pSeries, pRepeticiones, pDescanso);
+        insert into rutina_ejercicio (id_rutina, id_reserva, id_ejercicio, series, repeticiones, descanso)
+        values (nuevarutinaid, 1, pidejercicio, pseries, prepeticiones, pdescanso);
 
-        SET indice = indice + 1;
-    END WHILE;
-END $$
+        set indice = indice + 1;
+    end while;
+end $$
 
-CREATE PROCEDURE sp_obtenerWODs()
-BEGIN
-    SELECT
-        r.id_rutina      AS IdRutina,
-        r.nombre         AS Nombre,
-        r.objetivo       AS Objetivo,
-        r.imagen         AS Imagen,
-        e.id_entrenador  AS IdEntrenador,
-        e.nombre         AS NombreEntrenador,
-        re.id_rutina_ejercicio AS IdRutinaEjercicio,
-        ej.nombre        AS NombreEjercicio,
-        re.series        AS Series,
-        re.repeticiones  AS Repeticiones,
-        re.descanso      AS Descanso
-    FROM Rutina r
-    INNER JOIN Entrenador e  ON r.id_entrenador = e.id_entrenador
-    LEFT JOIN Rutina_Ejercicio re ON r.id_rutina = re.id_rutina
-    LEFT JOIN Ejercicio ej   ON re.id_ejercicio = ej.id_ejercicio
-    ORDER BY r.id_rutina DESC;
-END $$
+create procedure sp_obtenerwods()
+begin
+    select
+        r.id_rutina      as idrutina,
+        r.nombre         as nombre,
+        r.objetivo       as objetivo,
+        r.imagen         as imagen,
+        e.id_entrenador  as identrenador,
+        e.nombre         as nombreentrenador,
+        re.id_rutina_ejercicio as idrutinaejercicio,
+        ej.nombre        as nombreejercicio,
+        re.series        as series,
+        re.repeticiones  as repeticiones,
+        re.descanso      as descanso
+    from rutina r
+    inner join entrenador e  on r.id_entrenador = e.id_entrenador
+    left join rutina_ejercicio re on r.id_rutina = re.id_rutina
+    left join ejercicio ej   on re.id_ejercicio = ej.id_ejercicio
+    order by r.id_rutina desc;
+end $$
 
-CREATE PROCEDURE sp_agregarEquipo(
-    IN p_nombre VARCHAR(100),
-    IN p_estado VARCHAR(30),
-    IN p_fecha_compra DATE,
-    IN p_costo DECIMAL(10,2)
+create procedure sp_agregarequipo(
+    in p_nombre varchar(100),
+    in p_estado varchar(30),
+    in p_fecha_compra date,
+    in p_costo decimal(10,2)
 )
-BEGIN
-    INSERT INTO equipo (
+begin
+    insert into equipo (
         nombre,
         estado,
         fecha_compra,
         costo
     )
-    VALUES (
+    values (
         p_nombre,
         p_estado,
         p_fecha_compra,
         p_costo
     );
-END $$
+end $$
 
-CREATE PROCEDURE sp_editarEquipo(
-    IN p_id_equipo INT,
-    IN p_nombre VARCHAR(100),
-    IN p_estado VARCHAR(30),
-    IN p_fecha_compra DATE,
-    IN p_costo DECIMAL(10,2)
+create procedure sp_editarequipo(
+    in p_id_equipo int,
+    in p_nombre varchar(100),
+    in p_estado varchar(30),
+    in p_fecha_compra date,
+    in p_costo decimal(10,2)
 )
-BEGIN
-    UPDATE equipo
-    SET
+begin
+    update equipo
+    set
         nombre = p_nombre,
         estado = p_estado,
         fecha_compra = p_fecha_compra,
         costo = p_costo
-    WHERE id_equipo = p_id_equipo;
-END $$
+    where id_equipo = p_id_equipo;
+end $$
 
-CREATE PROCEDURE sp_eliminarEquipo(
-    IN p_id_equipo INT
+create procedure sp_eliminarequipo(
+    in p_id_equipo int
 )
-BEGIN
-    DELETE FROM equipo
-    WHERE id_equipo = p_id_equipo;
-END $$
+begin
+    delete from equipo
+    where id_equipo = p_id_equipo;
+end $$
 
-CREATE PROCEDURE sp_agregarMantenimiento(
-    IN p_id_equipo INT,
-    IN p_tipo VARCHAR(30),
-    IN p_fecha DATE,
-    IN p_descripcion VARCHAR(255),
-    IN p_costo DECIMAL(10,2),
-    IN p_estado VARCHAR(30)
+create procedure sp_agregarmantenimiento(
+    in p_id_equipo int,
+    in p_tipo varchar(30),
+    in p_fecha date,
+    in p_descripcion varchar(255),
+    in p_costo decimal(10,2),
+    in p_estado varchar(30)
 )
-BEGIN
-    INSERT INTO mantenimiento (
+begin
+    insert into mantenimiento (
         id_equipo,
         tipo,
         fecha,
@@ -190,7 +190,7 @@ BEGIN
         costo,
         estado
     )
-    VALUES (
+    values (
         p_id_equipo,
         p_tipo,
         p_fecha,
@@ -198,443 +198,443 @@ BEGIN
         p_costo,
         p_estado
     );
-END $$
+end $$
 
-CREATE PROCEDURE sp_completarMantenimiento(
-    IN p_id_mantenimiento INT,
-    IN p_tipo VARCHAR(30),
-    IN p_fecha DATE,
-    IN p_descripcion VARCHAR(255),
-    IN p_costo DECIMAL(10,2)
+create procedure sp_completarmantenimiento(
+    in p_id_mantenimiento int,
+    in p_tipo varchar(30),
+    in p_fecha date,
+    in p_descripcion varchar(255),
+    in p_costo decimal(10,2)
 )
-BEGIN
-    UPDATE mantenimiento
-    SET
+begin
+    update mantenimiento
+    set
         tipo = p_tipo,
         fecha = p_fecha,
         descripcion = p_descripcion,
         costo = p_costo,
-        estado = 'Completado'
-    WHERE id_mantenimiento = p_id_mantenimiento;
-END $$
+        estado = 'completado'
+    where id_mantenimiento = p_id_mantenimiento;
+end $$
 
-CREATE PROCEDURE sp_editarMantenimiento(
-    IN p_id_mantenimiento INT,
-    IN p_id_equipo INT,
-    IN p_tipo VARCHAR(30),
-    IN p_fecha DATE,
-    IN p_descripcion VARCHAR(255),
-    IN p_costo DECIMAL(10,2),
-    IN p_estado VARCHAR(30)
+create procedure sp_editarmantenimiento(
+    in p_id_mantenimiento int,
+    in p_id_equipo int,
+    in p_tipo varchar(30),
+    in p_fecha date,
+    in p_descripcion varchar(255),
+    in p_costo decimal(10,2),
+    in p_estado varchar(30)
 )
-BEGIN
-    UPDATE mantenimiento
-    SET
+begin
+    update mantenimiento
+    set
         id_equipo = p_id_equipo,
         tipo = p_tipo,
         fecha = p_fecha,
         descripcion = p_descripcion,
         costo = p_costo,
         estado = p_estado
-    WHERE id_mantenimiento = p_id_mantenimiento;
-END $$
+    where id_mantenimiento = p_id_mantenimiento;
+end $$
 
-CREATE PROCEDURE sp_eliminarMantenimiento(
-    IN p_id_mantenimiento INT
+create procedure sp_eliminarmantenimiento(
+    in p_id_mantenimiento int
 )
-BEGIN
-    DELETE FROM mantenimiento
-    WHERE id_mantenimiento = p_id_mantenimiento;
-END $$
+begin
+    delete from mantenimiento
+    where id_mantenimiento = p_id_mantenimiento;
+end $$
 
-CREATE PROCEDURE sp_actualizarContraseña(
-    IN pIdUsuario INT,
-    IN pPasswordActual VARCHAR(255),
-    IN pPasswordNueva VARCHAR(255)
+create procedure sp_actualizarcontraseña(
+    in pidusuario int,
+    in ppasswordactual varchar(255),
+    in ppasswordnueva varchar(255)
 )
-BEGIN
-    DECLARE vPassword VARCHAR(255);
+begin
+    declare vpassword varchar(255);
 
-    -- Obtener la contraseña actual (hash) del usuario
-    SELECT contrasena INTO vPassword
-    FROM Usuario
-    WHERE id_usuario = pIdUsuario;
+    -- obtener la contraseña actual (hash) del usuario
+    select contrasena into vpassword
+    from usuario
+    where id_usuario = pidusuario;
 
-    -- Validar si coincide el hash
-    IF vPassword = SHA2(pPasswordActual,256) THEN
-        UPDATE Usuario
-        SET contrasena = SHA2(pPasswordNueva, 256)
-        WHERE id_usuario = pIdUsuario;
-    ELSE
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'La contraseña actual no es correcta';
-    END IF;
-END $$
+    -- validar si coincide el hash
+    if vpassword = sha2(ppasswordactual,256) then
+        update usuario
+        set contrasena = sha2(ppasswordnueva, 256)
+        where id_usuario = pidusuario;
+    else
+        signal sqlstate '45000'
+            set message_text = 'la contraseña actual no es correcta';
+    end if;
+end $$
 
-CREATE PROCEDURE sp_agregarUsuario(
-    IN pNombre VARCHAR(100),
-    IN pTelefono VARCHAR(20),
-    IN pCorreo VARCHAR(100),
-    IN pRol VARCHAR(100),
-    IN pUsername VARCHAR(100)
+create procedure sp_agregarusuario(
+    in pnombre varchar(100),
+    in ptelefono varchar(20),
+    in pcorreo varchar(100),
+    in prol varchar(100),
+    in pusername varchar(100)
 )
-BEGIN
-	IF EXISTS (SELECT 1 FROM Usuario WHERE username = pUsername) THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Revisa el User, ya que se encuentra duplicado';
-    ELSE
-		INSERT INTO Usuario (username, contrasena, rol)
-		VALUES (pUsername, SHA2(pUsername, 256), pRol);
-		SET @nuevoUsuarioId = LAST_INSERT_ID();
+begin
+	if exists (select 1 from usuario where username = pusername) then
+        signal sqlstate '45000'
+            set message_text = 'revisa el user, ya que se encuentra duplicado';
+    else
+		insert into usuario (username, contrasena, rol)
+		values (pusername, sha2(pusername, 256), prol);
+		set @nuevousuarioid = last_insert_id();
         
-        IF pRol = 'ADMIN' or pRol = 'RECEPTION' THEN
-			INSERT INTO Administrador (id_usuario, nombre, telefono, correo)
-			VALUES (@nuevoUsuarioId, pNombre, pTelefono, pCorreo);
+        if prol = 'admin' or prol = 'reception' then
+			insert into administrador (id_usuario, nombre, telefono, correo)
+			values (@nuevousuarioid, pnombre, ptelefono, pcorreo);
         
         else
-			INSERT INTO Entrenador (id_usuario, nombre, telefono, correo)
-			VALUES (@nuevoUsuarioId, pNombre, pTelefono, pCorreo);
+			insert into entrenador (id_usuario, nombre, telefono, correo)
+			values (@nuevousuarioid, pnombre, ptelefono, pcorreo);
         
-        END IF;
-	END IF;
-END $$
+        end if;
+	end if;
+end $$
 
-CREATE PROCEDURE sp_editarUsuario(
-    IN pNombre VARCHAR(100),
-    IN pTelefono VARCHAR(20),
-    IN pCorreo VARCHAR(100),
-    IN pRol VARCHAR(100),
-    IN pUsername VARCHAR(100)
+create procedure sp_editarusuario(
+    in pnombre varchar(100),
+    in ptelefono varchar(20),
+    in pcorreo varchar(100),
+    in prol varchar(100),
+    in pusername varchar(100)
 )
-BEGIN
-    DECLARE nuevoUsuarioId INT;
+begin
+    declare nuevousuarioid int;
 
-    -- Verificar si existe el usuario
-    SELECT id_usuario INTO nuevoUsuarioId
-    FROM Usuario
-    WHERE username = pUsername;
+    -- verificar si existe el usuario
+    select id_usuario into nuevousuarioid
+    from usuario
+    where username = pusername;
 
-    IF nuevoUsuarioId IS NULL THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Revisa el User, ya que no se encuentra';
-    ELSE
-        UPDATE Usuario
-        SET rol = pRol
-        WHERE id_usuario = nuevoUsuarioId;
+    if nuevousuarioid is null then
+        signal sqlstate '45000'
+            set message_text = 'revisa el user, ya que no se encuentra';
+    else
+        update usuario
+        set rol = prol
+        where id_usuario = nuevousuarioid;
 
-        CASE 
-        WHEN pRol = 'ADMIN' OR pRol = 'RECEPTION' THEN
-            IF EXISTS (SELECT 1 FROM Administrador WHERE id_usuario = nuevoUsuarioId) THEN
-                UPDATE Administrador
-                SET nombre = pNombre, telefono = pTelefono, correo = pCorreo
-                WHERE id_usuario = nuevoUsuarioId;
-            ELSE
-                INSERT INTO Administrador (id_usuario, nombre, telefono, correo)
-                VALUES (nuevoUsuarioId, pNombre, pTelefono, pCorreo);
-            END IF;
-		WHEN pRol = 'USER' THEN
-            IF EXISTS (SELECT 1 FROM cliente WHERE id_usuario = nuevoUsuarioId) THEN
-                UPDATE cliente
-                SET nombre = pNombre, telefono = pTelefono, correo = pCorreo
-                WHERE id_usuario = nuevoUsuarioId;
-            ELSE
-                INSERT INTO cliente (id_usuario, nombre, telefono, correo)
-                VALUES (nuevoUsuarioId, pNombre, pTelefono, pCorreo);
-            END IF;
-        WHEN pRol = 'TRAINER' tHEN
-            IF EXISTS (SELECT 1 FROM Entrenador WHERE id_usuario = nuevoUsuarioId) THEN
-                UPDATE Entrenador
-                SET nombre = pNombre, telefono = pTelefono, correo = pCorreo
-                WHERE id_usuario = nuevoUsuarioId;
-            ELSE
-                INSERT INTO Entrenador (id_usuario, nombre, telefono, correo)
-                VALUES (nuevoUsuarioId, pNombre, pTelefono, pCorreo);
-            END IF;
-		END CASE;
-    END IF;
-END $$
+        case 
+        when prol = 'admin' or prol = 'reception' then
+            if exists (select 1 from administrador where id_usuario = nuevousuarioid) then
+                update administrador
+                set nombre = pnombre, telefono = ptelefono, correo = pcorreo
+                where id_usuario = nuevousuarioid;
+            else
+                insert into administrador (id_usuario, nombre, telefono, correo)
+                values (nuevousuarioid, pnombre, ptelefono, pcorreo);
+            end if;
+		when prol = 'user' then
+            if exists (select 1 from cliente where id_usuario = nuevousuarioid) then
+                update cliente
+                set nombre = pnombre, telefono = ptelefono, correo = pcorreo
+                where id_usuario = nuevousuarioid;
+            else
+                insert into cliente (id_usuario, nombre, telefono, correo)
+                values (nuevousuarioid, pnombre, ptelefono, pcorreo);
+            end if;
+        when prol = 'trainer' then
+            if exists (select 1 from entrenador where id_usuario = nuevousuarioid) then
+                update entrenador
+                set nombre = pnombre, telefono = ptelefono, correo = pcorreo
+                where id_usuario = nuevousuarioid;
+            else
+                insert into entrenador (id_usuario, nombre, telefono, correo)
+                values (nuevousuarioid, pnombre, ptelefono, pcorreo);
+            end if;
+		end case;
+    end if;
+end $$
 
-CREATE PROCEDURE sp_obtenerUsuarioConNombre(IN pId INT)
-BEGIN
-    SELECT u.username,
+create procedure sp_obtenerusuarioconnombre(in pid int)
+begin
+    select u.username,
            u.rol,
-           CASE 
-               WHEN u.rol = 'ADMIN' OR u.rol = 'RECEPTION' THEN a.nombre
-               WHEN u.rol = 'USER' THEN c.nombre
-               WHEN u.rol = 'TRAINER' THEN e.nombre
-               ELSE ''
-           END AS nombre,
-           CASE 
-               WHEN u.rol = 'ADMIN' OR u.rol = 'RECEPTION' THEN a.telefono
-               WHEN u.rol = 'USER' THEN c.telefono
-               WHEN u.rol = 'TRAINER' THEN e.telefono
-               ELSE ''
-           END AS telefono,
-           CASE 
-               WHEN u.rol = 'ADMIN' OR u.rol = 'RECEPTION' THEN a.correo
-               WHEN u.rol = 'USER' THEN c.correo
-               WHEN u.rol = 'TRAINER' THEN e.correo
-               ELSE ''
-           END AS correo
-    FROM Usuario u
-    LEFT JOIN Administrador a ON u.id_usuario = a.id_usuario
-    LEFT JOIN Cliente c ON u.id_usuario = c.id_usuario
-    LEFT JOIN Entrenador e ON u.id_usuario = e.id_usuario
-    WHERE u.id_usuario = pId;
-END $$
+           case 
+               when u.rol = 'admin' or u.rol = 'reception' then a.nombre
+               when u.rol = 'user' then c.nombre
+               when u.rol = 'trainer' then e.nombre
+               else ''
+           end as nombre,
+           case 
+               when u.rol = 'admin' or u.rol = 'reception' then a.telefono
+               when u.rol = 'user' then c.telefono
+               when u.rol = 'trainer' then e.telefono
+               else ''
+           end as telefono,
+           case 
+               when u.rol = 'admin' or u.rol = 'reception' then a.correo
+               when u.rol = 'user' then c.correo
+               when u.rol = 'trainer' then e.correo
+               else ''
+           end as correo
+    from usuario u
+    left join administrador a on u.id_usuario = a.id_usuario
+    left join cliente c on u.id_usuario = c.id_usuario
+    left join entrenador e on u.id_usuario = e.id_usuario
+    where u.id_usuario = pid;
+end $$
 
-CREATE PROCEDURE sp_obtenerUsuariosConNombre()
-BEGIN
-    SELECT u.username,
+create procedure sp_obtenerusuariosconnombre()
+begin
+    select u.username,
            u.rol,
-           CASE 
-               WHEN u.rol = 'ADMIN' or u.rol = 'RECEPTION' THEN a.nombre
-               WHEN u.rol = 'USER' THEN c.nombre
-               WHEN u.rol = 'TRAINER' THEN e.nombre
-               ELSE ''
-           END AS nombre,
-           CASE 
-               WHEN u.rol = 'ADMIN' or u.rol = 'RECEPTION' THEN a.telefono
-               WHEN u.rol = 'USER' THEN c.telefono
-               WHEN u.rol = 'TRAINER' THEN e.telefono
-               ELSE ''
-           END AS telefono,
-           CASE 
-               WHEN u.rol = 'ADMIN' or u.rol = 'RECEPTION' THEN a.correo
-               WHEN u.rol = 'USER' THEN c.correo
-               WHEN u.rol = 'TRAINER' THEN e.correo
-               ELSE ''
-           END AS correo
-    FROM Usuario u
-    LEFT JOIN Administrador a ON u.id_usuario = a.id_usuario
-    LEFT JOIN Cliente c ON u.id_usuario = c.id_usuario
-    LEFT JOIN Entrenador e ON u.id_usuario = e.id_usuario;
-END $$
+           case 
+               when u.rol = 'admin' or u.rol = 'reception' then a.nombre
+               when u.rol = 'user' then c.nombre
+               when u.rol = 'trainer' then e.nombre
+               else ''
+           end as nombre,
+           case 
+               when u.rol = 'admin' or u.rol = 'reception' then a.telefono
+               when u.rol = 'user' then c.telefono
+               when u.rol = 'trainer' then e.telefono
+               else ''
+           end as telefono,
+           case 
+               when u.rol = 'admin' or u.rol = 'reception' then a.correo
+               when u.rol = 'user' then c.correo
+               when u.rol = 'trainer' then e.correo
+               else ''
+           end as correo
+    from usuario u
+    left join administrador a on u.id_usuario = a.id_usuario
+    left join cliente c on u.id_usuario = c.id_usuario
+    left join entrenador e on u.id_usuario = e.id_usuario;
+end $$
 
-CREATE PROCEDURE sp_agregarCliente(
-    IN pNombre VARCHAR(100),
-    IN pCedula VARCHAR(20),
-    IN pTelefono VARCHAR(20),
-    IN pCorreo VARCHAR(100),
-    IN pFechaNacimiento DATE,
-    IN pEstado VARCHAR(20)
+create procedure sp_agregarcliente(
+    in pnombre varchar(100),
+    in pcedula varchar(20),
+    in ptelefono varchar(20),
+    in pcorreo varchar(100),
+    in pfechanacimiento date,
+    in pestado varchar(20)
 )
-BEGIN
-	IF EXISTS (SELECT 1 FROM Usuario WHERE username = pCedula) THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Revisa el Cliente, ya que se encuentra duplicado';
-    ELSE
-		INSERT INTO Usuario (username, contrasena, rol)
-		VALUES (pCedula, SHA2(pCedula, 256), 'USER');
-		SET @nuevoUsuarioId = LAST_INSERT_ID();
-		INSERT INTO cliente (id_usuario, nombre, cedula, telefono, correo, fecha_nacimiento, estado)
-		VALUES (@nuevoUsuarioId, pNombre, pCedula, pTelefono, pCorreo, pFechaNacimiento, pEstado);
-	END IF;
-END $$
+begin
+	if exists (select 1 from usuario where username = pcedula) then
+        signal sqlstate '45000'
+            set message_text = 'revisa el cliente, ya que se encuentra duplicado';
+    else
+		insert into usuario (username, contrasena, rol)
+		values (pcedula, sha2(pcedula, 256), 'user');
+		set @nuevousuarioid = last_insert_id();
+		insert into cliente (id_usuario, nombre, cedula, telefono, correo, fecha_nacimiento, estado)
+		values (@nuevousuarioid, pnombre, pcedula, ptelefono, pcorreo, pfechanacimiento, pestado);
+	end if;
+end $$
 
-CREATE PROCEDURE sp_obtenerClientesResumen()
-BEGIN
-    SELECT 
+create procedure sp_obtenerclientesresumen()
+begin
+    select 
         c.*,
-        cm.estado AS EstadoMembresia,
-        cm.fecha_fin AS Vencimiento
-    FROM Cliente c
-    LEFT JOIN Cliente_Membresia cm ON c.id_cliente = cm.id_cliente
-    LEFT JOIN Membresia m ON cm.id_membresia = m.id_membresia;
-END $$
+        cm.estado as estadomembresia,
+        cm.fecha_fin as vencimiento
+    from cliente c
+    left join cliente_membresia cm on c.id_cliente = cm.id_cliente
+    left join membresia m on cm.id_membresia = m.id_membresia;
+end $$
 
-CREATE PROCEDURE sp_actualizarClienteMembresia(
-    IN p_id_cliente INT,
-    IN p_id_membresia INT,
-    IN p_fecha_inicio DATE,
-    IN p_fecha_fin DATE,
-    IN p_estado VARCHAR(20)
+create procedure sp_actualizarclientemembresia(
+    in p_id_cliente int,
+    in p_id_membresia int,
+    in p_fecha_inicio date,
+    in p_fecha_fin date,
+    in p_estado varchar(20)
 )
-BEGIN
-    -- Guardar la información actual en el historial
-    INSERT INTO historial_membresias (
+begin
+    -- guardar la información actual en el historial
+    insert into historial_membresias (
         id_cliente,
         id_membresia,
         fecha_inicio,
         fecha_fin
     )
-    SELECT
+    select
         id_cliente,
         id_membresia,
         fecha_inicio,
         fecha_fin
-    FROM Cliente_Membresia
-    WHERE id_cliente = p_id_cliente;
+    from cliente_membresia
+    where id_cliente = p_id_cliente;
     
-    -- Actualiza la membresía del cliente si existe
-    UPDATE Cliente_Membresia
-    SET id_membresia = p_id_membresia,
+    -- actualiza la membresía del cliente si existe
+    update cliente_membresia
+    set id_membresia = p_id_membresia,
         fecha_inicio = p_fecha_inicio,
         fecha_fin = p_fecha_fin,
         estado = p_estado
-    WHERE id_cliente = p_id_cliente;
+    where id_cliente = p_id_cliente;
     
-END $$
+end $$
 
-CREATE PROCEDURE sp_actualizarEstadosMembresias()
-BEGIN
-    -- Actualizar a 'Vencida' si la fecha_fin ya pasó y no está suspendida
-SET SQL_SAFE_UPDATES = 0;
+create procedure sp_actualizarestadosmembresias()
+begin
+    -- actualizar a 'vencida' si la fecha_fin ya pasó y no está suspendida
+set sql_safe_updates = 0;
 
-UPDATE Cliente_Membresia
-SET estado = 'Vencida'
-WHERE fecha_fin < CURDATE()
-  AND estado NOT IN ('Suspendida', 'Vencida');
+update cliente_membresia
+set estado = 'vencida'
+where fecha_fin < curdate()
+  and estado not in ('suspendida', 'vencida');
 
-SET SQL_SAFE_UPDATES = 1;
+set sql_safe_updates = 1;
 
-END $$
+end $$
 
-CREATE PROCEDURE sp_agregarClienteMembresia(
-    IN p_id_cliente INT,
-    IN p_id_membresia INT,
-    IN p_fecha_inicio DATE,
-    IN p_fecha_fin DATE,
-    IN p_estado VARCHAR(20)
+create procedure sp_agregarclientemembresia(
+    in p_id_cliente int,
+    in p_id_membresia int,
+    in p_fecha_inicio date,
+    in p_fecha_fin date,
+    in p_estado varchar(20)
 )
-BEGIN
-    -- Verificar si el cliente ya tiene una membresía 
-    IF NOT EXISTS (
-        SELECT 1
-        FROM Cliente_Membresia
-        WHERE id_cliente = p_id_cliente
-    ) THEN
-        -- Insertar nueva membresía
-        INSERT INTO Cliente_Membresia (
+begin
+    -- verificar si el cliente ya tiene una membresía 
+    if not exists (
+        select 1
+        from cliente_membresia
+        where id_cliente = p_id_cliente
+    ) then
+        -- insertar nueva membresía
+        insert into cliente_membresia (
             id_cliente, id_membresia, fecha_inicio, fecha_fin, estado
-        ) VALUES (
+        ) values (
             p_id_cliente, p_id_membresia, p_fecha_inicio, p_fecha_fin, p_estado
         );
-    ELSE
-        -- Opcional: lanzar un error o mensaje
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'El cliente ya tiene una membresía activa';
-    END IF;
-END $$
+    else
+        -- opcional: lanzar un error o mensaje
+        signal sqlstate '45000'
+            set message_text = 'el cliente ya tiene una membresía activa';
+    end if;
+end $$
 
-CREATE PROCEDURE sp_obtenerClientesMembresias()
-BEGIN
-    SELECT 
-        c.nombre AS Cliente,
-        m.nombre AS TipoPlan,
-        cm.fecha_inicio AS FechaInicio,
-        cm.fecha_fin AS FechaFin,
-        m.precio AS Precio,
-        cm.estado AS Estado,
-       c.id_cliente as IdCliente,
-        m.id_membresia as IdMembresia
-    FROM Cliente_Membresia cm
-    INNER JOIN Cliente c ON cm.id_cliente = c.id_cliente
-    INNER JOIN Membresia m ON cm.id_membresia = m.id_membresia;
-END $$
+create procedure sp_obtenerclientesmembresias()
+begin
+    select 
+        c.nombre as cliente,
+        m.nombre as tipoplan,
+        cm.fecha_inicio as fechainicio,
+        cm.fecha_fin as fechafin,
+        m.precio as precio,
+        cm.estado as estado,
+       c.id_cliente as idcliente,
+        m.id_membresia as idmembresia
+    from cliente_membresia cm
+    inner join cliente c on cm.id_cliente = c.id_cliente
+    inner join membresia m on cm.id_membresia = m.id_membresia;
+end $$
 
-CREATE PROCEDURE sp_obtenerHistorialMembresia(
-    IN p_id_cliente INT
+create procedure sp_obtenerhistorialmembresia(
+    in p_id_cliente int
 )
-BEGIN
-    SELECT
+begin
+    select
         h.id_historial,
         h.id_cliente,
-        c.nombre AS Cliente,
+        c.nombre as cliente,
         h.id_membresia,
-        m.nombre AS Membresia,
+        m.nombre as membresia,
         h.fecha_inicio,
         h.fecha_fin
-    FROM historial_membresias h
-    INNER JOIN Cliente c
-        ON h.id_cliente = c.id_cliente
-    INNER JOIN Membresia m
-        ON h.id_membresia = m.id_membresia
-    WHERE h.id_cliente = p_id_cliente
-    ORDER BY h.id_historial DESC;
-END $$
+    from historial_membresias h
+    inner join cliente c
+        on h.id_cliente = c.id_cliente
+    inner join membresia m
+        on h.id_membresia = m.id_membresia
+    where h.id_cliente = p_id_cliente
+    order by h.id_historial desc;
+end $$
 
-CREATE PROCEDURE sp_obtenerMembresiasProximasVencer()
-BEGIN
+create procedure sp_obtenermembresiasproximasvencer()
+begin
 
-    SELECT
-        cm.id_cliente AS IdCliente,
-        c.nombre AS Cliente,
-        m.nombre AS Membresia,
-        cm.fecha_fin AS FechaFin,
-        DATEDIFF(cm.fecha_fin, CURDATE()) AS DiasRestantes
-    FROM Cliente_Membresia cm
-        INNER JOIN Cliente c
-            ON c.id_cliente = cm.id_cliente
-        INNER JOIN Membresia m
-            ON m.id_membresia = cm.id_membresia
-    WHERE cm.estado = 'Activa'
-        AND cm.fecha_fin BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 15 DAY)
-    ORDER BY cm.fecha_fin ASC;
+    select
+        cm.id_cliente as idcliente,
+        c.nombre as cliente,
+        m.nombre as membresia,
+        cm.fecha_fin as fechafin,
+        datediff(cm.fecha_fin, curdate()) as diasrestantes
+    from cliente_membresia cm
+        inner join cliente c
+            on c.id_cliente = cm.id_cliente
+        inner join membresia m
+            on m.id_membresia = cm.id_membresia
+    where cm.estado = 'activa'
+        and cm.fecha_fin between curdate() and date_add(curdate(), interval 15 day)
+    order by cm.fecha_fin asc;
 
-END $$
+end $$
 
-CREATE PROCEDURE sp_editarCliente(
-    IN pIdCliente     INT,
-    IN pNombre        VARCHAR(100),
-    IN pCedula        VARCHAR(20),
-    IN pTelefono      VARCHAR(20),
-    IN pCorreo        VARCHAR(100),
-    IN pFechaNacimiento DATE,
-    IN pEstado        VARCHAR(20)
+create procedure sp_editarcliente(
+    in pidcliente     int,
+    in pnombre        varchar(100),
+    in pcedula        varchar(20),
+    in ptelefono      varchar(20),
+    in pcorreo        varchar(100),
+    in pfechanacimiento date,
+    in pestado        varchar(20)
 )
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM Cliente WHERE id_cliente = pIdCliente) THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'El cliente no existe en el sistema.';
-    ELSE
-        UPDATE Cliente
-        SET nombre           = pNombre,
-            cedula           = pCedula,
-            telefono         = pTelefono,
-            correo           = pCorreo,
-            fecha_nacimiento = pFechaNacimiento,
-            estado           = pEstado
-        WHERE id_cliente = pIdCliente;
-    END IF;
-END $$
+begin
+    if not exists (select 1 from cliente where id_cliente = pidcliente) then
+        signal sqlstate '45000'
+            set message_text = 'el cliente no existe en el sistema.';
+    else
+        update cliente
+        set nombre           = pnombre,
+            cedula           = pcedula,
+            telefono         = ptelefono,
+            correo           = pcorreo,
+            fecha_nacimiento = pfechanacimiento,
+            estado           = pestado
+        where id_cliente = pidcliente;
+    end if;
+end $$
 
-CREATE PROCEDURE sp_eliminarCliente(
-    IN pIdCliente INT
+create procedure sp_eliminarcliente(
+    in pidcliente int
 )
-BEGIN
-    DECLARE clienteEstado VARCHAR(20);
-    DECLARE clienteIdUsuario INT;
+begin
+    declare clienteestado varchar(20);
+    declare clienteidusuario int;
 
-    SELECT estado, id_usuario
-    INTO clienteEstado, clienteIdUsuario
-    FROM Cliente
-    WHERE id_cliente = pIdCliente;
+    select estado, id_usuario
+    into clienteestado, clienteidusuario
+    from cliente
+    where id_cliente = pidcliente;
 
-    IF clienteEstado IS NULL THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'El cliente no existe en el sistema.';
-    ELSEIF clienteEstado != 'Inactivo' THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Solo se pueden eliminar clientes con estado Inactivo.';
-    ELSE
-        DELETE FROM Cliente_Membresia WHERE id_cliente = pIdCliente;
-        DELETE FROM Cliente_Rutina    WHERE id_cliente = pIdCliente;
-        DELETE FROM Asistencia        WHERE id_cliente = pIdCliente;
-        DELETE FROM Cliente           WHERE id_cliente = pIdCliente;
-        DELETE FROM Usuario           WHERE id_usuario = clienteIdUsuario;
-    END IF;
-END $$
+    if clienteestado is null then
+        signal sqlstate '45000'
+            set message_text = 'el cliente no existe en el sistema.';
+    elseif clienteestado != 'inactivo' then
+        signal sqlstate '45000'
+            set message_text = 'solo se pueden eliminar clientes con estado inactivo.';
+    else
+        delete from cliente_membresia where id_cliente = pidcliente;
+        delete from cliente_rutina    where id_cliente = pidcliente;
+        delete from asistencia        where id_cliente = pidcliente;
+        delete from cliente           where id_cliente = pidcliente;
+        delete from usuario           where id_usuario = clienteidusuario;
+    end if;
+end $$
 
-CREATE PROCEDURE sp_obtenerEjercicios()
-BEGIN
-    SELECT
-        id_ejercicio   AS IdEjercicio,
-        nombre         AS Nombre,
-        grupo_muscular AS GrupoMuscular
-    FROM Ejercicio
-    ORDER BY nombre ASC;
-END $$
+create procedure sp_obtenerejercicios()
+begin
+    select
+        id_ejercicio   as idejercicio,
+        nombre         as nombre,
+        grupo_muscular as grupomuscular
+    from ejercicio
+    order by nombre asc;
+end $$
 
 
-DELIMITER ;
+delimiter ;

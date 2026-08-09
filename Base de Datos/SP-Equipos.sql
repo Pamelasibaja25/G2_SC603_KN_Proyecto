@@ -1,58 +1,58 @@
 USE DB_Orion_Fit;
-DELIMITER $$
+delimiter $$
 
-CREATE PROCEDURE SP_EditarEquipo(
-    IN p_id_equipo INT,
-    IN p_nombre VARCHAR(100),
-    IN p_estado VARCHAR(30),
-    IN p_fecha_compra DATE,
-    IN p_costo DECIMAL(10,2)
+create procedure sp_editarequipo(
+    in p_id_equipo int,
+    in p_nombre varchar(100),
+    in p_estado varchar(30),
+    in p_fecha_compra date,
+    in p_costo decimal(10,2)
 )
-BEGIN
-    UPDATE equipo
-    SET
+begin
+    update equipo
+    set
         nombre = p_nombre,
         estado = p_estado,
         fecha_compra = p_fecha_compra,
         costo = p_costo
-    WHERE id_equipo = p_id_equipo;
-END $$
+    where id_equipo = p_id_equipo;
+end $$
 
-DELIMITER ;
+delimiter ;
 
-DELIMITER $$
+delimiter $$
 
-CREATE PROCEDURE SP_AgregarEquipo(
-    IN p_nombre VARCHAR(100),
-    IN p_estado VARCHAR(30),
-    IN p_fecha_compra DATE,
-    IN p_costo DECIMAL(10,2)
+create procedure sp_agregarequipo(
+    in p_nombre varchar(100),
+    in p_estado varchar(30),
+    in p_fecha_compra date,
+    in p_costo decimal(10,2)
 )
-BEGIN
-    INSERT INTO equipo (
+begin
+    insert into equipo (
         nombre,
         estado,
         fecha_compra,
         costo
     )
-    VALUES (
+    values (
         p_nombre,
         p_estado,
         p_fecha_compra,
         p_costo
     );
-END $$
+end $$
 
-DELIMITER ;
+delimiter ;
 
-DELIMITER $$
+delimiter $$
 
-CREATE PROCEDURE SP_EliminarEquipo(
-    IN p_id_equipo INT
+create procedure sp_eliminarequipo(
+    in p_id_equipo int
 )
-BEGIN
-    DELETE FROM equipo
-    WHERE id_equipo = p_id_equipo;
-END $$
+begin
+    delete from equipo
+    where id_equipo = p_id_equipo;
+end $$
 
-DELIMITER ;
+delimiter ;

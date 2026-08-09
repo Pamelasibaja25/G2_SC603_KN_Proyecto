@@ -1,65 +1,66 @@
--- Ejecutar en local y Railway. Reemplaza la version anterior.
-DROP PROCEDURE IF EXISTS sp_eliminarCliente;
+USE DB_Orion_Fit;
+drop procedure if exists sp_eliminarcliente;
 
-DELIMITER $$
-CREATE PROCEDURE sp_eliminarCliente(
-    IN pIdCliente INT
+delimiter $$
+create procedure sp_eliminarcliente(
+    in pidcliente int
 )
-BEGIN
-    DECLARE clienteEstado VARCHAR(20);
-    DECLARE clienteIdUsuario INT;
-    DECLARE tablaHistorialExiste INT;
+begin
+    declare clienteestado varchar(20);
+    declare clienteidusuario int;
+    declare tablahistorialexiste int;
 
-    SELECT estado, id_usuario
-    INTO clienteEstado, clienteIdUsuario
-    FROM Cliente
-    WHERE id_cliente = pIdCliente;
+    select estado, id_usuario
+    into clienteestado, clienteidusuario
+    from cliente
+    where id_cliente = pidcliente;
 
-    IF clienteEstado IS NULL THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'El cliente no existe en el sistema.';
-    ELSEIF clienteEstado != 'Inactivo' THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Solo se pueden eliminar clientes con estado Inactivo.';
-    ELSE
-        -- Notificaciones del cliente
-        DELETE FROM Notificacion WHERE id_cliente = pIdCliente;
+    if clienteestado is null then
+        signal sqlstate '45000'
+            set message_text = 'el cliente no existe en el sistema.';
+    elseif clienteestado != 'inactivo' then
+        signal sqlstate '45000'
+            set message_text = 'solo se pueden eliminar clientes con estado inactivo.';
+    else
+        -- notificaciones del cliente
+        delete from notificacion where id_cliente = pidcliente;
 
-        -- Historial de membresias: solo si la tabla existe en esta BD
+        -- historial de membresias: solo si la tabla existe en esta bd
         -- (evita romper la eliminacion si el ambiente no tiene esta tabla).
-        SELECT COUNT(*) INTO tablaHistorialExiste
-        FROM information_schema.tables
-        WHERE table_schema = DATABASE() AND table_name = 'historial_membresias';
+        select count(*) into tablahistorialexiste
+        from information_schema.tables
+        where table_schema = database() and table_name = 'historial_membresias';
 
-        IF tablaHistorialExiste > 0 THEN
-            SET @sqlHistorial = CONCAT('DELETE FROM historial_membresias WHERE id_cliente = ', pIdCliente);
-            PREPARE stmtHistorial FROM @sqlHistorial;
-            EXECUTE stmtHistorial;
-            DEALLOCATE PREPARE stmtHistorial;
-        END IF;
+        if tablahistorialexiste > 0 then
+            set @sqlhistorial = concat('delete from historial_membresias where id_cliente = ', pidcliente);
+            prepare stmthistorial from @sqlhistorial;
+            execute stmthistorial;
+            deallocate prepare stmthistorial;
+        end if;
 
-        -- Ventas del cliente (primero el detalle, luego la venta)
-        DELETE dv FROM Detalle_Venta dv
-            INNER JOIN Venta v ON dv.id_venta = v.id_venta
-            WHERE v.id_cliente = pIdCliente;
-        DELETE FROM Venta WHERE id_cliente = pIdCliente;
+        -- ventas del cliente (primero el detalle, luego la venta)
+        delete dv from detalle_venta dv
+            inner join venta v on dv.id_venta = v.id_venta
+            where v.id_cliente = pidcliente;
+        delete from venta where id_cliente = pidcliente;
 
-        -- Pagos (dependen de Cliente_Membresia)
-        DELETE p FROM Pago p
-            INNER JOIN Cliente_Membresia cm ON p.id_cliente_membresia = cm.id_cliente_membresia
-            WHERE cm.id_cliente = pIdCliente;
-        DELETE FROM Cliente_Membresia WHERE id_cliente = pIdCliente;
+        -- pagos (dependen de cliente_membresia)
+        delete p from pago p
+            inner join cliente_membresia cm on p.id_cliente_membresia = cm.id_cliente_membresia
+            where cm.id_cliente = pidcliente;
+        delete from cliente_membresia where id_cliente = pidcliente;
 
-        -- Reservas del cliente
-        DELETE FROM Reserva WHERE id_cliente = pIdCliente;
+        -- reservas del cliente
+        delete from reserva where id_cliente = pidcliente;
 
-        -- WOD asignados y asistencias
-        DELETE FROM Cliente_Rutina WHERE id_cliente = pIdCliente;
-        DELETE FROM Asistencia     WHERE id_cliente = pIdCliente;
+        -- wod asignados y asistencias
+        delete from cliente_rutina where id_cliente = pidcliente;
+        delete from asistencia     where id_cliente = pidcliente;
 
-        -- Cliente y su usuario asociado
-        DELETE FROM Cliente WHERE id_cliente = pIdCliente;
-        DELETE FROM Usuario WHERE id_usuario = clienteIdUsuario;
-    END IF;
-END $$
-DELIMITER ;
+        -- cliente y su usuario asociado
+        delete from cliente where id_cliente = pidcliente;
+        delete from usuario where id_usuario = clienteidusuario;
+    end if;
+end $$
+delimiter ;
+
