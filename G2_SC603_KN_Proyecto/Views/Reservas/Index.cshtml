@@ -1,4 +1,4 @@
-@model G2_SC603_KN_Proyecto.Models.ReservasViewModel
+﻿@model G2_SC603_KN_Proyecto.Models.ReservasViewModel
 @{
     Layout = "_Layout";
 }
@@ -36,7 +36,7 @@
                 @if (!string.IsNullOrEmpty(pendiente.Imagen))
                 {
                     <img src="~/@pendiente.Imagen" alt="@pendiente.NombreWod" class="w-full rounded-xl mb-4"
-                         style="max-height:480px; object-fit:contain; object-position:center; background:#111;" />
+                         style="max-height:560px; width:100%; height:auto; display:block; object-fit:contain; margin:0 auto;" />
                 }
                 <div class="flex gap-3">
                     <form asp-controller="WOD" asp-action="ConfirmarAsistenciaWOD" method="post" class="flex-1">
@@ -103,6 +103,43 @@
 
     @if (Model.EsAdmin)
     {
+        <div class="bg-surface-container rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)] mb-8">
+            <h3 class="font-headline font-bold text-base mb-1">Calendario de la Semana</h3>
+            <p class="text-on-surface-variant text-xs mb-5">Quiénes confirmaron asistencia, día por día.</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3">
+                @foreach (var dia in Model.Calendario)
+                {
+                    bool esHoyCal = dia.Fecha == DateOnly.FromDateTime(DateTime.Today);
+                    <div class="bg-surface-container-high rounded-xl p-3 @(esHoyCal ? "ring-2 ring-primary-container" : "")">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-headline font-bold text-xs capitalize">
+                                @dia.Fecha.ToString("dddd", new System.Globalization.CultureInfo("es-ES"))
+                            </span>
+                            <span class="text-outline text-[10px]">@dia.Fecha.ToString("dd/MM")</span>
+                        </div>
+                        @if (dia.Confirmados > 0)
+                        {
+                            <p class="text-primary-container text-[11px] font-semibold mb-2">@dia.Confirmados confirmado(s)</p>
+                            <ul class="space-y-1">
+                                @foreach (var cliente in dia.Clientes)
+                                {
+                                    <li class="text-xs flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[12px]">person</span>
+                                        @cliente.Nombre
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-outline text-[11px]">Sin confirmaciones</p>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
         <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)] mb-8">
             <div class="p-6 pb-0">
                 <h3 class="font-headline font-bold text-base mb-4">Asistencia de Hoy</h3>

@@ -24,7 +24,6 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
             <h2 class="font-headline text-3xl font-bold tracking-tight">Gestión de Clientes</h2>
-            <p class="text-on-surface-variant text-xs mt-1">RMGM-01-001 al RMGM-01-014</p>
         </div>
         <div class="flex gap-3 items-center">
             <div class="relative flex-[2]">
@@ -39,7 +38,7 @@
                 <option value="Inactivo">Inactivo</option>
                 <option value="Suspendido">Suspendido</option>
             </select>
-            @if (rolActual == "ADMIN" || rolActual == "RECEPTION")
+            @if (rolActual.Contains("ADMIN") || rolActual.Contains("RECEPTION"))
             {
                 <button class="btn-primary text-sm flex items-center gap-1" onclick="openClientModal()">
                     <span class="material-symbols-outlined text-[18px]">add</span> Nuevo Cliente
@@ -90,7 +89,7 @@
                                         Ver
                                     </button>
 
-                                    @if (rolActual == "ADMIN" || rolActual == "RECEPTION")
+                                    @if (rolActual.Contains("ADMIN") || rolActual.Contains("RECEPTION"))
                                     {
                                         <!-- Editar -->
                                         <button class="btn-secondary text-xs py-1 px-2"
@@ -106,7 +105,7 @@
                                         </button>
                                     }
 
-                                    @if (rolActual == "ADMIN" && cliente.Estado == "Inactivo")
+                                    @if (rolActual.Contains("ADMIN") && cliente.Estado == "Inactivo")
                                     {
                                         <!-- Eliminar solo si es Inactivo -->
                                         <form asp-action="EliminarCliente" method="post" id="formEliminar_@cliente.id_cliente">

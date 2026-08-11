@@ -39,7 +39,7 @@
                         <th>Entrenamiento</th>
                         <th>Objetivo</th>
                         <th>Coach</th>
-                        @if (rolActual == "ADMIN" || rolActual == "TRAINER")
+                        @if (rolActual.Contains("ADMIN") || rolActual.Contains("TRAINER"))
                         {
                             <th>Cliente</th>
                         }
@@ -57,7 +57,7 @@
                                 <td>@item.Nombre</td>
                                 <td>@(string.IsNullOrEmpty(item.Objetivo) ? "—" : item.Objetivo)</td>
                                 <td>@item.NombreEntrenador</td>
-                                @if (rolActual == "ADMIN" || rolActual == "TRAINER")
+                                @if (rolActual.Contains("ADMIN") || rolActual.Contains("TRAINER"))
                                 {
                                     <td>@(item.NombreCliente ?? "—")</td>
                                 }

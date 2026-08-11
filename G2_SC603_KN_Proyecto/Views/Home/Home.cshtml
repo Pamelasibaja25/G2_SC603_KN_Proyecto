@@ -1,7 +1,7 @@
 ﻿ @{
     Layout = "_Layout";
 }
-@if (Context.Session.GetString("Rol") == "USER")
+@if ((Context.Session.GetString("Rol") ?? "").Contains("USER"))
 {
 <div id="page-dashboard" class="section-page active p-6 lg:p-8 space-y-6">
 
@@ -21,11 +21,11 @@
         @if (ViewBag.MembresiaActiva != null)
         {
             <div id="membershipAlert"
-                 class="bg-green-600/20 border border-green-500 text-green-200 px-10 py-8 rounded-2xl shadow-lg text-center w-full max-w-md">
+                 class="status-card-success px-10 py-8 rounded-2xl shadow-lg text-center w-full max-w-md">
 
                 <div class="flex flex-col items-center gap-3">
 
-                    <span class="material-symbols-outlined text-green-300 text-5xl">
+                    <span class="material-symbols-outlined text-5xl">
                         verified
                     </span>
 
@@ -33,7 +33,7 @@
                         Mensualidad activa
                     </h2>
 
-                    <p class="text-sm text-green-100/80">
+                    <p class="text-sm opacity-80">
                         Su acceso al sistema está habilitado.
                     </p>
 
@@ -45,11 +45,11 @@
         else
         {
             <div id="membershipAlert"
-                 class="bg-red-600/20 border border-red-500 text-red-200 px-10 py-8 rounded-2xl shadow-lg text-center w-full max-w-md">
+                 class="status-card-error px-10 py-8 rounded-2xl shadow-lg text-center w-full max-w-md">
 
                 <div class="flex flex-col items-center gap-3">
 
-                    <span class="material-symbols-outlined text-red-300 text-5xl">
+                    <span class="material-symbols-outlined text-5xl">
                         cancel
                     </span>
 
@@ -57,7 +57,7 @@
                         Mensualidad inactiva
                     </h2>
 
-                    <p class="text-sm text-red-100/80">
+                    <p class="text-sm opacity-80">
                         Su acceso al sistema está restringido.
                     </p>
 

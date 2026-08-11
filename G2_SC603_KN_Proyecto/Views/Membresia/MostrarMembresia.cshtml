@@ -36,7 +36,7 @@
             <option value="Vencida">Vencida</option>
             <option value="Suspendida">Suspendida</option>
         </select>
-        @if (rolActual == "ADMIN" || rolActual == "RECEPTION")
+        @if (rolActual.Contains("ADMIN") || rolActual.Contains("RECEPTION"))
         {
             <button class="btn-primary py-2.5 text-sm" onclick="openModal('membershipModal')">
                 <span class="material-symbols-outlined text-[18px]">add</span> Nueva Mensualidad
@@ -113,7 +113,7 @@
                                 <td>@cliente.Estado</td>
                                 <td class="flex gap-2 items-center justify-end">
 
-                                    @if (rolActual == "ADMIN" || rolActual == "RECEPTION")
+                                    @if (rolActual.Contains("ADMIN") || rolActual.Contains("RECEPTION"))
                                     {
                                         <!-- Editar -->
                                         <button class="btn-secondary text-xs py-1 px-2"
@@ -159,6 +159,13 @@
         </div>
            <form asp-action="AgregarMembresia" method="post" id="membershipForm" class="space-y-4">
             <input type="hidden" id="membershipId" />
+            @if (ViewBag.MembresiaUnica == null)
+            {
+                <div class="bg-error-container text-on-error-container text-sm rounded-xl p-3">
+                    Todavía no configuraste el monto de la mensualidad. Cerrá esta ventana y usá el botón
+                    <strong>"Configurar Monto"</strong> primero.
+                </div>
+            }
             <div>
                 <label class="label-float">Cliente *</label>
                 <select id="membershipClient" name="IdCliente" class="input-field" required>
@@ -216,7 +223,7 @@
             </script>
             <div class="flex gap-3 pt-2 justify-end">
                 <button type="button" class="btn-secondary" onclick="closeModal('membershipModal')">Cancelar</button>
-                <button type="submit" class="btn-primary"><span class="material-symbols-outlined text-[16px]">save</span> Guardar</button>
+                <button type="submit" class="btn-primary" @(ViewBag.MembresiaUnica == null ? "disabled" : "")><span class="material-symbols-outlined text-[16px]">save</span> Guardar</button>
             </div>
         </form>
     </div>

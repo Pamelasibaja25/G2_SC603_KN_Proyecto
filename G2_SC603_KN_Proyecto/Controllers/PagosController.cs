@@ -52,6 +52,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         [HttpPost]
         public IActionResult RegistrarPago(Pago pago)
         {
+            pago.EstadoVerificacion = "Verificado"; // lo registra el admin directamente
             _context.Pagos.Add(pago);
             _context.SaveChanges();
 
@@ -59,6 +60,54 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             return RedirectToAction("Index");
         }
+        // Admin: aprueba o rechaza un comprobante SINPE subido por el cliente.
+        // Al aprobar, se marca Verificado y se renueva la mensualidad del
+        // cliente (1 mes desde hoy o desde su vencimiento actual, lo que
+        // sea más tarde).
+        [HttpPost]
+        public async Task<IActionResult> VerificarPago(int idPago, bool aprobado)
+        {
+            string rol = HttpContext.Session.GetString("Rol") ?? "";
+            if (!rol.Contains("ADMIN") && !rol.Contains("RECEPTION"))
+            {
+                TempData["ErrorMessage"] = "No tiene permisos para esta acción.";
+                return RedirectToAction("Index");
+            }
+
+            Pago? pago = await _context.Pagos
+                .Include(p => p.IdClienteMembresiaNavigation)
+                .FirstOrDefaultAsync(p => p.IdPago == idPago);
+
+            if (pago == null)
+            {
+                TempData["ErrorMessage"] = "No se encontró el pago.";
+                return RedirectToAction("Index");
+            }
+
+            if (aprobado)
+            {
+                pago.EstadoVerificacion = "Verificado";
+
+                ClienteMembresium membresiaCliente = pago.IdClienteMembresiaNavigation;
+                DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
+                DateOnly baseFecha = membresiaCliente.FechaFin > hoy ? membresiaCliente.FechaFin : hoy;
+
+                membresiaCliente.FechaFin = baseFecha.AddMonths(1);
+                membresiaCliente.Estado = "Activa";
+
+                TempData["SuccessMessage"] = "Pago verificado y mensualidad renovada.";
+            }
+            else
+            {
+                pago.EstadoVerificacion = "Rechazado";
+                TempData["SuccessMessage"] = "Pago marcado como rechazado.";
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
         public IActionResult HistorialCliente(int idCliente)
         {
             List<Pago> pagos = _context.Pagos
@@ -114,7 +163,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         public async Task<IActionResult> ConfigurarSinpe(IFormFile imagen)
         {
             string rol = HttpContext.Session.GetString("Rol") ?? "";
-            if (rol != "ADMIN" && rol != "RECEPTION")
+            if (!rol.Contains("ADMIN") && !rol.Contains("RECEPTION"))
             {
                 TempData["ErrorMessage"] = "No tiene permisos para esta acción.";
                 return RedirectToAction("Index");
@@ -177,11 +226,34 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             ViewBag.Sinpe = await _context.ConfiguracionSinpe.FirstOrDefaultAsync();
 
-            ViewBag.MembresiaActual = await _context.ClienteMembresia
+            ClienteMembresium? membresiaActual = await _context.ClienteMembresia
                 .Include(cm => cm.IdMembresiaNavigation)
                 .Where(cm => cm.IdCliente == cliente.IdCliente)
                 .OrderByDescending(cm => cm.FechaFin)
                 .FirstOrDefaultAsync();
+
+            ViewBag.MembresiaActual = membresiaActual;
+
+            DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
+
+            // Si ya hay un comprobante esperando revisión, no tiene sentido
+            // dejar que suba otro encima.
+            Pago? pagoPendiente = await _context.Pagos
+                .Include(p => p.IdClienteMembresiaNavigation)
+                .Where(p => p.IdClienteMembresiaNavigation.IdCliente == cliente.IdCliente
+                    && p.EstadoVerificacion == "Pendiente")
+                .OrderByDescending(p => p.FechaPago)
+                .FirstOrDefaultAsync();
+
+            ViewBag.PagoPendiente = pagoPendiente;
+
+            // Si la mensualidad ya está vigente y no está por vencer (más de
+            // 5 días de margen), no hace falta pagar de nuevo todavía.
+            bool mensualidadAlDia = membresiaActual != null
+                && membresiaActual.Estado == "Activa"
+                && membresiaActual.FechaFin > hoy.AddDays(5);
+
+            ViewBag.MensualidadAlDia = mensualidadAlDia;
 
             return View();
         }
@@ -210,6 +282,17 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 return RedirectToAction(nameof(SubirComprobante));
             }
 
+            bool yaTienePendiente = await _context.Pagos
+                .Include(p => p.IdClienteMembresiaNavigation)
+                .AnyAsync(p => p.IdClienteMembresiaNavigation.IdCliente == cliente.IdCliente
+                    && p.EstadoVerificacion == "Pendiente");
+
+            if (yaTienePendiente)
+            {
+                TempData["ErrorMessage"] = "Ya tenés un comprobante en revisión, esperá a que el equipo lo confirme.";
+                return RedirectToAction(nameof(SubirComprobante));
+            }
+
             if (comprobante == null || comprobante.Length == 0)
             {
                 TempData["ErrorMessage"] = "Debe adjuntar la imagen del comprobante.";
@@ -234,7 +317,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 FechaPago = DateOnly.FromDateTime(DateTime.Today),
                 MetodoPago = "SINPE",
                 Descripcion = "Comprobante adjuntado por el cliente, pendiente de verificación.",
-                ComprobantePago = "img/comprobantes/" + nombreArchivo
+                ComprobantePago = "img/comprobantes/" + nombreArchivo,
+                EstadoVerificacion = "Pendiente"
             };
 
             _context.Pagos.Add(pago);

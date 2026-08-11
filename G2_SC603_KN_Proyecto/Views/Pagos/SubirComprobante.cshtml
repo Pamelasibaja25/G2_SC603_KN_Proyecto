@@ -2,6 +2,8 @@
     Layout = "_Layout";
     var sinpe = ViewBag.Sinpe as G2_SC603_KN_Proyecto.Models.ConfiguracionSinpe;
     var membresia = ViewBag.MembresiaActual as G2_SC603_KN_Proyecto.Models.ClienteMembresium;
+    var pagoPendiente = ViewBag.PagoPendiente as G2_SC603_KN_Proyecto.Models.Pago;
+    bool mensualidadAlDia = ViewBag.MensualidadAlDia ?? false;
 }
 
 @if (TempData["SuccessMessage"] != null)
@@ -37,22 +39,45 @@
         </div>
 
         <div class="bg-surface-container rounded-2xl p-6">
-            <h3 class="font-headline font-bold text-base mb-4">Adjuntar comprobante</h3>
-            <form asp-action="SubirComprobante" method="post" enctype="multipart/form-data" class="space-y-4">
-                <input type="hidden" name="idClienteMembresia" value="@membresia?.IdClienteMembresia" />
-                <div>
-                    <label class="label-float">Monto pagado (₡) *</label>
-                    <input type="number" step="0.01" min="0" name="monto"
-                           value="@membresia?.IdMembresiaNavigation?.Precio" class="input-field" required />
+            @if (pagoPendiente != null)
+            {
+                <h3 class="font-headline font-bold text-base mb-4">Comprobante en revisión</h3>
+                <div class="status-card-error rounded-xl p-5 text-center" style="border-color: rgba(234,179,8,0.4); background: rgba(234,179,8,0.12); color:#ca8a04;">
+                    <span class="material-symbols-outlined text-4xl mb-2">hourglass_top</span>
+                    <p class="font-semibold">Tu comprobante de ₡@pagoPendiente.Monto.ToString("N2") está siendo revisado.</p>
+                    <p class="text-sm opacity-80 mt-1">Te vamos a avisar apenas el equipo lo confirme. No hace falta que envíes otro.</p>
                 </div>
-                <div>
-                    <label class="label-float">Comprobante (imagen) *</label>
-                    <input type="file" name="comprobante" accept="image/*" class="input-field" required />
+            }
+            else if (mensualidadAlDia)
+            {
+                <h3 class="font-headline font-bold text-base mb-4">Tu mensualidad está al día</h3>
+                <div class="status-card-success rounded-xl p-5 text-center">
+                    <span class="material-symbols-outlined text-4xl mb-2">verified</span>
+                    <p class="font-semibold">No es necesario que pagues todavía.</p>
+                    <p class="text-sm opacity-80 mt-1">
+                        Tu acceso vence el @membresia!.FechaFin.ToString("dd/MM/yyyy"). Te vamos a avisar cuando esté por vencer.
+                    </p>
                 </div>
-                <button type="submit" class="btn-primary w-full">
-                    <span class="material-symbols-outlined text-[16px]">upload</span> Enviar comprobante
-                </button>
-            </form>
+            }
+            else
+            {
+                <h3 class="font-headline font-bold text-base mb-4">Adjuntar comprobante</h3>
+                <form asp-action="SubirComprobante" method="post" enctype="multipart/form-data" class="space-y-4">
+                    <input type="hidden" name="idClienteMembresia" value="@membresia?.IdClienteMembresia" />
+                    <div>
+                        <label class="label-float">Monto pagado (₡) *</label>
+                        <input type="number" step="0.01" min="0" name="monto"
+                               value="@membresia?.IdMembresiaNavigation?.Precio" class="input-field" required />
+                    </div>
+                    <div>
+                        <label class="label-float">Comprobante (imagen) *</label>
+                        <input type="file" name="comprobante" accept="image/*" class="input-field" required />
+                    </div>
+                    <button type="submit" class="btn-primary w-full">
+                        <span class="material-symbols-outlined text-[16px]">upload</span> Enviar comprobante
+                    </button>
+                </form>
+            }
         </div>
     </div>
 </div>

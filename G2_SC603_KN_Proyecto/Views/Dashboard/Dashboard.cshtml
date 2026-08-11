@@ -125,41 +125,63 @@
 
     <div class="bg-surface-container rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)] mb-6">
         <div class="flex items-center justify-between mb-5">
-            <h3 class="font-headline font-bold text-base">Confirmados por Día (WOD)</h3>
+            <h3 class="font-headline font-bold text-base">Quiénes van a asistir</h3>
             <span class="material-symbols-outlined text-secondary text-[20px]">groups</span>
         </div>
+        <p class="text-on-surface-variant text-xs mb-5">
+            Clientes confirmados para hoy y los próximos días.
+        </p>
         @if (Model.ConfirmadosPorDia != null && Model.ConfirmadosPorDia.Any())
         {
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>WOD</th>
-                        <th>Confirmados</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model.ConfirmadosPorDia)
-                    {
-                        <tr>
-                            <td>@item.Fecha.ToString("dddd dd/MM", new System.Globalization.CultureInfo("es-ES"))</td>
-                            <td>@item.NombreWod</td>
-                            <td>@item.Confirmados</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                @foreach (var item in Model.ConfirmadosPorDia)
+                {
+                    bool esHoy = item.Fecha == DateOnly.FromDateTime(DateTime.Today);
+                    <div class="bg-surface-container-high rounded-xl p-4">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-headline font-bold text-sm capitalize">
+                                @item.Fecha.ToString("dddd dd/MM", new System.Globalization.CultureInfo("es-ES"))
+                            </span>
+                            @if (esHoy)
+                            {
+                                <span class="text-[10px] uppercase font-bold text-primary-container bg-primary-container/15 rounded-full px-2 py-0.5">Hoy</span>
+                            }
+                        </div>
+                        <p class="text-on-surface-variant text-xs mb-3">@item.NombreWod — @item.Confirmados confirmado(s)</p>
+                        <ul class="space-y-1">
+                            @foreach (var cliente in item.Clientes)
+                            {
+                                <li class="flex items-center justify-between text-sm">
+                                    <span>@cliente.Nombre</span>
+                                    @if (esHoy)
+                                    {
+                                        @if (cliente.YaIngreso)
+                                        {
+                                            <span class="text-[10px] text-[#4ade80]">✓ En el gym</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-[10px] text-outline">Aún no llega</span>
+                                        }
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </div>
         }
         else
         {
-            <p class="text-on-surface-variant text-sm">Todavía no hay confirmaciones para los próximos días.</p>
+            <p class="text-on-surface-variant text-sm">Todavía no hay confirmaciones para hoy ni para los próximos días.</p>
         }
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         <div class="bg-surface-container rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-            <h3 class="font-headline font-bold text-base mb-3">Top Clientes — Asistencia al Gimnasio</h3>
+            <h3 class="font-headline font-bold text-base mb-1">Top Clientes — Asistencia al Gimnasio</h3>
+            <p class="text-on-surface-variant text-[11px] mb-3">Cuenta el check-in físico, no las confirmaciones de WOD.</p>
 
             <!-- AC3: filtro por período -->
             <form method="get" asp-controller="Dashboard" asp-action="Dashboard"

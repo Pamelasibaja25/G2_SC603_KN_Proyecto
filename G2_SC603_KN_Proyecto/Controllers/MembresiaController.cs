@@ -40,6 +40,12 @@ namespace G2_SC603_KN_Proyecto.Controllers
         {
             try
             {
+                if (nuevoCliente.IdMembresia <= 0)
+                {
+                    TempData["ErrorMessage"] = "Primero configurá el monto de la mensualidad (botón \"Configurar Monto\").";
+                    return RedirectToAction("MostrarMembresia");
+                }
+
                 await _context.Database.ExecuteSqlRawAsync(
                     "CALL sp_agregarClienteMembresia({0}, {1}, {2}, {3}, {4})",
                     nuevoCliente.IdCliente,
@@ -111,19 +117,35 @@ namespace G2_SC603_KN_Proyecto.Controllers
         {
             try
             {
-                Membresium? membresia = await _context.Membresia
-                    .FirstOrDefaultAsync(m => m.IdMembresia == idMembresia);
-
-                if (membresia == null)
+                if (precio <= 0)
                 {
-                    TempData["ErrorMessage"] = "No se encontró la mensualidad a modificar.";
+                    TempData["ErrorMessage"] = "El monto debe ser mayor a cero.";
                     return RedirectToAction("MostrarMembresia");
                 }
 
-                membresia.Precio = precio;
-                await _context.SaveChangesAsync();
+                Membresium? membresia = idMembresia > 0
+                    ? await _context.Membresia.FirstOrDefaultAsync(m => m.IdMembresia == idMembresia)
+                    : null;
 
-                TempData["SuccessMessage"] = "Monto de la mensualidad actualizado correctamente.";
+                if (membresia == null)
+                {
+                    // Todavía no existe ninguna mensualidad configurada: se crea la única.
+                    membresia = new Membresium
+                    {
+                        Nombre = "Mensualidad",
+                        Precio = precio,
+                        DuracionDias = 30
+                    };
+                    _context.Membresia.Add(membresia);
+                    TempData["SuccessMessage"] = "Mensualidad creada y monto configurado correctamente.";
+                }
+                else
+                {
+                    membresia.Precio = precio;
+                    TempData["SuccessMessage"] = "Monto de la mensualidad actualizado correctamente.";
+                }
+
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {

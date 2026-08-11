@@ -22,7 +22,7 @@ public class DashboardController : Controller
         model.ClientesActivos = _context.Clientes.Count(c => c.Estado == "Activo");
 
         model.IngresosMes = _context.Pagos
-            .Where(p => p.FechaPago >= inicioMes)
+            .Where(p => p.FechaPago >= inicioMes && p.EstadoVerificacion == "Verificado")
             .Sum(p => (decimal?)p.Monto) ?? 0;
 
         model.AsistenciaHoy = _context.Asistencia.Count(a => a.Fecha == hoy);
@@ -31,14 +31,44 @@ public class DashboardController : Controller
         model.ConfirmadosWodManana = _context.ClienteRutinas
             .Count(cr => cr.FechaAsignacion == manana && cr.EstadoAsistencia == "ACEPTADO");
 
-        model.ConfirmadosPorDia = _context.ClienteRutinas
+        var confirmacionesFlat = _context.ClienteRutinas
+            .Include(cr => cr.IdRutinaNavigation)
+            .Include(cr => cr.IdClienteNavigation)
             .Where(cr => cr.FechaAsignacion >= hoy && cr.EstadoAsistencia == "ACEPTADO")
-            .GroupBy(cr => new { cr.FechaAsignacion, Nombre = cr.IdRutinaNavigation.Nombre })
+            .Select(cr => new
+            {
+                cr.FechaAsignacion,
+                NombreWod = cr.IdRutinaNavigation.Nombre,
+                NombreCliente = cr.IdClienteNavigation.Nombre,
+                cr.IdCliente
+            })
+            .ToList();
+
+        var idsClientesHoy = confirmacionesFlat
+            .Where(c => c.FechaAsignacion == hoy)
+            .Select(c => c.IdCliente)
+            .Distinct()
+            .ToList();
+
+        var idsClientesQueYaIngresaronHoy = idsClientesHoy.Count == 0
+            ? new List<int>()
+            : _context.Asistencia
+                .Where(a => a.Fecha == hoy && idsClientesHoy.Contains(a.IdCliente))
+                .Select(a => a.IdCliente)
+                .ToList();
+
+        model.ConfirmadosPorDia = confirmacionesFlat
+            .GroupBy(c => new { c.FechaAsignacion, c.NombreWod })
             .Select(g => new ConfirmadosDiaVM
             {
                 Fecha = g.Key.FechaAsignacion,
-                NombreWod = g.Key.Nombre,
-                Confirmados = g.Count()
+                NombreWod = g.Key.NombreWod,
+                Confirmados = g.Count(),
+                Clientes = g.Select(c => new ClienteConfirmadoVM
+                {
+                    Nombre = c.NombreCliente,
+                    YaIngreso = g.Key.FechaAsignacion == hoy && idsClientesQueYaIngresaronHoy.Contains(c.IdCliente)
+                }).OrderBy(c => c.Nombre).ToList()
             })
             .OrderBy(x => x.Fecha)
             .ToList();
@@ -125,13 +155,13 @@ public class DashboardController : Controller
             .ToList();
 
         model.IngresosHoy = _context.Pagos
-            .Where(x => x.FechaPago == hoy)
+            .Where(x => x.FechaPago == hoy && x.EstadoVerificacion == "Verificado")
             .Sum(x => (decimal?)x.Monto) ?? 0;
 
         model.PagosHoy = _context.Pagos
             .Include(p => p.IdClienteMembresiaNavigation)
                 .ThenInclude(cm => cm.IdClienteNavigation)
-            .Where(p => p.FechaPago == hoy)
+            .Where(p => p.FechaPago == hoy && p.EstadoVerificacion == "Verificado")
             .Select(p => new PagoHoyVM
             {
                 Cliente = p.IdClienteMembresiaNavigation.IdClienteNavigation.Nombre,

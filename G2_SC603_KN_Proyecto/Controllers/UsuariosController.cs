@@ -27,16 +27,20 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
         #region Agregar Usuario
         [HttpPost]
-        public async Task<IActionResult> AgregarUsuario(UsuarioNombre nuevoUsuario)
+        public async Task<IActionResult> AgregarUsuario(UsuarioNombre nuevoUsuario, List<string> roles)
         {
             try
             {
+                string rolCsv = roles != null && roles.Any()
+                    ? string.Join(",", roles.Distinct())
+                    : nuevoUsuario.Rol; // fallback por si el form no manda la lista
+
                 await _context.Database.ExecuteSqlRawAsync(
                 "CALL sp_agregarUsuario({0}, {1}, {2}, {3}, {4})",
                 nuevoUsuario.Nombre,
                 nuevoUsuario.Telefono,
                 nuevoUsuario.Correo,
-                nuevoUsuario.Rol,
+                rolCsv,
                 nuevoUsuario.Username
             );
                 TempData["SuccessMessage"] = "Usuario agregado correctamente.";
@@ -52,16 +56,20 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
         #region Editar Usuario
         [HttpPost]
-        public async Task<IActionResult> EditarUsuario(UsuarioNombre nuevoUsuario)
+        public async Task<IActionResult> EditarUsuario(UsuarioNombre nuevoUsuario, List<string> roles)
         {
             try
             {
+                string rolCsv = roles != null && roles.Any()
+                    ? string.Join(",", roles.Distinct())
+                    : nuevoUsuario.Rol;
+
                 await _context.Database.ExecuteSqlRawAsync(
                 "CALL sp_editarUsuario({0}, {1}, {2}, {3}, {4})",
                 nuevoUsuario.Nombre,
                 nuevoUsuario.Telefono,
                 nuevoUsuario.Correo,
-                nuevoUsuario.Rol,
+                rolCsv,
                 nuevoUsuario.Username
             );
                 TempData["SuccessMessage"] = "Usuario editado correctamente.";

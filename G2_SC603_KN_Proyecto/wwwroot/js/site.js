@@ -86,6 +86,24 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+// ===================== TOGGLE MODO CLARO / OSCURO =====================
+function toggleTheme() {
+    const esClaro = document.documentElement.classList.toggle('light-theme');
+    localStorage.setItem('orionfit-theme', esClaro ? 'light' : 'dark');
+    actualizarIconoTema(esClaro);
+}
+
+function actualizarIconoTema(esClaro) {
+    const icono = document.getElementById('themeToggleIcon');
+    if (icono) {
+        icono.textContent = esClaro ? 'light_mode' : 'dark_mode';
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    actualizarIconoTema(document.documentElement.classList.contains('light-theme'));
+});
+
 // ===================== MODALES GENERICOS =====================
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
@@ -430,8 +448,14 @@ function openEditUserModal(username, nombre, correo, rol, telefono) {
     document.getElementById("editUsername").value = username;
     document.getElementById("editNombre").value = nombre;
     document.getElementById("editCorreo").value = correo;
-    document.getElementById("editRol").value = rol;
     document.getElementById("editTelefono").value = telefono || "";
+
+    // rol puede venir como "ADMIN,TRAINER" (multi-rol)
+    const rolesActuales = (rol || "").split(",").map(r => r.trim().toUpperCase());
+    document.querySelectorAll(".edit-rol-checkbox").forEach(function (cb) {
+        cb.checked = rolesActuales.includes(cb.value);
+    });
+
     modal.classList.add("active");
     modal.style.display = "flex";
 }

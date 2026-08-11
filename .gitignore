@@ -14,6 +14,9 @@
 *.userprefs
 *.sln.docstates
 *.DotSettings.user
+G2_SC603_KN_Proyecto/wwwroot/img/wods/
+G2_SC603_KN_Proyecto/wwwroot/img/sinpe/
+G2_SC603_KN_Proyecto/wwwroot/img/comprobantes/
 
 ## ----------------------------------------------------------------------------
 ## Resultados de build (.NET) — la causa más común de repos "sucios"
@@ -104,3 +107,4 @@ secrets.json
 ## ----------------------------------------------------------------------------
 node_modules/
 npm-debug.log*
+/G2_SC603_KN_Proyecto/wwwroot/img/wods/ee9f281dce294d018a0084995a580ebb.jpeg

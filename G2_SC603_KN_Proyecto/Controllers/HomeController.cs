@@ -72,7 +72,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                         }
 
                         HttpContext.Session.SetString("Usuario", user.Username);
-                        HttpContext.Session.SetString("Rol", user.Rol);
+                        HttpContext.Session.SetString("Rol", user.Rol.ToUpper());
                         HttpContext.Session.SetInt32("ID", user.IdUsuario);
 
                         return RedirectToAction("Home", "Home");

@@ -16,6 +16,9 @@ public class ReservasViewModel
 
     /// <summary>Admin: historial completo de confirmaciones (con filtro de estado).</summary>
     public List<ConfirmacionWodVM> TodasConfirmaciones { get; set; } = new();
+
+    /// <summary>Admin: vista tipo calendario, un bloque por día (hoy + próximos 6 días).</summary>
+    public List<ConfirmadosDiaVM> Calendario { get; set; } = new();
 }
 
 public class ConfirmacionWodVM

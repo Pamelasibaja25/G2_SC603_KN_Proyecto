@@ -463,6 +463,10 @@ public partial class DbOrionFitContext : DbContext
             entity.Property(e => e.ComprobantePago)
                 .HasMaxLength(255)
                 .HasColumnName("comprobante_pago");
+            entity.Property(e => e.EstadoVerificacion)
+                .HasMaxLength(20)
+                .HasDefaultValue("Verificado")
+                .HasColumnName("estado_verificacion");
 
             entity.HasOne(d => d.IdClienteMembresiaNavigation).WithMany(p => p.Pagos)
                 .HasForeignKey(d => d.IdClienteMembresia)

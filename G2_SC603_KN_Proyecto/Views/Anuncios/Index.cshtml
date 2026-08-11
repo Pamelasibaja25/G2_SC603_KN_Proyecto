@@ -10,7 +10,7 @@
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-3xl font-bold">Anuncios</h2>
 
-        @if (rolActual == "ADMIN" || rolActual == "TRAINER")
+        @if (rolActual.Contains("ADMIN") || rolActual.Contains("TRAINER"))
         {
             <button class="btn-primary"
                     onclick="openModal('anuncioModal')">
@@ -55,7 +55,7 @@
         </table>
     </div>
 
-</div>@if (rolActual == "ADMIN" || rolActual == "TRAINER")
+</div>@if (rolActual.Contains("ADMIN") || rolActual.Contains("TRAINER"))
 {
     <div class="modal-overlay" id="anuncioModal">
 

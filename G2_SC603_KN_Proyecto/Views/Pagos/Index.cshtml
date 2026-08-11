@@ -15,7 +15,7 @@
             </h2>
         </div>
 
-        @if (rolActual == "ADMIN" || rolActual == "RECEPTION")
+        @if (rolActual.Contains("ADMIN") || rolActual.Contains("RECEPTION"))
         {
             <button class="btn-primary py-2.5 text-sm"
                     onclick="openModal('paymentModal')">
@@ -37,6 +37,8 @@
                         <th>Método</th>
                         <th>Descripción</th>
                         <th>Comprobante</th>
+                        <th>Estado</th>
+                        <th></th>
                     </tr>
                 </thead>
 
@@ -74,13 +76,46 @@
                                         <a href="~/@pago.ComprobantePago" target="_blank" class="btn-secondary text-xs py-1 px-2">Ver</a>
                                     }
                                 </td>
+
+                                <td>
+                                    @if (pago.EstadoVerificacion == "Verificado")
+                                    {
+                                        <span class="text-[#4ade80] text-xs font-semibold">✓ Verificado</span>
+                                    }
+                                    else if (pago.EstadoVerificacion == "Rechazado")
+                                    {
+                                        <span class="text-[#ffb4ab] text-xs font-semibold">✕ Rechazado</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-[#eab308] text-xs font-semibold">Pendiente</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (pago.EstadoVerificacion == "Pendiente")
+                                    {
+                                        <div class="flex gap-1">
+                                            <form asp-action="VerificarPago" method="post">
+                                                <input type="hidden" name="idPago" value="@pago.IdPago" />
+                                                <input type="hidden" name="aprobado" value="true" />
+                                                <button type="submit" class="btn-filled text-xs py-1.5 px-3">Verificar</button>
+                                            </form>
+                                            <form asp-action="VerificarPago" method="post">
+                                                <input type="hidden" name="idPago" value="@pago.IdPago" />
+                                                <input type="hidden" name="aprobado" value="false" />
+                                                <button type="submit" class="btn-outlined text-xs py-1.5 px-3">Rechazar</button>
+                                            </form>
+                                        </div>
+                                    }
+                                </td>
                             </tr>
                         }
                     }
                     else
                     {
                         <tr>
-                            <td colspan="6" class="text-center">
+                            <td colspan="8" class="text-center">
                                 No hay pagos registrados
                             </td>
                         </tr>
@@ -93,7 +128,7 @@
     <br />
 
     <!-- SOLO ADMIN Y RECEPTION -->
-    @if (rolActual == "ADMIN" || rolActual == "RECEPTION")
+    @if (rolActual.Contains("ADMIN") || rolActual.Contains("RECEPTION"))
     {
         <h3 class="font-headline text-2xl font-bold mb-4 mt-8">
             Datos de SINPE
@@ -159,7 +194,7 @@
 </div>
 
 <!-- MODAL SOLO ADMIN Y RECEPTION -->
-@if (rolActual == "ADMIN" || rolActual == "RECEPTION")
+@if (rolActual.Contains("ADMIN") || rolActual.Contains("RECEPTION"))
 {
     <div class="modal-overlay" id="paymentModal">
         <div class="modal-box">

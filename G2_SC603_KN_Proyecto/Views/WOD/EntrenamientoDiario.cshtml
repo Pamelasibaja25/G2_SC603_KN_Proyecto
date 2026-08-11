@@ -42,7 +42,7 @@
                 <div class="bg-surface-container rounded-2xl p-5 shadow-[0_8px_24px_rgba(0,0,0,0.4)]">
                     @if (!string.IsNullOrEmpty(item.Imagen))
                     {
-                        <img src="~/@item.Imagen" alt="@item.Nombre" class="w-full rounded-xl mb-3" style="max-height:420px; object-fit:contain; object-position:center; background:#111;" />
+                        <img src="~/@item.Imagen" alt="@item.Nombre" class="w-full rounded-xl mb-3" style="max-height:520px; width:100%; height:auto; display:block; object-fit:contain; margin:0 auto;" />
                     }
                     <div class="flex items-start justify-between mb-2">
                         <h3 class="font-headline font-bold text-base">@item.Nombre</h3>
@@ -62,7 +62,7 @@
                             <span class="material-symbols-outlined text-[14px] align-middle">person</span>
                             Coach: @item.NombreEntrenador
                         </span>
-                        @if ((rolActual == "ADMIN" || rolActual == "TRAINER") && item.NombreCliente != null)
+                        @if ((rolActual.Contains("ADMIN") || rolActual.Contains("TRAINER")) && item.NombreCliente != null)
                         {
                             <span class="text-xs text-outline">
                                 <span class="material-symbols-outlined text-[14px] align-middle">groups</span>

@@ -2,6 +2,24 @@
 @{
     Layout = "_Layout";
 }
+@functions {
+    // Convierte "ADMIN,TRAINER" en "Administrador, Entrenador"
+    string TraducirRoles(string? rolesCsv)
+    {
+        if (string.IsNullOrWhiteSpace(rolesCsv)) return "";
+
+        var etiquetas = new Dictionary<string, string>
+        {
+            { "ADMIN", "Administrador" },
+            { "USER", "Cliente" },
+            { "TRAINER", "Entrenador" },
+            { "RECEPTION", "Recepcionista" }
+        };
+
+        return string.Join(", ", rolesCsv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(r => etiquetas.TryGetValue(r.Trim().ToUpper(), out var texto) ? texto : r));
+    }
+}
 @if (TempData["SuccessMessage"] != null)
 {
     <div class="toast show" style="background:#201f1f; color:#4ade80;">
@@ -22,7 +40,6 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
             <h2 class="font-headline text-3xl font-bold tracking-tight">Gestión de Usuarios</h2>
-            <p class="text-on-surface-variant text-xs mt-1">RMGM-01-001 al RMGM-01-014</p>
         </div>
         <div class="flex gap-3 items-center">
             <div class="relative flex-[2]">
@@ -64,7 +81,7 @@
                         {
                             <tr>
                                 <td>@cliente.Username</td>
-                                <td>@cliente.Rol</td>
+                                <td>@TraducirRoles(cliente.Rol)</td>
                                 <td>@cliente.Nombre</td>
                                 <td>@cliente.Correo</td>
                                 <td class="flex gap-3 items-center">
@@ -105,12 +122,19 @@
             <input type="hidden" id="clientId" />
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
-                    <label class="label-float">Rol</label>
-                    <select class="input-field" id="clientStatusFilter" name="Rol" required>
-                        <option value="ADMIN">Administrador</option>
-                        <option value="TRAINER">Entrenador</option>
-                        <option value="RECEPTION">Recepcionista</option>
-                    </select>
+                    <label class="label-float">Rol(es) *</label>
+                    <div class="flex flex-wrap gap-4 bg-surface-container-high rounded-xl px-4 py-3">
+                        <label class="flex items-center gap-2 text-sm">
+                            <input type="checkbox" name="roles" value="ADMIN" /> Administrador
+                        </label>
+                        <label class="flex items-center gap-2 text-sm">
+                            <input type="checkbox" name="roles" value="TRAINER" /> Entrenador
+                        </label>
+                        <label class="flex items-center gap-2 text-sm">
+                            <input type="checkbox" name="roles" value="RECEPTION" /> Recepcionista
+                        </label>
+                    </div>
+                    <p class="text-outline text-[11px] mt-1">Una persona puede tener más de un rol (ej: Administrador y Entrenador a la vez).</p>
                     <label class="label-float">Nombre Completo *</label>
                     <input type="text" name="Nombre" class="input-field" placeholder="Ej: María González Solís" required />
                 </div>
@@ -172,13 +196,21 @@
                 </div>
 
                 <div class="col-span-2">
-                    <label class="label-float">Rol</label>
-                    <select class="input-field" id="editRol" name="Rol" required>
-                        <option value="ADMIN">Administrador</option>
-                        <option value="USER">Cliente</option>
-                        <option value="TRAINER">Entrenador</option>
-                        <option value="RECEPTION">Recepcionista</option>
-                    </select>
+                    <label class="label-float">Rol(es) *</label>
+                    <div class="flex flex-wrap gap-4 bg-surface-container-high rounded-xl px-4 py-3" id="editRolesGroup">
+                        <label class="flex items-center gap-2 text-sm">
+                            <input type="checkbox" name="roles" value="ADMIN" class="edit-rol-checkbox" /> Administrador
+                        </label>
+                        <label class="flex items-center gap-2 text-sm">
+                            <input type="checkbox" name="roles" value="USER" class="edit-rol-checkbox" /> Cliente
+                        </label>
+                        <label class="flex items-center gap-2 text-sm">
+                            <input type="checkbox" name="roles" value="TRAINER" class="edit-rol-checkbox" /> Entrenador
+                        </label>
+                        <label class="flex items-center gap-2 text-sm">
+                            <input type="checkbox" name="roles" value="RECEPTION" class="edit-rol-checkbox" /> Recepcionista
+                        </label>
+                    </div>
                 </div>
             </div>
 

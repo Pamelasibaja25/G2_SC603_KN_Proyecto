@@ -29,7 +29,7 @@
             <a asp-controller="WOD" asp-action="EntrenamientoDiario" class="btn-secondary py-2.5 text-sm">
                 <span class="material-symbols-outlined text-[18px]">event_upcoming</span> WOD de Mañana
             </a>
-            @if (rolActual == "ADMIN" || rolActual == "TRAINER")
+            @if (rolActual.Contains("ADMIN") || rolActual.Contains("TRAINER"))
             {
                 <button class="btn-primary py-2.5 text-sm" onclick="openWODModal()">
                     <span class="material-symbols-outlined text-[18px]">add</span> Publicar WOD
@@ -54,10 +54,10 @@
                 var primeraFila = grupo.First();
                 <div class="bg-surface-container rounded-2xl p-5 shadow-[0_8px_24px_rgba(0,0,0,0.4)]">
 
-                    <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-start justify-between mb-1">
                         <h3 class="font-headline font-bold text-base">@primeraFila.Nombre</h3>
                             <div class="flex gap-1">
-                                @if (rolActual == "ADMIN" || rolActual == "TRAINER")
+                                @if (rolActual.Contains("ADMIN") || rolActual.Contains("TRAINER"))
                                 {
                                     <a asp-controller="WOD" asp-action="EditarWOD"
                                        asp-route-id="@primeraFila.IdRutina"
@@ -65,7 +65,7 @@
                                         <span class="material-symbols-outlined text-[18px]">edit</span>
                                     </a>
                                 }
-                                @if (rolActual == "ADMIN")
+                                @if (rolActual.Contains("ADMIN"))
                                 {
                                     <button class="btn-icon" title="Eliminar WOD"
                                             onclick="confirmarEliminar(@primeraFila.IdRutina, '@primeraFila.Nombre.Replace("'", "\\'")')">
@@ -75,10 +75,21 @@
                             </div>
                     </div>
 
+                    @{
+                        var fechasPorRutina = ViewBag.FechasPorRutina as Dictionary<int, DateOnly>;
+                    }
+                    @if (fechasPorRutina != null && fechasPorRutina.TryGetValue(primeraFila.IdRutina, out var fechaWod))
+                    {
+                        <p class="text-on-surface-variant text-xs mb-3 capitalize">
+                            @fechaWod.ToString("dddd dd 'de' MMMM", new System.Globalization.CultureInfo("es-ES"))
+                        </p>
+                    }
+
+
                     @if (!string.IsNullOrEmpty(primeraFila.Imagen))
                     {
                         <img src="~/@primeraFila.Imagen" alt="@primeraFila.Nombre"
-                             class="w-full rounded-xl" style="max-height:520px; object-fit:contain; object-position:center; background:#111;" />
+                             class="w-full rounded-xl" style="max-height:600px; width:100%; height:auto; display:block; object-fit:contain; margin:0 auto;" />
                     }
                     else
                     {
@@ -105,7 +116,7 @@
             </button>
         </div>
 
-        <form asp-action="AgregarWOD" method="post" enctype="multipart/form-data" id="wodForm" class="space-y-4" onsubmit="prepareWodSubmit(event)">
+        <form asp-action="AgregarWOD" method="post" enctype="multipart/form-data" id="wodForm" class="space-y-4">
 
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2">
@@ -119,27 +130,15 @@
                               placeholder="Instrucciones, tips, observaciones..."></textarea>
                 </div>
                 <div class="col-span-2">
-                    <label class="label-float">Imagen del entrenamiento (opcional)</label>
+                    <label class="label-float">Imagen del entrenamiento *</label>
                     <input type="file" name="imagen" id="wodImagen" class="input-field"
-                           accept=".jpg,.jpeg,.png,.webp" />
+                           accept=".jpg,.jpeg,.png,.webp" required />
+                    <p class="text-outline text-[11px] mt-1">Los clientes ven únicamente esta imagen, no hace falta cargar ejercicios por separado.</p>
                 </div>
             </div>
 
-            <!-- Hidden field que se llena con JSON antes de enviar -->
-            <input type="hidden" name="ejerciciosJson" id="ejerciciosJson" />
-
-            <div>
-                <div class="flex items-center justify-between mb-3">
-                    <label class="label-float mb-0">Ejercicios *</label>
-                    <button type="button"
-                            class="text-primary-container text-xs font-semibold flex items-center gap-1 hover:text-primary transition-colors"
-                            onclick="agregarFilaEjercicio()">
-                        <span class="material-symbols-outlined text-[16px]">add</span> Agregar ejercicio
-                    </button>
-                </div>
-                <div id="exerciseList" class="space-y-2"></div>
-                <p id="errorEjercicios" class="text-error text-xs mt-1 hidden">Debe agregar al menos un ejercicio.</p>
-            </div>
+            <!-- El WOD se comunica únicamente con la imagen: la dueña indicó
+                 que los clientes ya reconocen la rutina por la foto publicada. -->
 
             <div class="flex gap-3 pt-2 justify-end">
                 <button type="button" class="btn-secondary" onclick="closeModal('wodModal')">Cancelar</button>
@@ -155,106 +154,11 @@
 </div>
 
 <script>
-    // Lista de ejercicios disponibles desde el servidor
-    const ejerciciosDisponibles = [
-        @foreach (var ej in Model ?? Enumerable.Empty<G2_SC603_KN_Proyecto.Models.EjercicioResumen>())
-        {
-                    @Html.Raw("{ id: " + ej.IdEjercicio + ", nombre: '" + ej.Nombre.Replace("'", "\\'") + "' },")
-        }
-    ];
-
     // ---- ABRIR MODAL WOD ----
     function openWODModal() {
-        document.getElementById('exerciseList').innerHTML = '';
         document.getElementById('wodNombre').value = '';
         document.getElementById('wodObjetivo').value = '';
-        document.getElementById('errorEjercicios').classList.add('hidden');
-        agregarFilaEjercicio();
         document.getElementById('wodModal').classList.add('active');
-    }
-
-    // ---- AGREGAR FILA DE EJERCICIO ----
-    function agregarFilaEjercicio() {
-        const lista = document.getElementById('exerciseList');
-        const indice = lista.children.length;
-
-        const fila = document.createElement('div');
-        fila.className = 'grid grid-cols-12 gap-2 items-center';
-        fila.dataset.index = indice;
-
-        // Construir opciones del select
-        let opcionesHtml = '<option value="">Seleccionar...</option>';
-        ejerciciosDisponibles.forEach(function (ej) {
-            opcionesHtml += '<option value="' + ej.id + '">' + ej.nombre + '</option>';
-        });
-
-        fila.innerHTML =
-            '<div class="col-span-5">' +
-                '<select class="input-field text-sm ej-id" required>' + opcionesHtml + '</select>' +
-            '</div>' +
-            '<div class="col-span-2">' +
-                '<input type="number" class="input-field text-sm ej-series" placeholder="Series" min="1" required />' +
-            '</div>' +
-            '<div class="col-span-2">' +
-                '<input type="number" class="input-field text-sm ej-reps" placeholder="Reps" min="1" required />' +
-            '</div>' +
-            '<div class="col-span-2">' +
-                '<input type="number" class="input-field text-sm ej-descanso" placeholder="Desc(s)" min="0" />' +
-            '</div>' +
-            '<div class="col-span-1 flex justify-center">' +
-                '<button type="button" class="btn-icon" onclick="eliminarFila(this)">' +
-                    '<span class="material-symbols-outlined text-[18px] text-error">delete</span>' +
-                '</button>' +
-            '</div>';
-
-        lista.appendChild(fila);
-    }
-
-    // ---- ELIMINAR FILA DE EJERCICIO ----
-    function eliminarFila(btn) {
-        btn.closest('div[data-index]').remove();
-    }
-
-    // ---- PREPARAR JSON Y VALIDAR ANTES DE ENVIAR ----
-    function prepareWodSubmit(evento) {
-        const filas = document.querySelectorAll('#exerciseList div[data-index]');
-
-        if (filas.length === 0) {
-            evento.preventDefault();
-            document.getElementById('errorEjercicios').classList.remove('hidden');
-            return;
-        }
-
-        const ejercicios = [];
-        let valido = true;
-
-        filas.forEach(function (fila) {
-            const idEjercicio  = parseInt(fila.querySelector('.ej-id').value);
-            const series       = parseInt(fila.querySelector('.ej-series').value);
-            const repeticiones = parseInt(fila.querySelector('.ej-reps').value);
-            const descanso     = parseInt(fila.querySelector('.ej-descanso').value) || 0;
-
-            if (!idEjercicio || !series || !repeticiones) {
-                valido = false;
-                return;
-            }
-
-            ejercicios.push({
-                IdEjercicio:  idEjercicio,
-                Series:       series,
-                Repeticiones: repeticiones,
-                Descanso:     descanso
-            });
-        });
-
-        if (!valido || ejercicios.length === 0) {
-            evento.preventDefault();
-            document.getElementById('errorEjercicios').classList.remove('hidden');
-            return;
-        }
-
-        document.getElementById('errorEjercicios').classList.add('hidden');
-        document.getElementById('ejerciciosJson').value = JSON.stringify(ejercicios);
     }
 
     // ---- CERRAR MODAL ----

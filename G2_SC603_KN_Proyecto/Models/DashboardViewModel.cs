@@ -38,6 +38,15 @@ public class ConfirmadosDiaVM
     public DateOnly Fecha { get; set; }
     public string NombreWod { get; set; } = "";
     public int Confirmados { get; set; }
+    public List<ClienteConfirmadoVM> Clientes { get; set; } = new();
+}
+
+public class ClienteConfirmadoVM
+{
+    public string Nombre { get; set; } = "";
+
+    /// <summary>Solo aplica al día de hoy: si ya hizo check-in físico.</summary>
+    public bool YaIngreso { get; set; }
 }
 
 public class VencimientoVM

@@ -1,6 +1,6 @@
 ﻿@inject G2_SC603_KN_Proyecto.Models.DbOrionFitContext _context
 @{
-    var rol = Context.Session.GetString("Rol");
+    var rol = Context.Session.GetString("Rol") ?? string.Empty;
     var Usuario = Context.Session.GetString("Usuario");
 
     // Badge de notificaciones: solo aplica a clientes, que son los únicos
@@ -23,6 +23,15 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Orion Fit Studio — Sistema de Gestión</title>
+    <script>
+        // Aplicar el tema guardado ANTES de pintar la página, para que no
+        // se vea un flash del tema incorrecto al cargar.
+        (function () {
+            if (localStorage.getItem('orionfit-theme') === 'light') {
+                document.documentElement.classList.add('light-theme');
+            }
+        })();
+    </script>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
@@ -46,7 +55,7 @@
 
             <div class="flex-1 overflow-y-auto space-y-0.5 px-3">
 
-                @if (rol == "ADMIN")
+                @if (rol.Contains("ADMIN"))
                 {
                     <a asp-controller="Dashboard" asp-action="Dashboard" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
                         <span class="material-symbols-outlined text-[22px]">dashboard</span> Dashboard
@@ -107,7 +116,7 @@
                     </a>
                 }
 
-                else if (rol == "TRAINER")
+                else if (rol.Contains("TRAINER"))
                 {
                     <a asp-controller="WOD" asp-action="MostrarWOD" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
                         <span class="material-symbols-outlined text-[22px]">fitness_center</span> WOD
@@ -117,7 +126,7 @@
                     </a>
                 }
 
-                else if (rol == "RECEPTION")
+                else if (rol.Contains("RECEPTION"))
                 {
                     <a asp-controller="Clientes" asp-action="MostrarClientes" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl font-headline text-xs font-semibold uppercase tracking-wider">
                         <span class="material-symbols-outlined text-[22px]">group</span> Clientes
@@ -161,7 +170,11 @@
                 </div>
 
                 <div class="flex items-center gap-3">
-                    @if (rol != "ADMIN")
+                    <button type="button" onclick="toggleTheme()" class="btn-icon theme-toggle-btn" title="Cambiar a modo claro/oscuro">
+                        <span class="material-symbols-outlined text-[22px]" id="themeToggleIcon">dark_mode</span>
+                    </button>
+
+                    @if (!rol.Contains("ADMIN"))
                     {
                         <a asp-controller="Notificaciones" asp-action="Index" class="relative btn-icon">
                             <span class="material-symbols-outlined text-[22px]">notifications</span>
@@ -175,8 +188,8 @@
                     }
 
                     @{
-                        string avatarDestinoControlador = rol == "ADMIN" ? "Dashboard" : "Home";
-                        string avatarDestinoAccion = rol == "ADMIN" ? "Dashboard" : "Home";
+                        string avatarDestinoControlador = rol.Contains("ADMIN") ? "Dashboard" : "Home";
+                        string avatarDestinoAccion = rol.Contains("ADMIN") ? "Dashboard" : "Home";
                     }
                     <a asp-controller="@avatarDestinoControlador" asp-action="@avatarDestinoAccion" class="flex items-center gap-2 cursor-pointer">
                         <div class="w-8 h-8 rounded-full bg-primary-container/30 flex items-center justify-center text-primary-container font-headline font-bold text-xs"></div>

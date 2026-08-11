@@ -40,13 +40,29 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             ViewBag.Wods = wods;
 
+            // Para el cliente: en qué día le corresponde cada WOD, para
+            // mostrarlo junto a la imagen y que sepa cuándo lo va a hacer.
+            string usernameActual = HttpContext.Session.GetString("Usuario") ?? string.Empty;
+            Cliente? clienteActual = await _context.Clientes
+                .Include(c => c.IdUsuarioNavigation)
+                .FirstOrDefaultAsync(c => c.IdUsuarioNavigation.Username == usernameActual);
+
+            if (clienteActual != null)
+            {
+                ViewBag.FechasPorRutina = await _context.ClienteRutinas
+                    .Where(cr => cr.IdCliente == clienteActual.IdCliente)
+                    .GroupBy(cr => cr.IdRutina)
+                    .Select(g => new { IdRutina = g.Key, Fecha = g.Max(cr => cr.FechaAsignacion) })
+                    .ToDictionaryAsync(x => x.IdRutina, x => x.Fecha);
+            }
+
             return View(ejercicios);
         }
         #endregion
 
         #region Agregar WOD
         [HttpPost]
-        public async Task<IActionResult> AgregarWOD(string nombre, string objetivo, string ejerciciosJson, IFormFile? imagen)
+        public async Task<IActionResult> AgregarWOD(string nombre, string objetivo, IFormFile? imagen)
         {
             try
             {
@@ -56,9 +72,9 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     return RedirectToAction("MostrarWOD");
                 }
 
-                if (string.IsNullOrWhiteSpace(ejerciciosJson) || ejerciciosJson == "[]")
+                if (imagen == null || imagen.Length == 0)
                 {
-                    TempData["ErrorMessage"] = "Debe agregar al menos un ejercicio al WOD.";
+                    TempData["ErrorMessage"] = "Debe adjuntar la imagen del entrenamiento (es la única información que ve el cliente).";
                     return RedirectToAction("MostrarWOD");
                 }
 
@@ -84,7 +100,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     nombre,
                     objetivo ?? string.Empty,
                     rutaImagen,
-                    ejerciciosJson
+                    "[]"
                 );
 
                 // El WOD recién creado es el de mayor Id (sp_AgregarWOD no retorna el Id).
@@ -233,8 +249,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
         [HttpGet]
         public async Task<IActionResult> EditarWOD(int id)
         {
-            var rol = HttpContext.Session.GetString("Rol");
-            if (rol != "ADMIN" && rol != "TRAINER")
+            var rol = HttpContext.Session.GetString("Rol") ?? string.Empty;
+            if (!rol.Contains("ADMIN") && !rol.Contains("TRAINER"))
                 return RedirectToAction("MostrarWOD");
 
             var rutina = await _context.Rutinas.FindAsync(id);
@@ -263,8 +279,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
         public async Task<IActionResult> EditarWOD(int idRutina, string nombre,
             string objetivo, string ejerciciosJson)
         {
-            var rol = HttpContext.Session.GetString("Rol");
-            if (rol != "ADMIN" && rol != "TRAINER")
+            var rol = HttpContext.Session.GetString("Rol") ?? string.Empty;
+            if (!rol.Contains("ADMIN") && !rol.Contains("TRAINER"))
                 return RedirectToAction("MostrarWOD");
 
             //  Validar datos

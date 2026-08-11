@@ -1,4 +1,4 @@
-using G2_SC603_KN_Proyecto.Models;
+﻿using G2_SC603_KN_Proyecto.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,7 +26,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 .FirstOrDefaultAsync(c => c.IdUsuario == idUsuario);
 
             ReservasViewModel model = new ReservasViewModel();
-            model.EsAdmin = rol == "ADMIN" || rol == "RECEPTION";
+            model.EsAdmin = rol.Contains("ADMIN") || rol.Contains("RECEPTION");
             model.EsCliente = cliente != null;
 
             DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
@@ -100,6 +100,40 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     .ToListAsync();
 
                 ViewBag.FiltroEstado = filtroEstado ?? "Todas";
+
+                // Vista calendario: hoy + próximos 6 días, cada uno con sus
+                // confirmados (aunque no tenga ninguno, se muestra el día).
+                DateOnly finVentana = hoy.AddDays(6);
+                var confirmadosVentana = await _context.ClienteRutinas
+                    .Include(cr => cr.IdRutinaNavigation)
+                    .Include(cr => cr.IdClienteNavigation)
+                    .Where(cr => cr.FechaAsignacion >= hoy && cr.FechaAsignacion <= finVentana
+                        && cr.EstadoAsistencia == "ACEPTADO")
+                    .ToListAsync();
+
+                model.Calendario = Enumerable.Range(0, 7)
+                    .Select(i =>
+                    {
+                        DateOnly fecha = hoy.AddDays(i);
+                        var delDia = confirmadosVentana.Where(cr => cr.FechaAsignacion == fecha).ToList();
+
+                        return new ConfirmadosDiaVM
+                        {
+                            Fecha = fecha,
+                            NombreWod = delDia.Select(cr => cr.IdRutinaNavigation.Nombre).FirstOrDefault() ?? "",
+                            Confirmados = delDia.Count,
+                            Clientes = delDia
+                                .Select(cr => new ClienteConfirmadoVM
+                                {
+                                    Nombre = cr.IdClienteNavigation.Nombre,
+                                    YaIngreso = fecha == hoy && _context.Asistencia.Any(a =>
+                                        a.IdCliente == cr.IdCliente && a.Fecha == hoy)
+                                })
+                                .OrderBy(c => c.Nombre)
+                                .ToList()
+                        };
+                    })
+                    .ToList();
             }
 
             return View(model);
@@ -110,7 +144,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         public async Task<IActionResult> RegistrarAsistencia(int idClienteRutina)
         {
             string rol = HttpContext.Session.GetString("Rol") ?? string.Empty;
-            if (rol != "ADMIN" && rol != "RECEPTION")
+            if (!rol.Contains("ADMIN") && !rol.Contains("RECEPTION"))
             {
                 TempData["ErrorMessage"] = "No tiene permisos para esta acción.";
                 return RedirectToAction("Index");

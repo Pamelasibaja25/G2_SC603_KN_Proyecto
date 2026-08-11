@@ -268,6 +268,80 @@ h1, h2, h3, h4, h5, h6, .font-headline {
         color: #e5e2e1;
     }
 
+/* Botón sólido para acciones positivas (ej: Aceptar asistencia) */
+.btn-filled {
+    background: linear-gradient(135deg, #22c55e, #15803d);
+    color: #ecfdf3;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+    .btn-filled:hover {
+        box-shadow: 0 0 20px rgba(34,197,94,0.4);
+        transform: translateY(-1px);
+    }
+
+/* Botón con borde para acciones secundarias/de rechazo (ej: No asistir) */
+.btn-outlined {
+    background: transparent;
+    color: #f87171;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    border: 1px solid rgba(248,113,113,0.4);
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+    .btn-outlined:hover {
+        background: rgba(248,113,113,0.08);
+    }
+
+.light-theme .btn-filled {
+    color: #ffffff;
+}
+
+.light-theme .btn-outlined {
+    color: #dc2626;
+    border-color: rgba(220,38,38,0.35);
+}
+
+/* Tarjetas de estado (mensualidad activa/inactiva, etc.) legibles en
+   ambos temas — reemplazan las clases de Tailwind con opacidad que se
+   veían ilegibles en modo claro. */
+.status-card-success {
+    background: rgba(34,197,94,0.12);
+    border: 1px solid rgba(34,197,94,0.4);
+    color: #16a34a;
+}
+
+.status-card-error {
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.4);
+    color: #dc2626;
+}
+
+.light-theme .status-card-success,
+.light-theme .status-card-error {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
 .btn-danger {
     background: rgba(147,0,10,0.3);
     color: #ffb4ab;
@@ -617,4 +691,135 @@ select.input-field {
     background-position: right 0.75rem center;
     background-size: 1.25rem;
     padding-right: 2.5rem;
+}
+
+/* Los inputs de fecha nativos usan por defecto texto/icono oscuros,
+   que casi no se ven sobre nuestro fondo oscuro. color-scheme le indica
+   al navegador que dibuje el widget nativo (texto, ícono de calendario)
+   en versión clara sobre fondo oscuro. */
+input[type="date"] {
+    color-scheme: dark;
+}
+
+/* =====================================================================
+   MODO CLARO
+   Se activa agregando la clase "light-theme" al <html> (botón en el
+   header). Sobreescribe los tokens de color más usados en toda la app;
+   cubre sidebar, header, cards, texto, bordes, inputs, modales y botones.
+   ===================================================================== */
+.light-theme {
+    color-scheme: light;
+}
+
+.light-theme body {
+    background-color: #f7f3ec;
+    color: #2b2621;
+}
+
+.light-theme .bg-surface,
+.light-theme .bg-background,
+.light-theme .bg-surface-dim {
+    background-color: #f7f3ec !important;
+}
+
+.light-theme .bg-surface-container-low,
+.light-theme .bg-surface-container,
+.light-theme .bg-surface-container-high,
+.light-theme .bg-surface-container-highest,
+.light-theme .bg-surface-container-lowest,
+.light-theme .bg-surface-bright,
+.light-theme .bg-surface-variant {
+    background-color: #fdfaf5 !important;
+    box-shadow: 0 1px 3px rgba(43,38,33,0.06);
+}
+
+.light-theme .bg-surface-container-high,
+.light-theme .bg-surface-container-highest {
+    background-color: #f1e9dc !important;
+}
+
+.light-theme .text-on-surface,
+.light-theme .text-on-background,
+.light-theme .text-inverse-surface {
+    color: #2b2621 !important;
+}
+
+.light-theme .text-on-surface-variant,
+.light-theme .text-outline {
+    color: #6b6255 !important;
+}
+
+.light-theme .border-outline-variant,
+.light-theme .divide-outline-variant {
+    border-color: rgba(43,38,33,0.12) !important;
+}
+
+.light-theme .glass-panel {
+    background: rgba(253,250,245,0.8);
+}
+
+.light-theme .modal-overlay {
+    background: rgba(43,38,33,0.4);
+}
+
+.light-theme .modal-box {
+    background: #fdfaf5;
+    border: 1px solid rgba(43,38,33,0.1);
+    color: #2b2621;
+    box-shadow: 0 30px 60px rgba(43,38,33,0.18);
+}
+
+.light-theme .input-field,
+.light-theme .input-field:read-only,
+.light-theme .input-field:disabled {
+    background: #f1e9dc;
+    border: 1px solid rgba(43,38,33,0.15);
+    color: #2b2621 !important;
+}
+
+.light-theme .input-field::placeholder {
+    color: #9a8f7d;
+}
+
+.light-theme input[type="date"] {
+    color-scheme: light;
+}
+
+.light-theme .input-field option {
+    background: #fdfaf5;
+    color: #2b2621;
+}
+
+.light-theme .btn-secondary {
+    background: #f1e9dc;
+    color: #2b2621;
+    border-color: rgba(43,38,33,0.15);
+}
+
+.light-theme .nav-item {
+    color: #6b6255;
+}
+
+.light-theme .nav-item:hover,
+.light-theme .nav-item.active {
+    background: rgba(118,61,242,0.1);
+    color: #5f2aa2;
+}
+
+.light-theme .data-table th {
+    color: #6b6255;
+    border-color: rgba(43,38,33,0.1);
+}
+
+.light-theme .data-table td {
+    border-color: rgba(43,38,33,0.08);
+}
+
+.light-theme .toast {
+    box-shadow: 0 10px 30px rgba(43,38,33,0.18);
+}
+
+/* Botón toggle claro/oscuro en el header */
+.theme-toggle-btn .material-symbols-outlined {
+    transition: transform 0.3s ease;
 }

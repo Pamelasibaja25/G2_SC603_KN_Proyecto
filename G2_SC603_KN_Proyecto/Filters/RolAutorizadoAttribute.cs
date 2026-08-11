@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Linq;
 
 namespace G2_SC603_KN_Proyecto.Filters
 {
@@ -26,7 +27,11 @@ namespace G2_SC603_KN_Proyecto.Filters
         {
             string rolActual = context.HttpContext.Session.GetString("Rol") ?? string.Empty;
 
-            if (!_rolesPermitidos.Contains(rolActual))
+            // rolActual puede ser multi-rol ("ADMIN,TRAINER"): alcanza con que
+            // el usuario tenga AL MENOS UNO de los roles permitidos.
+            bool autorizado = _rolesPermitidos.Any(r => rolActual.Contains(r));
+
+            if (!autorizado)
             {
                 if (context.Controller is Controller controller)
                 {
