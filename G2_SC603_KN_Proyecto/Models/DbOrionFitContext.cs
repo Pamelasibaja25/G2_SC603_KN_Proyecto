@@ -593,6 +593,9 @@ public partial class DbOrionFitContext : DbContext
             entity.Property(e => e.Rol)
                 .HasMaxLength(30)
                 .HasColumnName("rol");
+            entity.Property(e => e.Activo)
+                .HasDefaultValue(true)
+                .HasColumnName("activo");
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .HasColumnName("username");

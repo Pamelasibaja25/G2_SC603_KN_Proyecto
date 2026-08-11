@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace G2_SC603_KN_Proyecto.Models;
 
@@ -13,4 +14,8 @@ public partial class UsuarioNombre
     public string? Telefono { get; set; } = null!;
 
     public string? Correo { get; set; } = null!;
+
+    // No viene del SP: se completa aparte en el controller.
+    [NotMapped]
+    public bool Activo { get; set; } = true;
 }

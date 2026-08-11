@@ -71,6 +71,7 @@
                         <th>Rol</th>
                         <th>Nombre</th>
                         <th>Correo</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -84,11 +85,36 @@
                                 <td>@TraducirRoles(cliente.Rol)</td>
                                 <td>@cliente.Nombre</td>
                                 <td>@cliente.Correo</td>
-                                <td class="flex gap-3 items-center">
+                                <td>
+                                    @if (cliente.Activo)
+                                    {
+                                        <span class="text-[#4ade80] text-xs font-semibold">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-[#ffb4ab] text-xs font-semibold">Desactivado</span>
+                                    }
+                                </td>
+                                <td class="flex gap-2 items-center">
                                     <a href="javascript:void(0)"
                                        onclick="openEditUserModal('@cliente.Username', '@cliente.Nombre', '@cliente.Correo', '@cliente.Rol', '@cliente.Telefono')"
-                                       class="btn-secondary">Editar</a>
+                                       class="btn-secondary text-xs py-1.5 px-3">Editar</a>
 
+                                    <form asp-action="ToggleActivoUsuario" method="post">
+                                        <input type="hidden" name="username" value="@cliente.Username" />
+                                        <button type="submit" class="btn-secondary text-xs py-1.5 px-3">
+                                            @(cliente.Activo ? "Desactivar" : "Activar")
+                                        </button>
+                                    </form>
+
+                                    @if (!cliente.Activo)
+                                    {
+                                        <form asp-action="EliminarUsuario" method="post"
+                                              onsubmit="return confirm('¿Eliminar definitivamente a @cliente.Username?');">
+                                            <input type="hidden" name="username" value="@cliente.Username" />
+                                            <button type="submit" class="btn-outlined text-xs py-1.5 px-3">Eliminar</button>
+                                        </form>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -96,7 +122,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="7" class="text-center text-outline">
+                            <td colspan="6" class="text-center text-outline">
                                 No hay datos disponibles
                             </td>
                         </tr>

@@ -1,4 +1,4 @@
-﻿@{
+@{
     Layout = "_Layout";
     var sinpe = ViewBag.Sinpe as G2_SC603_KN_Proyecto.Models.ConfiguracionSinpe;
     var membresia = ViewBag.MembresiaActual as G2_SC603_KN_Proyecto.Models.ClienteMembresium;
@@ -23,44 +23,55 @@
 }
 
 <div class="section-page active p-6 lg:p-8">
-    <h2 class="font-headline text-3xl font-bold tracking-tight mb-8">Pago por SINPE</h2>
+    <h2 class="font-headline text-3xl font-bold tracking-tight mb-8">Pago de Mensualidad</h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-surface-container rounded-2xl p-6">
-            <h3 class="font-headline font-bold text-base mb-4">Datos para transferir</h3>
-            @if (sinpe != null)
-            {
-                <img src="~/@sinpe.ImagenQr" alt="QR SINPE" class="w-full max-w-xs mx-auto rounded-xl" />
-            }
-            else
-            {
-                <p class="text-on-surface-variant text-sm">El gimnasio aún no configuró los datos de SINPE.</p>
-            }
+    @if (pagoPendiente != null)
+    {
+        <div class="status-card-error rounded-xl p-5 text-center max-w-md" style="border-color: rgba(234,179,8,0.4); background: rgba(234,179,8,0.12); color:#ca8a04;">
+            <span class="material-symbols-outlined text-4xl mb-2">hourglass_top</span>
+            <p class="font-semibold">
+                Tu pago de ₡@pagoPendiente.Monto.ToString("N2") (@pagoPendiente.MetodoPago) está siendo revisado.
+            </p>
+            <p class="text-sm opacity-80 mt-1">Te vamos a avisar apenas el equipo lo confirme. No hace falta que hagas nada más.</p>
+        </div>
+    }
+    else if (mensualidadAlDia)
+    {
+        <div class="status-card-success rounded-xl p-5 text-center max-w-md">
+            <span class="material-symbols-outlined text-4xl mb-2">verified</span>
+            <p class="font-semibold">No es necesario que pagues todavía.</p>
+            <p class="text-sm opacity-80 mt-1">
+                Tu acceso vence el @membresia!.FechaFin.ToString("dd/MM/yyyy"). Te vamos a avisar cuando esté por vencer.
+            </p>
+        </div>
+    }
+    else
+    {
+        <!-- Selector de método de pago -->
+        <div class="flex gap-2 mb-6">
+            <button type="button" id="tabSinpeBtn" onclick="mostrarMetodoPago('sinpe')" class="btn-primary text-sm">
+                <span class="material-symbols-outlined text-[16px]">qr_code_2</span> Pagar por SINPE
+            </button>
+            <button type="button" id="tabEfectivoBtn" onclick="mostrarMetodoPago('efectivo')" class="btn-secondary text-sm">
+                <span class="material-symbols-outlined text-[16px]">payments</span> Pagar en efectivo
+            </button>
         </div>
 
-        <div class="bg-surface-container rounded-2xl p-6">
-            @if (pagoPendiente != null)
-            {
-                <h3 class="font-headline font-bold text-base mb-4">Comprobante en revisión</h3>
-                <div class="status-card-error rounded-xl p-5 text-center" style="border-color: rgba(234,179,8,0.4); background: rgba(234,179,8,0.12); color:#ca8a04;">
-                    <span class="material-symbols-outlined text-4xl mb-2">hourglass_top</span>
-                    <p class="font-semibold">Tu comprobante de ₡@pagoPendiente.Monto.ToString("N2") está siendo revisado.</p>
-                    <p class="text-sm opacity-80 mt-1">Te vamos a avisar apenas el equipo lo confirme. No hace falta que envíes otro.</p>
-                </div>
-            }
-            else if (mensualidadAlDia)
-            {
-                <h3 class="font-headline font-bold text-base mb-4">Tu mensualidad está al día</h3>
-                <div class="status-card-success rounded-xl p-5 text-center">
-                    <span class="material-symbols-outlined text-4xl mb-2">verified</span>
-                    <p class="font-semibold">No es necesario que pagues todavía.</p>
-                    <p class="text-sm opacity-80 mt-1">
-                        Tu acceso vence el @membresia!.FechaFin.ToString("dd/MM/yyyy"). Te vamos a avisar cuando esté por vencer.
-                    </p>
-                </div>
-            }
-            else
-            {
+        <!-- Panel SINPE -->
+        <div id="panelSinpe" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-surface-container rounded-2xl p-6">
+                <h3 class="font-headline font-bold text-base mb-4">Datos para transferir</h3>
+                @if (sinpe != null)
+                {
+                    <img src="~/@sinpe.ImagenQr" alt="QR SINPE" class="w-full max-w-xs mx-auto rounded-xl" />
+                }
+                else
+                {
+                    <p class="text-on-surface-variant text-sm">El gimnasio aún no configuró los datos de SINPE.</p>
+                }
+            </div>
+
+            <div class="bg-surface-container rounded-2xl p-6">
                 <h3 class="font-headline font-bold text-base mb-4">Adjuntar comprobante</h3>
                 <form asp-action="SubirComprobante" method="post" enctype="multipart/form-data" class="space-y-4">
                     <input type="hidden" name="idClienteMembresia" value="@membresia?.IdClienteMembresia" />
@@ -77,7 +88,54 @@
                         <span class="material-symbols-outlined text-[16px]">upload</span> Enviar comprobante
                     </button>
                 </form>
-            }
+            </div>
         </div>
-    </div>
+
+        <!-- Panel Efectivo -->
+        <div id="panelEfectivo" class="hidden max-w-md">
+            <div class="bg-surface-container rounded-2xl p-6">
+                <h3 class="font-headline font-bold text-base mb-2">Pagar en efectivo</h3>
+                <p class="text-on-surface-variant text-sm mb-4">
+                    Vas a poder reservar y entrenar igual. Pagás en la recepción del gimnasio cuando llegues,
+                    y el equipo confirma el pago desde el sistema.
+                </p>
+                <p class="text-sm mb-4">
+                    Monto a pagar: <strong>₡@membresia?.IdMembresiaNavigation?.Precio.ToString("N2")</strong>
+                </p>
+                <form asp-action="PagarEnEfectivo" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="idClienteMembresia" value="@membresia?.IdClienteMembresia" />
+                    <button type="submit" class="btn-primary w-full">
+                        <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                        Voy a pagar en efectivo al llegar
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            function mostrarMetodoPago(metodo) {
+                const panelSinpe = document.getElementById('panelSinpe');
+                const panelEfectivo = document.getElementById('panelEfectivo');
+                const tabSinpe = document.getElementById('tabSinpeBtn');
+                const tabEfectivo = document.getElementById('tabEfectivoBtn');
+
+                if (metodo === 'sinpe') {
+                    panelSinpe.classList.remove('hidden');
+                    panelEfectivo.classList.add('hidden');
+                    tabSinpe.classList.remove('btn-secondary');
+                    tabSinpe.classList.add('btn-primary');
+                    tabEfectivo.classList.remove('btn-primary');
+                    tabEfectivo.classList.add('btn-secondary');
+                } else {
+                    panelSinpe.classList.add('hidden');
+                    panelEfectivo.classList.remove('hidden');
+                    tabEfectivo.classList.remove('btn-secondary');
+                    tabEfectivo.classList.add('btn-primary');
+                    tabSinpe.classList.remove('btn-primary');
+                    tabSinpe.classList.add('btn-secondary');
+                }
+            }
+        </script>
+    }
 </div>

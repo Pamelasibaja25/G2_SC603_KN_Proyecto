@@ -185,11 +185,13 @@
                 </div>
                 <div>
                     <label class="label-float">Estado</label>
-                    <select id="membershipStatus" name="Estado" class="input-field">
-                        <option value="Activa">Activa</option>
+                    <select id="membershipStatus" name="Estado" class="input-field" required>
+                        <option value="Pendiente" selected>Pendiente de pago</option>
+                        <option value="Activa">Activa (ya pagó / se le otorga acceso ahora)</option>
                         <option value="Vencida">Vencida</option>
                         <option value="Suspendida">Suspendida</option>
                     </select>
+                    <p class="text-outline text-[11px] mt-1">Si el cliente todavía no pagó, dejalo en "Pendiente de pago". Va a quedar Activa automáticamente cuando se verifique su pago.</p>
                 </div>
                 <div>
                     <label class="label-float">Fecha de Inicio *</label>
@@ -257,6 +259,7 @@
                 <div>
                     <label class="label-float">Estado</label>
                     <select id="editMembershipStatus" name="Estado" class="input-field">
+                        <option value="Pendiente">Pendiente de pago</option>
                         <option value="Activa">Activa</option>
                         <option value="Vencida">Vencida</option>
                         <option value="Suspendida">Suspendida</option>

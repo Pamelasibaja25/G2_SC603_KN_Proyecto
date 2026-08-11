@@ -121,7 +121,7 @@
                         @if (dia.Confirmados > 0)
                         {
                             <p class="text-primary-container text-[11px] font-semibold mb-2">@dia.Confirmados confirmado(s)</p>
-                            <ul class="space-y-1">
+                            <ul class="space-y-1 pr-1" style="max-height:140px; overflow-y:auto;">
                                 @foreach (var cliente in dia.Clientes)
                                 {
                                     <li class="text-xs flex items-center gap-1">

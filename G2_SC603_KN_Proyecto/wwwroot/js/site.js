@@ -153,12 +153,7 @@ function filterReportMembresia() {
 
 //===================== VISTA: REPORTE INDEX =====================
 function limpiarFiltros() {
-    //document.getElementById("reportStartDate").value = "";
-    //document.getElementById("reportEndDate").value = "";
-
-    //document.querySelectorAll("select").forEach(s => s.selectedIndex = 0);
     document.getElementById("filtroReporte").reset();
-
 }
 function filtrarReporte() {
 

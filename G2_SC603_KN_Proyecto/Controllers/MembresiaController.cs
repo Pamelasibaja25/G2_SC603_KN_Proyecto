@@ -25,9 +25,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             ViewBag.Clientes = listaclientes;
             ViewBag.Membresias = listamembresias;
-            // El negocio maneja una sola modalidad: la mensualidad (menor duración).
-            // Si existen planes viejos (trimestral, etc.) en la BD por datos históricos,
-            // no se muestran como opción nueva, solo se usa la mensual.
+            // El negocio maneja una sola modalidad (mensualidad); planes viejos por datos históricos no se ofrecen como opción nueva
             ViewBag.MembresiaUnica = listamembresias.OrderBy(m => m.DuracionDias).FirstOrDefault();
 
             return View(clientes);

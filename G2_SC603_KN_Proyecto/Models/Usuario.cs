@@ -13,6 +13,8 @@ public partial class Usuario
 
     public string Rol { get; set; } = null!;
 
+    public bool Activo { get; set; } = true;
+
     public virtual ICollection<Administrador> Administradors { get; set; } = new List<Administrador>();
 
     public virtual ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();

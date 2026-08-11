@@ -322,9 +322,7 @@ h1, h2, h3, h4, h5, h6, .font-headline {
     border-color: rgba(220,38,38,0.35);
 }
 
-/* Tarjetas de estado (mensualidad activa/inactiva, etc.) legibles en
-   ambos temas — reemplazan las clases de Tailwind con opacidad que se
-   veían ilegibles en modo claro. */
+/* Tarjetas de estado legibles en ambos temas (reemplazan clases de Tailwind con opacidad ilegibles en modo claro) */
 .status-card-success {
     background: rgba(34,197,94,0.12);
     border: 1px solid rgba(34,197,94,0.4);
@@ -693,10 +691,7 @@ select.input-field {
     padding-right: 2.5rem;
 }
 
-/* Los inputs de fecha nativos usan por defecto texto/icono oscuros,
-   que casi no se ven sobre nuestro fondo oscuro. color-scheme le indica
-   al navegador que dibuje el widget nativo (texto, ícono de calendario)
-   en versión clara sobre fondo oscuro. */
+/* color-scheme fuerza el widget nativo del input date a versión clara sobre fondo oscuro */
 input[type="date"] {
     color-scheme: dark;
 }

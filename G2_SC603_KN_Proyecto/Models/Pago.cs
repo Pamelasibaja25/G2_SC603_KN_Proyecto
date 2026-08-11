@@ -19,9 +19,7 @@ public partial class Pago
 
     public string? ComprobantePago { get; set; }
 
-    /// <summary>Pendiente, Verificado o Rechazado. Los pagos registrados
-    /// directamente por el admin nacen Verificados; los que sube el
-    /// cliente por SINPE nacen Pendientes hasta que el admin los revise.</summary>
+    /// <summary>Pendiente, Verificado o Rechazado. Los pagos del admin nacen Verificados; los del cliente (SINPE/Efectivo) nacen Pendientes.</summary>
     public string EstadoVerificacion { get; set; } = "Verificado";
 
     public virtual ClienteMembresium IdClienteMembresiaNavigation { get; set; } = null!;

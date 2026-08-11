@@ -104,6 +104,21 @@
                 <h3 class="font-headline font-bold text-base">Alertas de Vencimiento</h3>
                 <span class="material-symbols-outlined text-[#fbbf24] text-[20px]">warning_amber</span>
             </div>
+
+            @if (Model.MembresiasPendientesDePago > 0)
+            {
+                <a asp-controller="Membresia" asp-action="MostrarMembresia"
+                   class="block rounded-xl p-3 mb-4 hover:opacity-80 cursor-pointer"
+                   style="background: rgba(234,179,8,0.12); border: 1px solid rgba(234,179,8,0.35);">
+                    <span class="text-[#ca8a04] font-semibold text-sm">
+                        @Model.MembresiasPendientesDePago cliente(s) con mensualidad pendiente de pago
+                    </span>
+                    <p class="text-on-surface-variant text-xs mt-1">
+                        Ya reservaron pero todavía no eligieron cómo van a pagar, o falta confirmarles el pago.
+                    </p>
+                </a>
+            }
+
             @if (Model.Vencimientos != null && Model.Vencimientos.Any())
             {
                 @foreach (var item in Model.Vencimientos)
@@ -116,7 +131,7 @@
                     </a>
                 }
             }
-            else
+            else if (Model.MembresiasPendientesDePago == 0)
             {
                 <p class="text-on-surface-variant text-sm">No hay alertas de vencimiento en los próximos 7 días.</p>
             }
@@ -147,26 +162,56 @@
                                 <span class="text-[10px] uppercase font-bold text-primary-container bg-primary-container/15 rounded-full px-2 py-0.5">Hoy</span>
                             }
                         </div>
-                        <p class="text-on-surface-variant text-xs mb-3">@item.NombreWod — @item.Confirmados confirmado(s)</p>
-                        <ul class="space-y-1">
-                            @foreach (var cliente in item.Clientes)
-                            {
-                                <li class="flex items-center justify-between text-sm">
-                                    <span>@cliente.Nombre</span>
-                                    @if (esHoy)
+                        <p class="text-on-surface-variant text-xs mb-3">@item.Confirmados confirmado(s)</p>
+                        <div style="max-height:220px; overflow-y:auto;">
+                            <table class="w-full text-xs">
+                                <thead>
+                                    <tr class="text-left">
+                                        <th class="pb-1 pr-2 font-semibold text-on-surface-variant">Cliente</th>
+                                        @foreach (var wod in item.Wods)
+                                        {
+                                            <th class="pb-1 px-1 text-center font-semibold text-on-surface-variant" title="@wod">
+                                                @(wod.Length > 10 ? wod.Substring(0, 10) + "…" : wod)
+                                            </th>
+                                        }
+                                        @if (esHoy)
+                                        {
+                                            <th class="pb-1 pl-2 text-center font-semibold text-on-surface-variant">Check-in</th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var cliente in item.Clientes)
                                     {
-                                        @if (cliente.YaIngreso)
-                                        {
-                                            <span class="text-[10px] text-[#4ade80]">✓ En el gym</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-[10px] text-outline">Aún no llega</span>
-                                        }
+                                        <tr class="border-t border-outline-variant/10">
+                                            <td class="py-1.5 pr-2">@cliente.Nombre</td>
+                                            @for (int i = 0; i < item.Wods.Count; i++)
+                                            {
+                                                <td class="text-center">
+                                                    @if (cliente.ConfirmoPorWod[i])
+                                                    {
+                                                        <span class="text-[#4ade80]">✓</span>
+                                                    }
+                                                </td>
+                                            }
+                                            @if (esHoy)
+                                            {
+                                                <td class="text-center pl-2">
+                                                    @if (cliente.YaIngreso)
+                                                    {
+                                                        <span class="text-[#4ade80]">✓</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-outline">—</span>
+                                                    }
+                                                </td>
+                                            }
+                                        </tr>
                                     }
-                                </li>
-                            }
-                        </ul>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 }
             </div>

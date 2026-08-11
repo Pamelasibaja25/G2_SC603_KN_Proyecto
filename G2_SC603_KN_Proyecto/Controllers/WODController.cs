@@ -29,19 +29,16 @@ namespace G2_SC603_KN_Proyecto.Controllers
         #region Mostrar WODs
         public async Task<IActionResult> MostrarWOD()
         {
-            // Obtener los ejercicios utilizando el procedimiento almacenado
             List<EjercicioResumen> ejercicios = await _context.EjerciciosResumen
                 .FromSqlRaw("CALL sp_obtenerEjercicios()")
                 .ToListAsync();
-            // Obtener los WODs con sus ejercicios utilizando el procedimiento almacenado
             List<WodResumen> wods = await _context.WodsResumen
                 .FromSqlRaw("CALL sp_obtenerWODs()")
                 .ToListAsync();
 
             ViewBag.Wods = wods;
 
-            // Para el cliente: en qué día le corresponde cada WOD, para
-            // mostrarlo junto a la imagen y que sepa cuándo lo va a hacer.
+            // Fecha asignada al cliente para cada WOD (se muestra junto a la imagen)
             string usernameActual = HttpContext.Session.GetString("Usuario") ?? string.Empty;
             Cliente? clienteActual = await _context.Clientes
                 .Include(c => c.IdUsuarioNavigation)
@@ -49,6 +46,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             if (clienteActual != null)
             {
+                await PonerAlDiaConElUltimoWod(clienteActual.IdCliente, DateOnly.FromDateTime(DateTime.Today));
+
                 ViewBag.FechasPorRutina = await _context.ClienteRutinas
                     .Where(cr => cr.IdCliente == clienteActual.IdCliente)
                     .GroupBy(cr => cr.IdRutina)
@@ -78,7 +77,6 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     return RedirectToAction("MostrarWOD");
                 }
 
-                // Obtener el id_entrenador desde la sesion del usuario logueado
                 string usernameActual = HttpContext.Session.GetString("Usuario") ?? string.Empty;
 
                 Entrenador? entrenador = await _context.Entrenadors
@@ -87,7 +85,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
                 if (entrenador == null)
                 {
-                    // Si el usuario es ADMIN o no tiene entrenador, usar el primer entrenador disponible
+                    // Fallback si el usuario logueado no es entrenador (ej: ADMIN publicando)
                     entrenador = await _context.Entrenadors.FirstOrDefaultAsync()
                         ?? throw new Exception("No hay entrenadores registrados en el sistema.");
                 }
@@ -122,9 +120,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
             return RedirectToAction("MostrarWOD");
         }
         #endregion
-        // El WOD publicado hoy queda configurado como el WOD de mañana para
-        // todos los clientes activos, con estado PENDIENTE hasta que cada
-        // cliente confirme si asiste.
+        // El WOD publicado hoy se asigna como el de mañana a todos los clientes activos (estado PENDIENTE)
         private void AsignarWodClientesParaManana(int idRutina)
         {
             DateOnly manana = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
@@ -144,7 +140,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
             _context.SaveChanges();
         }
 
-        // Cliente marca si asistirá al WOD de mañana (RMGM-WOD-002).
+        // Cliente confirma o rechaza el WOD de mañana
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmarAsistenciaWOD(int idClienteRutina, string estado)
@@ -236,16 +232,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         }
 
         #region Editar WOD
-        // DTO interno para deserializar el JSON de ejercicios
-        private class EjercicioWodDto
-        {
-            public int IdEjercicio { get; set; }
-            public int Series { get; set; }
-            public int Repeticiones { get; set; }
-            public int Descanso { get; set; }
-        }
 
-        // Cargar formulario con datos actuales
         [HttpGet]
         public async Task<IActionResult> EditarWOD(int id)
         {
@@ -260,44 +247,25 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 return RedirectToAction("MostrarWOD");
             }
 
-            var ejerciciosRutina = await _context.RutinaEjercicios
-                .Where(re => re.IdRutina == id)
-                .Include(re => re.IdEjercicioNavigation)
-                .ToListAsync();
-
-            var todosEjercicios = await _context.EjerciciosResumen
-                .FromSqlRaw("CALL sp_obtenerEjercicios()")
-                .ToListAsync();
-
-            ViewBag.EjerciciosRutina = ejerciciosRutina;
-            ViewBag.TodosEjercicios = todosEjercicios;
             return View(rutina);
         }
 
-        // Guardar cambios / Validar
         [HttpPost]
         public async Task<IActionResult> EditarWOD(int idRutina, string nombre,
-            string objetivo, string ejerciciosJson)
+            string objetivo, IFormFile? imagen)
         {
             var rol = HttpContext.Session.GetString("Rol") ?? string.Empty;
             if (!rol.Contains("ADMIN") && !rol.Contains("TRAINER"))
                 return RedirectToAction("MostrarWOD");
 
-            //  Validar datos
             if (string.IsNullOrWhiteSpace(nombre))
             {
                 TempData["ErrorMessage"] = "El nombre del entrenamiento es obligatorio.";
                 return RedirectToAction("EditarWOD", new { id = idRutina });
             }
-            if (string.IsNullOrWhiteSpace(ejerciciosJson) || ejerciciosJson == "[]")
-            {
-                TempData["ErrorMessage"] = "Debe agregar al menos un ejercicio.";
-                return RedirectToAction("EditarWOD", new { id = idRutina });
-            }
 
             try
             {
-                // Actualizar rutina
                 var rutina = await _context.Rutinas.FindAsync(idRutina);
                 if (rutina == null)
                 {
@@ -308,25 +276,12 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 rutina.Nombre = nombre;
                 rutina.Objetivo = objetivo ?? string.Empty;
 
-                var ejerciciosViejos = _context.RutinaEjercicios
-                    .Where(re => re.IdRutina == idRutina);
-                _context.RutinaEjercicios.RemoveRange(ejerciciosViejos);
-
-                var lista = System.Text.Json.JsonSerializer
-                    .Deserialize<List<EjercicioWodDto>>(ejerciciosJson);
-
-                if (lista != null)
+                if (imagen != null && imagen.Length > 0)
                 {
-                    foreach (var ej in lista)
+                    string? rutaImagen = await GuardarImagenWod(imagen);
+                    if (!string.IsNullOrEmpty(rutaImagen))
                     {
-                        _context.RutinaEjercicios.Add(new RutinaEjercicio
-                        {
-                            IdRutina = idRutina,
-                            IdEjercicio = ej.IdEjercicio,
-                            Series = ej.Series,
-                            Repeticiones = ej.Repeticiones,
-                            Descanso = ej.Descanso
-                        });
+                        rutina.Imagen = rutaImagen;
                     }
                 }
 
@@ -342,10 +297,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
             return RedirectToAction("MostrarWOD");
         }
         #region Eliminar WOD 
-        // el id se valida y la confirmación ocurre en el cliente
-        // (ver MostrarWOD.cshtml -> confirmarEliminar). Escenario 3: si se cancela
-        // el modal de confirmación, este endpoint nunca se invoca.
-        // Requiere POST + AntiForgeryToken + rol ADMIN únicamente.
+        // La confirmación ocurre en el cliente (ver MostrarWOD.cshtml). Requiere POST + AntiForgeryToken + rol ADMIN.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RolAutorizado("ADMIN")]
@@ -358,15 +310,24 @@ namespace G2_SC603_KN_Proyecto.Controllers
             return RedirectToAction(nameof(MostrarWOD));
         }
         #endregion
-        //Cancelar
         #endregion
 
         #region Entrenamiento Diario (RMGM-WOD-002)
-        //  la vista decide qué mostrar según si la lista viene vacía.
         [HttpGet]
         public async Task<IActionResult> EntrenamientoDiario()
         {
             (int idUsuario, string rol) = ObtenerUsuarioActual();
+
+            if (rol.Contains("USER"))
+            {
+                Cliente? clienteActual = await _context.Clientes
+                    .FirstOrDefaultAsync(c => c.IdUsuario == idUsuario);
+
+                if (clienteActual != null)
+                {
+                    await PonerAlDiaConElUltimoWod(clienteActual.IdCliente, DateOnly.FromDateTime(DateTime.Today));
+                }
+            }
 
             List<WodHistorialItemViewModel> entrenamientoDiario =
                 await _wodConsultaService.ObtenerEntrenamientoDiarioAsync(idUsuario, rol);
@@ -376,8 +337,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         #endregion
 
         #region Detalle de Entrenamiento
-        //  vista de detalle compartida,
-        // ya que ambas historias piden lo mismo al seleccionar un entrenamiento.
+        // Vista de detalle compartida entre admin y cliente
         [HttpGet]
         public async Task<IActionResult> DetalleEntrenamiento(int id)
         {
@@ -407,6 +367,46 @@ namespace G2_SC603_KN_Proyecto.Controllers
             return (idUsuario, rol);
         }
 
+        // Pone al día a clientes creados después de publicarse el último WOD vigente
+        private async Task PonerAlDiaConElUltimoWod(int idCliente, DateOnly hoy)
+        {
+            var ultimoWod = await _context.Rutinas
+                .OrderByDescending(r => r.IdRutina)
+                .FirstOrDefaultAsync();
+
+            if (ultimoWod == null)
+            {
+                return;
+            }
+
+            bool yaTieneAsignacion = await _context.ClienteRutinas
+                .AnyAsync(cr => cr.IdCliente == idCliente && cr.IdRutina == ultimoWod.IdRutina);
+
+            if (yaTieneAsignacion)
+            {
+                return;
+            }
+
+            DateOnly? fechaVigente = await _context.ClienteRutinas
+                .Where(cr => cr.IdRutina == ultimoWod.IdRutina)
+                .Select(cr => (DateOnly?)cr.FechaAsignacion)
+                .FirstOrDefaultAsync();
+
+            if (fechaVigente == null || fechaVigente < hoy)
+            {
+                return;
+            }
+
+            _context.ClienteRutinas.Add(new ClienteRutina
+            {
+                IdCliente = idCliente,
+                IdRutina = ultimoWod.IdRutina,
+                FechaAsignacion = fechaVigente.Value,
+                EstadoAsistencia = "PENDIENTE"
+            });
+
+            await _context.SaveChangesAsync();
+        }
 
     }
 }

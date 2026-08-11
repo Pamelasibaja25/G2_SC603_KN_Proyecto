@@ -42,6 +42,29 @@
                 </div>
             </div>
         }
+        else if (ViewBag.MembresiaPendiente != null)
+        {
+            <div id="membershipAlert"
+                 class="rounded-2xl shadow-lg text-center w-full max-w-md px-10 py-8"
+                 style="background: rgba(234,179,8,0.12); border: 1px solid rgba(234,179,8,0.4); color: #ca8a04;">
+
+                <div class="flex flex-col items-center gap-3">
+
+                    <span class="material-symbols-outlined text-5xl">
+                        pending
+                    </span>
+
+                    <h2 class="text-2xl font-bold">
+                        Mensualidad pendiente de pago
+                    </h2>
+
+                    <p class="text-sm opacity-80">
+                        Ya tenés acceso, pero todavía falta confirmar tu pago. Andá a "Pago SINPE" para adjuntar tu comprobante.
+                    </p>
+
+                </div>
+            </div>
+        }
         else
         {
             <div id="membershipAlert"

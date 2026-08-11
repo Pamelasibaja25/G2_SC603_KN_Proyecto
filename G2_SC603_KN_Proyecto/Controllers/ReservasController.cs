@@ -4,10 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace G2_SC603_KN_Proyecto.Controllers
 {
-    // La "reserva" ya no es un sistema de clases con horario/cupo:
-    // la reserva ES la confirmación de asistencia al WOD (Cliente_Rutina).
-    // Flujo: admin publica el WOD de mañana -> cliente acepta/rechaza en
-    // WOD/EntrenamientoDiario -> esa confirmación se refleja acá.
+    // La reserva es la confirmación de asistencia al WOD (no un sistema de clases con horario/cupo)
     public class ReservasController : Controller
     {
         private readonly DbOrionFitContext _context;
@@ -33,6 +30,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             if (cliente != null)
             {
+                await PonerAlDiaConElUltimoWod(cliente.IdCliente, hoy);
+
                 model.MisConfirmaciones = await _context.ClienteRutinas
                     .Include(cr => cr.IdRutinaNavigation)
                     .Where(cr => cr.IdCliente == cliente.IdCliente)
@@ -51,11 +50,12 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             if (model.EsAdmin)
             {
-                // Confirmados para HOY: el WOD que se publicó ayer, ya es el de hoy.
+                // Confirmados para hoy (publicado ayer)
                 var confirmadosHoy = await _context.ClienteRutinas
                     .Include(cr => cr.IdRutinaNavigation)
                     .Include(cr => cr.IdClienteNavigation)
-                    .Where(cr => cr.FechaAsignacion == hoy && cr.EstadoAsistencia == "ACEPTADO")
+                    .Where(cr => cr.FechaAsignacion == hoy && cr.EstadoAsistencia == "ACEPTADO"
+                        && cr.IdClienteNavigation.Estado == "Activo")
                     .OrderBy(cr => cr.IdClienteNavigation.Nombre)
                     .ToListAsync();
 
@@ -76,7 +76,6 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     AsistioHoy = yaAsistieron.Contains(cr.IdCliente)
                 }).ToList();
 
-                // Historial completo, filtrable por estado.
                 IQueryable<ClienteRutina> query = _context.ClienteRutinas
                     .Include(cr => cr.IdRutinaNavigation)
                     .Include(cr => cr.IdClienteNavigation);
@@ -101,14 +100,14 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
                 ViewBag.FiltroEstado = filtroEstado ?? "Todas";
 
-                // Vista calendario: hoy + próximos 6 días, cada uno con sus
-                // confirmados (aunque no tenga ninguno, se muestra el día).
+                // Calendario: hoy + próximos 6 días
                 DateOnly finVentana = hoy.AddDays(6);
                 var confirmadosVentana = await _context.ClienteRutinas
                     .Include(cr => cr.IdRutinaNavigation)
                     .Include(cr => cr.IdClienteNavigation)
                     .Where(cr => cr.FechaAsignacion >= hoy && cr.FechaAsignacion <= finVentana
-                        && cr.EstadoAsistencia == "ACEPTADO")
+                        && cr.EstadoAsistencia == "ACEPTADO"
+                        && cr.IdClienteNavigation.Estado == "Activo")
                     .ToListAsync();
 
                 model.Calendario = Enumerable.Range(0, 7)
@@ -116,21 +115,25 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     {
                         DateOnly fecha = hoy.AddDays(i);
                         var delDia = confirmadosVentana.Where(cr => cr.FechaAsignacion == fecha).ToList();
+                        List<string> wods = delDia.Select(cr => cr.IdRutinaNavigation.Nombre).Distinct().ToList();
+
+                        List<ClienteConfirmadoVM> clientes = delDia
+                            .GroupBy(cr => new { cr.IdCliente, Nombre = cr.IdClienteNavigation.Nombre })
+                            .Select(cg => new ClienteConfirmadoVM
+                            {
+                                Nombre = cg.Key.Nombre,
+                                YaIngreso = fecha == hoy && _context.Asistencia.Any(a =>
+                                    a.IdCliente == cg.Key.IdCliente && a.Fecha == hoy),
+                                ConfirmoPorWod = wods.Select(w => cg.Any(x => x.IdRutinaNavigation.Nombre == w)).ToList()
+                            })
+                            .OrderBy(c => c.Nombre)
+                            .ToList();
 
                         return new ConfirmadosDiaVM
                         {
                             Fecha = fecha,
-                            NombreWod = delDia.Select(cr => cr.IdRutinaNavigation.Nombre).FirstOrDefault() ?? "",
-                            Confirmados = delDia.Count,
-                            Clientes = delDia
-                                .Select(cr => new ClienteConfirmadoVM
-                                {
-                                    Nombre = cr.IdClienteNavigation.Nombre,
-                                    YaIngreso = fecha == hoy && _context.Asistencia.Any(a =>
-                                        a.IdCliente == cr.IdCliente && a.Fecha == hoy)
-                                })
-                                .OrderBy(c => c.Nombre)
-                                .ToList()
+                            Wods = wods,
+                            Clientes = clientes
                         };
                     })
                     .ToList();
@@ -139,7 +142,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
             return View(model);
         }
 
-        // Admin: marca el check-in físico de un cliente que había confirmado asistencia.
+        // Admin marca el check-in físico
         [HttpPost]
         public async Task<IActionResult> RegistrarAsistencia(int idClienteRutina)
         {
@@ -180,6 +183,48 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             TempData["SuccessMessage"] = "Asistencia registrada correctamente.";
             return RedirectToAction("Index");
+        }
+
+        // Pone al día a clientes creados después de publicarse el último WOD vigente
+        private async Task PonerAlDiaConElUltimoWod(int idCliente, DateOnly hoy)
+        {
+            var ultimoWod = await _context.Rutinas
+                .OrderByDescending(r => r.IdRutina)
+                .FirstOrDefaultAsync();
+
+            if (ultimoWod == null)
+            {
+                return;
+            }
+
+            bool yaTieneAsignacion = await _context.ClienteRutinas
+                .AnyAsync(cr => cr.IdCliente == idCliente && cr.IdRutina == ultimoWod.IdRutina);
+
+            if (yaTieneAsignacion)
+            {
+                return;
+            }
+
+            DateOnly? fechaVigente = await _context.ClienteRutinas
+                .Where(cr => cr.IdRutina == ultimoWod.IdRutina)
+                .Select(cr => (DateOnly?)cr.FechaAsignacion)
+                .FirstOrDefaultAsync();
+
+            // No se reactiva si ya quedó en el pasado
+            if (fechaVigente == null || fechaVigente < hoy)
+            {
+                return;
+            }
+
+            _context.ClienteRutinas.Add(new ClienteRutina
+            {
+                IdCliente = idCliente,
+                IdRutina = ultimoWod.IdRutina,
+                FechaAsignacion = fechaVigente.Value,
+                EstadoAsistencia = "PENDIENTE"
+            });
+
+            await _context.SaveChangesAsync();
         }
     }
 }

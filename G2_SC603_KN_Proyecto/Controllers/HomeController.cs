@@ -31,9 +31,6 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 .Include(u => u.Clientes)
                 .FirstOrDefault(u => u.Username == username);
 
-            Console.WriteLine($"Usuario encontrado: {user?.Username}");
-            Console.WriteLine($"Hash en DB: {user?.Contrasena}");
-
             if (user != null)
             {
                 using (SHA256 sha256 = SHA256.Create())
@@ -43,11 +40,14 @@ namespace G2_SC603_KN_Proyecto.Controllers
                         .Replace("-", "")
                         .ToLower();
 
-                    Console.WriteLine($"Hash ingresado: {hashIngresado}");
-                    Console.WriteLine($"Son iguales: {hashIngresado == user.Contrasena.ToLower()}");
-
                     if (hashIngresado == user.Contrasena.ToLower())
                     {
+                        if (!user.Activo)
+                        {
+                            ViewBag.Error = "Esta cuenta está desactivada. Contactá al administrador.";
+                            return View();
+                        }
+
                         // Validar membresía activa únicamente para usuarios USER
                         if (user.Rol.ToUpper() == "USER")
                         {
@@ -59,12 +59,14 @@ namespace G2_SC603_KN_Proyecto.Controllers
                                 return View();
                             }
 
-                            bool membresiaActiva = _context.ClienteMembresia.Any(cm =>
+                            bool tieneAcceso = _context.ClienteMembresia.Any(cm =>
                                 cm.IdCliente == cliente.IdCliente &&
-                                cm.Estado == "Activa" &&
-                                cm.FechaFin >= DateOnly.FromDateTime(DateTime.Today));
+                                (
+                                    (cm.Estado == "Activa" && cm.FechaFin >= DateOnly.FromDateTime(DateTime.Today))
+                                    || cm.Estado == "Pendiente"
+                                ));
 
-                            if (!membresiaActiva)
+                            if (!tieneAcceso)
                             {
                                 ViewBag.Error = "La membresía no se encuentra activa.";
                                 return View();
@@ -83,40 +85,6 @@ namespace G2_SC603_KN_Proyecto.Controllers
             ViewBag.Error = "Usuario o contraseña incorrectos";
             return View();
         }
-
-        /**
-        [HttpPost]
-        public IActionResult Index(string username, string password)
-        {
-            // BYPASS TEMPORAL PARA DESARROLLO
-            if (username == "devadmin" && password == "dev123")
-            {
-                HttpContext.Session.SetString("Usuario", "devadmin");
-                HttpContext.Session.SetString("Rol", "ADMIN"); 
-                return RedirectToAction("Home", "Home");
-            }
-
-            var user = _context.Usuarios.FirstOrDefault(u => u.Username == username);
-            if (user != null)
-            {
-                using (SHA256 sha256 = SHA256.Create())
-                {
-                    byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                    string hashIngresado = BitConverter.ToString(bytes).Replace("-", "").ToLower();
-
-                    if (hashIngresado == user.Contrasena.ToLower())
-                    {
-                        HttpContext.Session.SetString("Usuario", user.Username);
-                        HttpContext.Session.SetString("Rol", user.Rol);
-                        return RedirectToAction("Home", "Home");
-                    }
-                }
-            }
-
-            ViewBag.Error = "Usuario o contraseña incorrectos";
-            return View();
-        }
-        **/
 
         public IActionResult Home()
         {
@@ -146,6 +114,14 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             ViewBag.MembresiaActiva = membresiaActiva;
 
+            if (membresiaActiva == null)
+            {
+                ViewBag.MembresiaPendiente = _context.ClienteMembresia
+                    .FirstOrDefault(cm =>
+                        cm.IdCliente == cliente.IdCliente &&
+                        cm.Estado.Trim().ToLower() == "pendiente");
+            }
+
             if (membresiaActiva != null)
             {
                 GenerarNotificacionVencimientoSiCorresponde(cliente.IdCliente, membresiaActiva.FechaFin);
@@ -154,8 +130,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
             return View();
         }
 
-        // Notifica al cliente cuando su mensualidad vence en 5 días o menos.
-        // Evita duplicar la notificación si ya se generó hoy mismo.
+        // Notifica al cliente si la mensualidad vence en 5 días o menos (una vez por día)
         private void GenerarNotificacionVencimientoSiCorresponde(int idCliente, DateOnly fechaFin)
         {
             DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);

@@ -4,15 +4,8 @@ using System.Linq;
 
 namespace G2_SC603_KN_Proyecto.Filters
 {
-    /// Filtro de autorización basado en el rol guardado en sesión.
-    /// El proyecto no usa ASP.NET Identity ni cookies de autenticación, por
-    /// lo que el atributo [Authorize] de Microsoft no tiene efecto real
-    /// aquí; este filtro sigue el mismo mecanismo de sesión que ya usa el
-    /// resto de los controladores (HttpContext.Session.GetString("Rol")).
-    ///
-    /// Reutilizable para cualquier acción que deba restringirse a uno o
-    /// varios roles, simplemente pasando los roles permitidos (OCP: se
-    /// extiende sin modificar el filtro).
+    /// Filtro de autorización basado en el rol guardado en sesión
+    /// (el proyecto no usa ASP.NET Identity, así que [Authorize] no aplica).
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
     public class RolAutorizadoAttribute : Attribute, IAsyncActionFilter
     {

@@ -11,6 +11,7 @@ public class DashboardViewModel
     public int ConfirmadosWodManana { get; set; }
     public List<ConfirmadosDiaVM> ConfirmadosPorDia { get; set; } = new();
     public int MembresiasPorVencer { get; set; }
+    public int MembresiasPendientesDePago { get; set; }
 
     public List<AsistenciaSemanalVM> AsistenciaSemanal { get; set; } = new();
     public List<AsistenciaSemanalVM> AsistenciaMensual { get; set; } = new();
@@ -36,9 +37,13 @@ public class AsistenciaSemanalVM
 public class ConfirmadosDiaVM
 {
     public DateOnly Fecha { get; set; }
-    public string NombreWod { get; set; } = "";
-    public int Confirmados { get; set; }
+
+    /// <summary>Nombres de los WOD publicados ese día (columnas de la tabla).</summary>
+    public List<string> Wods { get; set; } = new();
+
     public List<ClienteConfirmadoVM> Clientes { get; set; } = new();
+
+    public int Confirmados => Clientes.Count;
 }
 
 public class ClienteConfirmadoVM
@@ -47,6 +52,9 @@ public class ClienteConfirmadoVM
 
     /// <summary>Solo aplica al día de hoy: si ya hizo check-in físico.</summary>
     public bool YaIngreso { get; set; }
+
+    /// <summary>Uno por cada WOD en ConfirmadosDiaVM.Wods (mismo orden): true si el cliente confirmó ese WOD.</summary>
+    public List<bool> ConfirmoPorWod { get; set; } = new();
 }
 
 public class VencimientoVM
@@ -68,12 +76,6 @@ public class PagoHoyVM
     public string Cliente { get; set; } = "";
     public decimal Monto { get; set; }
     public string Metodo { get; set; } = "";
-}
-
-public class TopHorarioVM
-{
-    public int Hora { get; set; }
-    public int Asistencias { get; set; }
 }
 
 public class AlertaStockVM

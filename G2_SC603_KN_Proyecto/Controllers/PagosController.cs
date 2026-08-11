@@ -60,10 +60,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             return RedirectToAction("Index");
         }
-        // Admin: aprueba o rechaza un comprobante SINPE subido por el cliente.
-        // Al aprobar, se marca Verificado y se renueva la mensualidad del
-        // cliente (1 mes desde hoy o desde su vencimiento actual, lo que
-        // sea más tarde).
+        // Admin aprueba o rechaza un comprobante; al aprobar renueva la mensualidad 1 mes
         [HttpPost]
         public async Task<IActionResult> VerificarPago(int idPago, bool aprobado)
         {
@@ -236,8 +233,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
 
-            // Si ya hay un comprobante esperando revisión, no tiene sentido
-            // dejar que suba otro encima.
+            // No permite otro envío mientras haya uno pendiente de revisión
             Pago? pagoPendiente = await _context.Pagos
                 .Include(p => p.IdClienteMembresiaNavigation)
                 .Where(p => p.IdClienteMembresiaNavigation.IdCliente == cliente.IdCliente
@@ -247,8 +243,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             ViewBag.PagoPendiente = pagoPendiente;
 
-            // Si la mensualidad ya está vigente y no está por vencer (más de
-            // 5 días de margen), no hace falta pagar de nuevo todavía.
+            // Mensualidad vigente con más de 5 días de margen: no hace falta pagar de nuevo
             bool mensualidadAlDia = membresiaActual != null
                 && membresiaActual.Estado == "Activa"
                 && membresiaActual.FechaFin > hoy.AddDays(5);
@@ -325,6 +320,61 @@ namespace G2_SC603_KN_Proyecto.Controllers
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Comprobante enviado. El equipo lo verificará pronto.";
+            return RedirectToAction(nameof(SubirComprobante));
+        }
+
+        // Cliente elige pagar en efectivo al llegar; queda Pendiente igual que un SINPE
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PagarEnEfectivo(int idClienteMembresia)
+        {
+            int? idUsuario = HttpContext.Session.GetInt32("ID");
+
+            Cliente? cliente = await _context.Clientes
+                .FirstOrDefaultAsync(c => c.IdUsuario == idUsuario);
+
+            if (cliente == null)
+            {
+                TempData["ErrorMessage"] = "Debe iniciar sesión como cliente.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            ClienteMembresium? membresiaCliente = await _context.ClienteMembresia
+                .Include(cm => cm.IdMembresiaNavigation)
+                .FirstOrDefaultAsync(cm =>
+                    cm.IdClienteMembresia == idClienteMembresia && cm.IdCliente == cliente.IdCliente);
+
+            if (membresiaCliente == null)
+            {
+                TempData["ErrorMessage"] = "La mensualidad indicada no le pertenece.";
+                return RedirectToAction(nameof(SubirComprobante));
+            }
+
+            bool yaTienePendiente = await _context.Pagos
+                .Include(p => p.IdClienteMembresiaNavigation)
+                .AnyAsync(p => p.IdClienteMembresiaNavigation.IdCliente == cliente.IdCliente
+                    && p.EstadoVerificacion == "Pendiente");
+
+            if (yaTienePendiente)
+            {
+                TempData["ErrorMessage"] = "Ya tenés un pago en revisión, esperá a que el equipo lo confirme.";
+                return RedirectToAction(nameof(SubirComprobante));
+            }
+
+            Pago pago = new Pago
+            {
+                IdClienteMembresia = idClienteMembresia,
+                Monto = membresiaCliente.IdMembresiaNavigation?.Precio ?? 0,
+                FechaPago = DateOnly.FromDateTime(DateTime.Today),
+                MetodoPago = "Efectivo",
+                Descripcion = "El cliente eligió pagar en efectivo al llegar al gimnasio, pendiente de cobro.",
+                EstadoVerificacion = "Pendiente"
+            };
+
+            _context.Pagos.Add(pago);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Listo, quedó registrado que vas a pagar en efectivo al llegar.";
             return RedirectToAction(nameof(SubirComprobante));
         }
         #endregion

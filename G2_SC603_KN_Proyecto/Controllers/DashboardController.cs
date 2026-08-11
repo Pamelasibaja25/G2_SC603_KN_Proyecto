@@ -34,7 +34,8 @@ public class DashboardController : Controller
         var confirmacionesFlat = _context.ClienteRutinas
             .Include(cr => cr.IdRutinaNavigation)
             .Include(cr => cr.IdClienteNavigation)
-            .Where(cr => cr.FechaAsignacion >= hoy && cr.EstadoAsistencia == "ACEPTADO")
+            .Where(cr => cr.FechaAsignacion >= hoy && cr.EstadoAsistencia == "ACEPTADO"
+                && cr.IdClienteNavigation.Estado == "Activo")
             .Select(cr => new
             {
                 cr.FechaAsignacion,
@@ -58,23 +59,37 @@ public class DashboardController : Controller
                 .ToList();
 
         model.ConfirmadosPorDia = confirmacionesFlat
-            .GroupBy(c => new { c.FechaAsignacion, c.NombreWod })
-            .Select(g => new ConfirmadosDiaVM
+            .GroupBy(c => c.FechaAsignacion)
+            .Select(g =>
             {
-                Fecha = g.Key.FechaAsignacion,
-                NombreWod = g.Key.NombreWod,
-                Confirmados = g.Count(),
-                Clientes = g.Select(c => new ClienteConfirmadoVM
+                List<string> wods = g.Select(c => c.NombreWod).Distinct().ToList();
+
+                List<ClienteConfirmadoVM> clientes = g
+                    .GroupBy(c => new { c.IdCliente, c.NombreCliente })
+                    .Select(cg => new ClienteConfirmadoVM
+                    {
+                        Nombre = cg.Key.NombreCliente,
+                        YaIngreso = g.Key == hoy && idsClientesQueYaIngresaronHoy.Contains(cg.Key.IdCliente),
+                        ConfirmoPorWod = wods.Select(w => cg.Any(x => x.NombreWod == w)).ToList()
+                    })
+                    .OrderBy(c => c.Nombre)
+                    .ToList();
+
+                return new ConfirmadosDiaVM
                 {
-                    Nombre = c.NombreCliente,
-                    YaIngreso = g.Key.FechaAsignacion == hoy && idsClientesQueYaIngresaronHoy.Contains(c.IdCliente)
-                }).OrderBy(c => c.Nombre).ToList()
+                    Fecha = g.Key,
+                    Wods = wods,
+                    Clientes = clientes
+                };
             })
             .OrderBy(x => x.Fecha)
             .ToList();
 
         model.MembresiasPorVencer = _context.ClienteMembresia
             .Count(c => c.FechaFin >= hoy && c.FechaFin <= hoy.AddDays(7));
+
+        model.MembresiasPendientesDePago = _context.ClienteMembresia
+            .Count(c => c.Estado == "Pendiente");
 
         model.AsistenciaSemanal = Enumerable.Range(0, 7)
             .Select(i =>
