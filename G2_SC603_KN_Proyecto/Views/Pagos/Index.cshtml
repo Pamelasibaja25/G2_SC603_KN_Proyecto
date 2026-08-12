@@ -38,7 +38,6 @@
                         <th>Descripción</th>
                         <th>Comprobante</th>
                         <th>Estado</th>
-                        <th></th>
                     </tr>
                 </thead>
 
@@ -78,24 +77,18 @@
                                 </td>
 
                                 <td>
-                                    @if (pago.EstadoVerificacion == "Verificado")
-                                    {
-                                        <span class="text-[#4ade80] text-xs font-semibold">✓ Verificado</span>
-                                    }
-                                    else if (pago.EstadoVerificacion == "Rechazado")
-                                    {
-                                        <span class="text-[#ffb4ab] text-xs font-semibold">✕ Rechazado</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-[#eab308] text-xs font-semibold">Pendiente</span>
-                                    }
-                                </td>
-
-                                <td>
-                                    @if (pago.EstadoVerificacion == "Pendiente")
-                                    {
-                                        <div class="flex gap-1">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        @if (pago.EstadoVerificacion == "Verificado")
+                                        {
+                                            <span class="text-[#4ade80] text-xs font-semibold whitespace-nowrap">✓ Verificado</span>
+                                        }
+                                        else if (pago.EstadoVerificacion == "Rechazado")
+                                        {
+                                            <span class="text-[#ffb4ab] text-xs font-semibold whitespace-nowrap">✕ Rechazado</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-[#eab308] text-xs font-semibold whitespace-nowrap">Pendiente</span>
                                             <form asp-action="VerificarPago" method="post">
                                                 <input type="hidden" name="idPago" value="@pago.IdPago" />
                                                 <input type="hidden" name="aprobado" value="true" />
@@ -106,8 +99,8 @@
                                                 <input type="hidden" name="aprobado" value="false" />
                                                 <button type="submit" class="btn-outlined text-xs py-1.5 px-3">Rechazar</button>
                                             </form>
-                                        </div>
-                                    }
+                                        }
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -115,7 +108,7 @@
                     else
                     {
                         <tr>
-                            <td colspan="8" class="text-center">
+                            <td colspan="7" class="text-center">
                                 No hay pagos registrados
                             </td>
                         </tr>

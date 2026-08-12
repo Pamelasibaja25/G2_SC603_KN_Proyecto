@@ -65,80 +65,8 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Gráfico de asistencia -->
-        <div class="lg:col-span-2 bg-surface-container rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h3 class="font-headline font-bold text-lg">Asistencia</h3>
-                    <p class="text-on-surface-variant text-xs">Ingresos al gimnasio por dia &middot; semana, mes o rango de fechas</p>
-                </div>
-                <div class="flex gap-1">
-                    <button id="btnSemana" class="tab-btn active" onclick="cambiarPeriodo('semana')">Semana</button>
-                    <button id="btnMes" class="tab-btn" onclick="cambiarPeriodo('mes')">Mes</button>
-                    <button id="btnRango" class="tab-btn" onclick="cambiarPeriodo('rango')">Rango</button>
-                </div>
-            </div>
-
-            <form method="get" asp-controller="Dashboard" asp-action="Dashboard" class="flex flex-wrap items-center gap-2 mb-4">
-                <input type="date" name="fechaInicio" class="input-field text-xs py-1.5" style="max-width:160px"
-                       value="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))" required />
-                <input type="date" name="fechaFin" class="input-field text-xs py-1.5" style="max-width:160px"
-                       value="@(Model.FechaFin?.ToString("yyyy-MM-dd"))" required />
-                <button type="submit" class="tab-btn">Aplicar</button>
-            </form>
-
-            @if (Model.RangoInvalido)
-            {
-                <p class="text-xs mb-3" style="color:#ffb4ab;">El rango de fechas no es válido.</p>
-            }
-
-            <div style="height:300px"><canvas id="attendanceChart"></canvas></div>
-            <p id="chartEmptyMsg" class="text-on-surface-variant text-xs text-center mt-2" style="display:none;">
-                No hay asistencias registradas para el período seleccionado.
-            </p>
-        </div>
-
-        <div class="bg-surface-container rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-            <div class="flex items-center justify-between mb-5">
-                <h3 class="font-headline font-bold text-base">Alertas de Vencimiento</h3>
-                <span class="material-symbols-outlined text-[#fbbf24] text-[20px]">warning_amber</span>
-            </div>
-
-            @if (Model.MembresiasPendientesDePago > 0)
-            {
-                <a asp-controller="Membresia" asp-action="MostrarMembresia"
-                   class="block rounded-xl p-3 mb-4 hover:opacity-80 cursor-pointer"
-                   style="background: rgba(234,179,8,0.12); border: 1px solid rgba(234,179,8,0.35);">
-                    <span class="text-[#ca8a04] font-semibold text-sm">
-                        @Model.MembresiasPendientesDePago cliente(s) con mensualidad pendiente de pago
-                    </span>
-                    <p class="text-on-surface-variant text-xs mt-1">
-                        Ya reservaron pero todavía no eligieron cómo van a pagar, o falta confirmarles el pago.
-                    </p>
-                </a>
-            }
-
-            @if (Model.Vencimientos != null && Model.Vencimientos.Any())
-            {
-                @foreach (var item in Model.Vencimientos)
-                {
-                    <a asp-controller="Clientes" asp-action="MostrarClientes"
-                       class="block border-b pb-3 mb-3 hover:opacity-80 cursor-pointer">
-                        <strong>@item.Cliente</strong><br />
-                        Vence: @item.FechaFin.ToString("dd/MM/yyyy")<br />
-                        <small>@item.DiasRestantes días restantes</small>
-                    </a>
-                }
-            }
-            else if (Model.MembresiasPendientesDePago == 0)
-            {
-                <p class="text-on-surface-variant text-sm">No hay alertas de vencimiento en los próximos 7 días.</p>
-            }
-        </div>
-    </div>
-
-    <div class="bg-surface-container rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)] mb-6">
+    <!-- Lo más importante primero: quién viene, qué hay que cobrar, cuánto entró hoy -->
+    <div class="bg-surface-container rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
         <div class="flex items-center justify-between mb-5">
             <h3 class="font-headline font-bold text-base">Quiénes van a asistir</h3>
             <span class="material-symbols-outlined text-secondary text-[20px]">groups</span>
@@ -223,46 +151,41 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
         <div class="bg-surface-container rounded-2xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-            <h3 class="font-headline font-bold text-base mb-1">Top Clientes — Asistencia al Gimnasio</h3>
-            <p class="text-on-surface-variant text-[11px] mb-3">Cuenta el check-in físico, no las confirmaciones de WOD.</p>
+            <div class="flex items-center justify-between mb-5">
+                <h3 class="font-headline font-bold text-base">Alertas de Vencimiento</h3>
+                <span class="material-symbols-outlined text-[#fbbf24] text-[20px]">warning_amber</span>
+            </div>
 
-            <!-- AC3: filtro por período -->
-            <form method="get" asp-controller="Dashboard" asp-action="Dashboard"
-                  class="flex flex-wrap gap-2 items-end mb-4">
-                <div>
-                    <label class="label-float text-[10px]">Desde</label>
-                    <input type="date" name="rankingInicio" class="input-field text-xs py-1.5" style="max-width:140px"
-                           value="@(Model.RankingInicio?.ToString("yyyy-MM-dd"))" />
-                </div>
-                <div>
-                    <label class="label-float text-[10px]">Hasta</label>
-                    <input type="date" name="rankingFin" class="input-field text-xs py-1.5" style="max-width:140px"
-                           value="@(Model.RankingFin?.ToString("yyyy-MM-dd"))" />
-                </div>
-                <button type="submit" class="tab-btn text-xs py-1.5">Filtrar</button>
-                @if (Model.RankingInicio.HasValue || Model.RankingFin.HasValue)
-                {
-                    <a asp-controller="Dashboard" asp-action="Dashboard" class="tab-btn text-xs py-1.5">Limpiar</a>
-                }
-            </form>
-
-            @if (Model.RankingClientes != null && Model.RankingClientes.Any())
+            @if (Model.MembresiasPendientesDePago > 0)
             {
-                <!-- AC1: ranking generado -->
-                @foreach (var item in Model.RankingClientes)
+                <a asp-controller="Membresia" asp-action="MostrarMembresia"
+                   class="block rounded-xl p-3 mb-4 hover:opacity-80 cursor-pointer"
+                   style="background: rgba(234,179,8,0.12); border: 1px solid rgba(234,179,8,0.35);">
+                    <span class="text-[#ca8a04] font-semibold text-sm">
+                        @Model.MembresiasPendientesDePago cliente(s) con mensualidad pendiente de pago
+                    </span>
+                    <p class="text-on-surface-variant text-xs mt-1">
+                        Ya reservaron pero todavía no eligieron cómo van a pagar, o falta confirmarles el pago.
+                    </p>
+                </a>
+            }
+
+            @if (Model.Vencimientos != null && Model.Vencimientos.Any())
+            {
+                @foreach (var item in Model.Vencimientos)
                 {
-                    <div class="flex justify-between border-b py-2">
-                        <span>@item.Cliente</span>
-                        <span>@item.Asistencias asistencias</span>
-                    </div>
+                    <a asp-controller="Clientes" asp-action="MostrarClientes"
+                       class="block border-b pb-3 mb-3 hover:opacity-80 cursor-pointer">
+                        <strong>@item.Cliente</strong><br />
+                        Vence: @item.FechaFin.ToString("dd/MM/yyyy")<br />
+                        <small>@item.DiasRestantes días restantes</small>
+                    </a>
                 }
             }
-            else
+            else if (Model.MembresiasPendientesDePago == 0)
             {
-                <!-- AC2: sin asistencias -->
-                <p class="text-on-surface-variant text-sm">No hay datos de asistencia para el período seleccionado.</p>
+                <p class="text-on-surface-variant text-sm">No hay alertas de vencimiento en los próximos 7 días.</p>
             }
         </div>
 
@@ -271,7 +194,6 @@
                 <h3 class="font-headline font-bold text-base">Ingresos de Hoy</h3>
                 <span class="text-on-surface-variant text-xs" id="todayDate"></span>
             </div>
-            <!-- AC1 y AC2: muestra ₡0 si no hay pagos, o el total si hay -->
             <div class="text-center py-4">
                 <div class="font-headline text-5xl font-black tracking-tighter text-primary-container">
                     ₡@Model.IngresosHoy.ToString("N0")
@@ -287,7 +209,6 @@
                     }
                 </p>
             </div>
-            <!-- AC3: lista de pagos del día (se actualiza al recargar) -->
             <div class="mt-4 space-y-2">
                 @foreach (var pago in Model.PagosHoy)
                 {
@@ -300,6 +221,90 @@
             </div>
         </div>
     </div>
+
+    <!-- Analítica: útil, pero no es lo primero que hay que ver cada día -->
+    <details class="bg-surface-container rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+        <summary class="cursor-pointer list-none p-6 flex items-center justify-between">
+            <div>
+                <h3 class="font-headline font-bold text-base">Estadísticas y gráficos</h3>
+                <p class="text-on-surface-variant text-xs mt-1">Asistencia en el tiempo y ranking de clientes.</p>
+            </div>
+            <span class="material-symbols-outlined text-on-surface-variant text-[22px] dashboard-details-chevron">expand_more</span>
+        </summary>
+
+        <div class="px-6 pb-6 space-y-6">
+            <div class="bg-surface-container-high rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 class="font-headline font-bold text-lg">Asistencia</h3>
+                        <p class="text-on-surface-variant text-xs">Ingresos al gimnasio por dia &middot; semana, mes o rango de fechas</p>
+                    </div>
+                    <div class="flex gap-1">
+                        <button id="btnSemana" class="tab-btn active" onclick="cambiarPeriodo('semana')">Semana</button>
+                        <button id="btnMes" class="tab-btn" onclick="cambiarPeriodo('mes')">Mes</button>
+                        <button id="btnRango" class="tab-btn" onclick="cambiarPeriodo('rango')">Rango</button>
+                    </div>
+                </div>
+
+                <form method="get" asp-controller="Dashboard" asp-action="Dashboard" class="flex flex-wrap items-center gap-2 mb-4">
+                    <input type="date" name="fechaInicio" class="input-field text-xs py-1.5" style="max-width:160px"
+                           value="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))" required />
+                    <input type="date" name="fechaFin" class="input-field text-xs py-1.5" style="max-width:160px"
+                           value="@(Model.FechaFin?.ToString("yyyy-MM-dd"))" required />
+                    <button type="submit" class="tab-btn">Aplicar</button>
+                </form>
+
+                @if (Model.RangoInvalido)
+                {
+                    <p class="text-xs mb-3" style="color:#ffb4ab;">El rango de fechas no es válido.</p>
+                }
+
+                <div style="height:300px"><canvas id="attendanceChart"></canvas></div>
+                <p id="chartEmptyMsg" class="text-on-surface-variant text-xs text-center mt-2" style="display:none;">
+                    No hay asistencias registradas para el período seleccionado.
+                </p>
+            </div>
+
+            <div class="bg-surface-container-high rounded-2xl p-6">
+                <h3 class="font-headline font-bold text-base mb-1">Top Clientes — Asistencia al Gimnasio</h3>
+                <p class="text-on-surface-variant text-[11px] mb-3">Cuenta el check-in físico, no las confirmaciones de WOD.</p>
+
+                <form method="get" asp-controller="Dashboard" asp-action="Dashboard"
+                      class="flex flex-wrap gap-2 items-end mb-4">
+                    <div>
+                        <label class="label-float text-[10px]">Desde</label>
+                        <input type="date" name="rankingInicio" class="input-field text-xs py-1.5" style="max-width:140px"
+                               value="@(Model.RankingInicio?.ToString("yyyy-MM-dd"))" />
+                    </div>
+                    <div>
+                        <label class="label-float text-[10px]">Hasta</label>
+                        <input type="date" name="rankingFin" class="input-field text-xs py-1.5" style="max-width:140px"
+                               value="@(Model.RankingFin?.ToString("yyyy-MM-dd"))" />
+                    </div>
+                    <button type="submit" class="tab-btn text-xs py-1.5">Filtrar</button>
+                    @if (Model.RankingInicio.HasValue || Model.RankingFin.HasValue)
+                    {
+                        <a asp-controller="Dashboard" asp-action="Dashboard" class="tab-btn text-xs py-1.5">Limpiar</a>
+                    }
+                </form>
+
+                @if (Model.RankingClientes != null && Model.RankingClientes.Any())
+                {
+                    @foreach (var item in Model.RankingClientes)
+                    {
+                        <div class="flex justify-between border-b py-2">
+                            <span>@item.Cliente</span>
+                            <span>@item.Asistencias asistencias</span>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-on-surface-variant text-sm">No hay datos de asistencia para el período seleccionado.</p>
+                }
+            </div>
+        </div>
+    </details>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -310,6 +315,15 @@
 
     document.getElementById('todayDate').textContent = new Date().toLocaleDateString('es-CR', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    // El gráfico está dentro de un <details> colapsado: Chart.js lo mide
+    // en 0x0 mientras está cerrado. Al abrirlo, hay que forzar un resize.
+    document.querySelector('details').addEventListener('toggle', function (e) {
+        if (e.target.open) {
+            var chart = Chart.getChart('attendanceChart');
+            if (chart) chart.resize();
+        }
     });
 </script>
 <script src="~/js/graficos.js" asp-append-version="true"></script>
