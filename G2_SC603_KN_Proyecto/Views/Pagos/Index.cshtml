@@ -80,15 +80,15 @@
                                     <div class="flex items-center gap-2 flex-wrap">
                                         @if (pago.EstadoVerificacion == "Verificado")
                                         {
-                                            <span class="text-[#4ade80] text-xs font-semibold whitespace-nowrap">✓ Verificado</span>
+                                            <span class="tag ok">Verificado</span>
                                         }
                                         else if (pago.EstadoVerificacion == "Rechazado")
                                         {
-                                            <span class="text-[#ffb4ab] text-xs font-semibold whitespace-nowrap">✕ Rechazado</span>
+                                            <span class="tag no">Rechazado</span>
                                         }
                                         else
                                         {
-                                            <span class="text-[#eab308] text-xs font-semibold whitespace-nowrap">Pendiente</span>
+                                            <span class="tag wa">Pendiente</span>
                                             <form asp-action="VerificarPago" method="post">
                                                 <input type="hidden" name="idPago" value="@pago.IdPago" />
                                                 <input type="hidden" name="aprobado" value="true" />

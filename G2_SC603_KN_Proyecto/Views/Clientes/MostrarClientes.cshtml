@@ -72,50 +72,61 @@
                                 <td>@cliente.Telefono</td>
                                 <td>@cliente.Correo</td>
                                 <td>@cliente.fecha_nacimiento?.ToString("dd/MM/yyyy")</td>
-                                <td>@cliente.Estado</td>
-                                <td class="flex gap-2 items-center justify-end">
-
-                                    <!-- Ver detalles -->
-                                    <button class="btn-primary text-xs py-1 px-2"
-                                            onclick="openDetailsModal(this)"
-                                            data-nombre="@cliente.Nombre"
-                                            data-cedula="@cliente.Cedula"
-                                            data-telefono="@cliente.Telefono"
-                                            data-correo="@cliente.Correo"
-                                            data-fecha="@cliente.fecha_nacimiento?.ToString("dd/MM/yyyy")"
-                                            data-estado="@cliente.Estado"
-                                            data-membresia="@cliente.EstadoMembresia"
-                                            data-vencimiento="@cliente.Vencimiento?.ToString("dd/MM/yyyy")">
-                                        Ver
-                                    </button>
-
-                                    @if (rolActual.Contains("ADMIN") || rolActual.Contains("RECEPTION"))
+                                <td>
+                                    @if (cliente.Estado == "Activo")
                                     {
-                                        <!-- Editar -->
-                                        <button class="btn-secondary text-xs py-1 px-2"
-                                                onclick="openEditModal(this)"
-                                                data-id="@cliente.id_cliente"
+                                        <span class="tag ok">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="tag no">Inactivo</span>
+                                    }
+                                </td>
+                                <td class="text-right">
+                                    <div class="flex gap-2 items-center justify-end">
+
+                                        <!-- Ver detalles -->
+                                        <button class="btn-primary text-xs py-1 px-2"
+                                                onclick="openDetailsModal(this)"
                                                 data-nombre="@cliente.Nombre"
                                                 data-cedula="@cliente.Cedula"
                                                 data-telefono="@cliente.Telefono"
                                                 data-correo="@cliente.Correo"
-                                                data-fecha="@cliente.fecha_nacimiento?.ToString("yyyy-MM-dd")"
-                                                data-estado="@cliente.Estado">
-                                            Editar
+                                                data-fecha="@cliente.fecha_nacimiento?.ToString("dd/MM/yyyy")"
+                                                data-estado="@cliente.Estado"
+                                                data-membresia="@cliente.EstadoMembresia"
+                                                data-vencimiento="@cliente.Vencimiento?.ToString("dd/MM/yyyy")">
+                                            Ver
                                         </button>
-                                    }
 
-                                    @if (rolActual.Contains("ADMIN") && cliente.Estado == "Inactivo")
-                                    {
-                                        <!-- Eliminar solo si es Inactivo -->
-                                        <form asp-action="EliminarCliente" method="post" id="formEliminar_@cliente.id_cliente">
-                                            <input type="hidden" name="idCliente" value="@cliente.id_cliente" />
-                                            <button type="button" class="btn-danger text-xs py-1 px-2"
-                                                    onclick="confirmarEliminacion(@cliente.id_cliente, '@cliente.Nombre')">
-                                                Eliminar
+                                        @if (rolActual.Contains("ADMIN") || rolActual.Contains("RECEPTION"))
+                                        {
+                                            <!-- Editar -->
+                                            <button class="btn-secondary text-xs py-1 px-2"
+                                                    onclick="openEditModal(this)"
+                                                    data-id="@cliente.id_cliente"
+                                                    data-nombre="@cliente.Nombre"
+                                                    data-cedula="@cliente.Cedula"
+                                                    data-telefono="@cliente.Telefono"
+                                                    data-correo="@cliente.Correo"
+                                                    data-fecha="@cliente.fecha_nacimiento?.ToString("yyyy-MM-dd")"
+                                                    data-estado="@cliente.Estado">
+                                                Editar
                                             </button>
-                                        </form>
-                                    }
+                                        }
+
+                                        @if (rolActual.Contains("ADMIN") && cliente.Estado == "Inactivo")
+                                        {
+                                            <!-- Eliminar solo si es Inactivo -->
+                                            <form asp-action="EliminarCliente" method="post" id="formEliminar_@cliente.id_cliente">
+                                                <input type="hidden" name="idCliente" value="@cliente.id_cliente" />
+                                                <button type="button" class="btn-danger text-xs py-1 px-2"
+                                                        onclick="confirmarEliminacion(@cliente.id_cliente, '@cliente.Nombre')">
+                                                    Eliminar
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
                                 </td>
                             </tr>
                         }

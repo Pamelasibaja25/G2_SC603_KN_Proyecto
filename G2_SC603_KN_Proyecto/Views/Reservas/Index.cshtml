@@ -24,7 +24,7 @@
 
     @if (Model.EsCliente)
     {
-        var pendiente = Model.MisConfirmaciones.FirstOrDefault(c => c.Estado == "PENDIENTE" && c.Fecha >= DateOnly.FromDateTime(DateTime.Today));
+        var pendiente = Model.WodPendienteActual;
 
         @if (pendiente != null)
         {
@@ -46,25 +46,17 @@
                         <p class="font-headline font-bold text-sm mb-1">¿A qué hora vas a llegar?</p>
                         <p class="text-on-surface-variant text-xs mb-4">Podés elegir más de una opción.</p>
 
-                        <div class="space-y-3">
+                        <div class="horario-grid">
                             @foreach (string horario in HorariosWod.Opciones)
                             {
                                 int votos = Model.VotosPorHorario.TryGetValue(horario, out int v) ? v : 0;
                                 int max = Model.VotosPorHorario.Values.DefaultIfEmpty(0).Max();
                                 int porcentaje = max == 0 ? 0 : (int)Math.Round(votos * 100.0 / max);
 
-                                <label class="flex items-center gap-3 cursor-pointer">
-                                    <input type="checkbox" name="horarios" value="@horario"
-                                           class="horario-checkbox w-5 h-5 accent-[#763df2] flex-shrink-0" />
-                                    <div class="flex-1">
-                                        <div class="flex items-center justify-between mb-1">
-                                            <span class="text-sm font-semibold">@horario</span>
-                                            <span class="text-xs text-on-surface-variant">@votos</span>
-                                        </div>
-                                        <div class="w-full h-1.5 rounded-full bg-outline-variant/20 overflow-hidden">
-                                            <div class="h-full rounded-full poll-bar" style="width:@(porcentaje)%; background:#4ade80;"></div>
-                                        </div>
-                                    </div>
+                                <label class="horario-chip" style="--pct:@(porcentaje)%">
+                                    <input type="checkbox" name="horarios" value="@horario" class="sr-only horario-checkbox" />
+                                    <span>@horario</span>
+                                    <span class="horario-chip-votes">@votos</span>
                                 </label>
                             }
                         </div>
@@ -88,13 +80,17 @@
         }
 
         <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)] mb-8">
-            <div class="p-6 pb-0">
-                <h3 class="font-headline font-bold text-base mb-4">Mis confirmaciones</h3>
+            <div class="p-6 pb-0 flex flex-wrap items-center justify-between gap-3">
+                <h3 class="font-headline font-bold text-base">Mis confirmaciones</h3>
+                <form method="get" asp-controller="Reservas" asp-action="Index" class="flex items-center gap-2">
+                    <input type="month" name="mes" value="@Model.MesSeleccionado" class="input-field text-xs py-1.5" style="max-width:150px" />
+                    <button type="submit" class="tab-btn text-xs py-1.5">Ver</button>
+                </form>
             </div>
             <div class="overflow-x-auto">
                 @if (!Model.MisConfirmaciones.Any())
                 {
-                    <p class="text-outline text-sm p-6 pt-0">Todavía no tenés confirmaciones registradas.</p>
+                    <p class="text-outline text-sm p-6 pt-4">No hay confirmaciones registradas para ese mes.</p>
                 }
                 else
                 {
@@ -117,15 +113,15 @@
                                     <td>
                                         @if (c.Estado == "ACEPTADO")
                                         {
-                                            <span class="text-[#4ade80]">Confirmado</span>
+                                            <span class="tag ok">Confirmado</span>
                                         }
                                         else if (c.Estado == "NO_ASISTE")
                                         {
-                                            <span class="text-[#ffb4ab]">No asistió</span>
+                                            <span class="tag no">No asistió</span>
                                         }
                                         else
                                         {
-                                            <span class="text-outline">Pendiente</span>
+                                            <span class="tag mu">Pendiente</span>
                                         }
                                     </td>
                                 </tr>
@@ -209,11 +205,11 @@
                                     <td>
                                         @if (c.AsistioHoy)
                                         {
-                                            <span class="text-[#4ade80]">Ya ingresó</span>
+                                            <span class="tag ok">Ya ingresó</span>
                                         }
                                         else
                                         {
-                                            <span class="text-outline">Pendiente</span>
+                                            <span class="tag mu">Pendiente</span>
                                         }
                                     </td>
                                     <td>
@@ -235,21 +231,28 @@
 
         <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
             <div class="p-6 pb-0">
-                <h3 class="font-headline font-bold text-base mb-4">Historial de Confirmaciones</h3>
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <h3 class="font-headline font-bold text-base">Historial de Confirmaciones</h3>
+                    <form method="get" asp-controller="Reservas" asp-action="Index" class="flex items-center gap-2">
+                        <input type="hidden" name="filtroEstado" value="@ViewBag.FiltroEstado" />
+                        <input type="month" name="mes" value="@Model.MesSeleccionado" class="input-field text-xs py-1.5" style="max-width:150px" />
+                        <button type="submit" class="tab-btn text-xs py-1.5">Ver</button>
+                    </form>
+                </div>
                 <div class="flex gap-2 mb-4">
-                    <a asp-controller="Reservas" asp-action="Index"
+                    <a asp-controller="Reservas" asp-action="Index" asp-route-mes="@Model.MesSeleccionado"
                        class="btn-secondary text-xs py-1.5 px-3 @(ViewBag.FiltroEstado == "Todas" ? "btn-primary" : "")">
                         Todas
                     </a>
-                    <a asp-controller="Reservas" asp-action="Index" asp-route-filtroEstado="ACEPTADO"
+                    <a asp-controller="Reservas" asp-action="Index" asp-route-filtroEstado="ACEPTADO" asp-route-mes="@Model.MesSeleccionado"
                        class="btn-secondary text-xs py-1.5 px-3 @(ViewBag.FiltroEstado == "ACEPTADO" ? "btn-primary" : "")">
                         Confirmadas
                     </a>
-                    <a asp-controller="Reservas" asp-action="Index" asp-route-filtroEstado="NO_ASISTE"
+                    <a asp-controller="Reservas" asp-action="Index" asp-route-filtroEstado="NO_ASISTE" asp-route-mes="@Model.MesSeleccionado"
                        class="btn-secondary text-xs py-1.5 px-3 @(ViewBag.FiltroEstado == "NO_ASISTE" ? "btn-primary" : "")">
                         No asisten
                     </a>
-                    <a asp-controller="Reservas" asp-action="Index" asp-route-filtroEstado="PENDIENTE"
+                    <a asp-controller="Reservas" asp-action="Index" asp-route-filtroEstado="PENDIENTE" asp-route-mes="@Model.MesSeleccionado"
                        class="btn-secondary text-xs py-1.5 px-3 @(ViewBag.FiltroEstado == "PENDIENTE" ? "btn-primary" : "")">
                         Pendientes
                     </a>
@@ -258,7 +261,7 @@
             <div class="overflow-x-auto">
                 @if (!Model.TodasConfirmaciones.Any())
                 {
-                    <p class="text-outline text-sm p-6 pt-0">No hay confirmaciones registradas.</p>
+                    <p class="text-outline text-sm p-6 pt-0">No hay confirmaciones registradas para ese mes.</p>
                 }
                 else
                 {
@@ -281,15 +284,15 @@
                                     <td>
                                         @if (c.Estado == "ACEPTADO")
                                         {
-                                            <span class="text-[#4ade80]">Confirmado</span>
+                                            <span class="tag ok">Confirmado</span>
                                         }
                                         else if (c.Estado == "NO_ASISTE")
                                         {
-                                            <span class="text-[#ffb4ab]">No asiste</span>
+                                            <span class="tag no">No asiste</span>
                                         }
                                         else
                                         {
-                                            <span class="text-outline">Pendiente</span>
+                                            <span class="tag mu">Pendiente</span>
                                         }
                                     </td>
                                 </tr>

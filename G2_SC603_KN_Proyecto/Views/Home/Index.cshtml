@@ -11,56 +11,75 @@
             <span>@ViewBag.Error</span>
         </div>
     }
-<!-- ═══════════════════════════════════════════════════════════════════ -->
-<!-- LOGIN SCREEN                                                        -->
-<!-- ═══════════════════════════════════════════════════════════════════ -->
-<div id="loginScreen" class="min-h-screen flex items-center justify-center bg-login-hero relative overflow-hidden">
-  <!-- Ambient blobs -->
-  <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-container rounded-full mix-blend-screen filter blur-[120px] opacity-10 pointer-events-none"></div>
-  <div class="absolute bottom-1/4 right-1/3 w-80 h-80 bg-tertiary-container rounded-full mix-blend-screen filter blur-[100px] opacity-10 pointer-events-none"></div>
 
-  <div class="w-full max-w-md mx-auto p-8 glass-panel rounded-2xl shadow-[0px_30px_60px_rgba(0,0,0,0.7)] border border-outline-variant/15 relative z-10">
-    <div class="absolute -top-16 -right-16 w-48 h-48 bg-primary-container rounded-full mix-blend-screen filter blur-[80px] opacity-25 pointer-events-none"></div>
-    <div class="absolute -bottom-16 -left-16 w-48 h-48 bg-tertiary-container rounded-full mix-blend-screen filter blur-[80px] opacity-20 pointer-events-none"></div>
+    <div class="login-split">
 
-    <div class="text-center mb-10 relative z-10">
-      <img src="~/img/logo.jpg" alt="Orion Fit" class="w-16 h-16 rounded-full mx-auto mb-4 login-logo-ring" />
-      <h1 class="tracking-tight text-primary-container mb-1 login-hero-title sidebar-logo-glow">Orion Fit Studio</h1>
-      <p class="font-label text-on-surface-variant text-xs tracking-[0.2em] uppercase opacity-70">Elite Management System</p>
+        <!-- Panel de marca -->
+        <div class="login-art">
+            <img class="login-watermark" src="~/img/logo.jpg" alt="" />
+
+            <div class="login-art-top">
+                <img class="login-art-logo" src="~/img/logo.jpg" alt="Orion Fit Studio" />
+                <div>
+                    <div class="login-art-brand">Orion Fit Studio</div>
+                    <div class="login-art-sub">Elite Management</div>
+                </div>
+            </div>
+
+            <div class="login-art-mid">
+                <h1>El estudio, <em>bajo control</em> desde una sola pantalla.</h1>
+                <p>Clientes, mensualidades, pagos SINPE, WOD del día y reservas. Sin hojas de cálculo.</p>
+            </div>
+
+            <div class="login-art-stats">
+                <div><span>Clientes</span><small>Mensualidades y estado</small></div>
+                <div><span>Pagos</span><small>SINPE y efectivo</small></div>
+                <div><span>WOD</span><small>Programación diaria</small></div>
+            </div>
+        </div>
+
+        <!-- Formulario -->
+        <div class="login-form-panel">
+            <div class="login-form-box">
+
+                <h2 class="font-headline text-2xl font-bold mb-1">Iniciar sesión</h2>
+                <p class="text-on-surface-variant text-sm mb-8">Ingresá con tu usuario del estudio.</p>
+
+                <form id="loginForm" asp-action="Index" method="post" class="space-y-5">
+                    <div>
+                        <label class="label-float" for="loginUser">Usuario</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]" style="font-variation-settings:'wght' 300">person</span>
+                            <input class="input-field pl-10" id="loginUser" name="username" type="text" placeholder="Ingrese su usuario" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="label-float flex justify-between" for="loginPass">
+                            <span>Contraseña</span>
+                            <a asp-controller="Account" asp-action="Recuperar"
+                               class="text-primary-container text-xs font-medium hover:text-primary transition-colors normal-case tracking-normal">
+                                ¿Olvidó su clave?
+                            </a>
+                        </label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]" style="font-variation-settings:'wght' 300">lock</span>
+                            <input class="input-field pl-10 pr-10" id="loginPass" name="password" type="password" placeholder="••••••••" />
+                            <button type="button" id="togglePassword"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors">
+                                <span id="toggleIcon" class="material-symbols-outlined text-[20px]" style="font-variation-settings:'wght' 300">visibility_off</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="pt-2">
+                        <button type="submit" class="btn-primary w-full justify-center text-base py-3.5">
+                            Iniciar Sesión
+                        </button>
+                    </div>
+                    <p class="text-center text-xs text-outline mt-4">© @DateTime.Now.Year, Orion Fit</p>
+                </form>
+
+            </div>
+        </div>
+
     </div>
-
-    <form id="loginForm" asp-action="Index" method="post" class="space-y-5 relative z-10">
-      <div>
-        <label class="label-float" for="loginUser">Usuario</label>
-        <div class="relative">
-          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]" style="font-variation-settings:'wght' 300">person</span>
-          <input class="input-field pl-10" id="loginUser" name="username" type="text" placeholder="Ingrese su usuario" />
-        </div>
-      </div>
-      <div>
-        <label class="label-float flex justify-between" for="loginPass">
-          <span>Contraseña</span>
-          <a asp-controller="Account" asp-action="Recuperar"
-   class="text-primary-container text-xs font-medium hover:text-primary transition-colors normal-case tracking-normal">
-    ¿Olvidó su clave?</a>
-
-        </label>
-        <div class="relative">
-          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]" style="font-variation-settings:'wght' 300">lock</span>
-          <input class="input-field pl-10 pr-10" id="loginPass" name="password" type="password" placeholder="••••••••" />
-        <button type="button" id="togglePassword"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors">
-            <span id="toggleIcon" class="material-symbols-outlined text-[20px]" style="font-variation-settings:'wght' 300">visibility_off</span>
-        </button>
-        </div>
-      </div>
-      <div class="pt-2">
-                    <button type="submit" class="btn-primary w-full justify-center text-base py-3.5">
-                        <span class="material-symbols-outlined text-[16px]"></span> Iniciar Sesión
-                    </button>
-      </div>
-       <p class="text-center text-xs text-outline mt-4">© @DateTime.Now.Year, Orion Fit</p>
-    </form>
-  </div>
-</div>
 </body>

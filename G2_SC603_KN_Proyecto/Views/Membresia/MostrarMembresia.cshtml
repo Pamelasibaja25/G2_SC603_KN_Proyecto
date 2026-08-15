@@ -110,28 +110,46 @@
                                 <td>@cliente.FechaInicio?.ToString("dd/MM/yyyy")</td>
                                 <td>@cliente.FechaFin?.ToString("dd/MM/yyyy")</td>
                                 <td>@cliente.Precio?.ToString("N2")</td>
-                                <td>@cliente.Estado</td>
-                                <td class="flex gap-2 items-center justify-end">
-
-                                    @if (rolActual.Contains("ADMIN") || rolActual.Contains("RECEPTION"))
+                                <td>
+                                    @if (cliente.Estado == "Activa")
                                     {
-                                        <!-- Editar -->
-                                        <button class="btn-secondary text-xs py-1 px-2"
-                                                onclick="openEditModalMembresia(this)"
-                                                data-idcliente="@cliente.IdCliente"
-                                                data-idmembresia="@cliente.IdMembresia"
-                                                data-nombre="@cliente.Cliente"
-                                                data-fechainicio="@cliente.FechaInicio?.ToString("yyyy-MM-dd")"
-                                                data-fechafin="@cliente.FechaFin?.ToString("yyyy-MM-dd")"
-                                                data-estado="@cliente.Estado">
-                                            Editar
-                                        </button>
+                                        <span class="tag ok">Activa</span>
                                     }
+                                    else if (cliente.Estado == "Pendiente")
+                                    {
+                                        <span class="tag wa">Pendiente</span>
+                                    }
+                                    else if (cliente.Estado == "Vencida")
+                                    {
+                                        <span class="tag no">Vencida</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="tag mu">@cliente.Estado</span>
+                                    }
+                                </td>
+                                <td class="text-right">
+                                    <div class="flex gap-2 items-center justify-end">
+                                        @if (rolActual.Contains("ADMIN") || rolActual.Contains("RECEPTION"))
+                                        {
+                                            <!-- Editar -->
+                                            <button class="btn-secondary text-xs py-1 px-2"
+                                                    onclick="openEditModalMembresia(this)"
+                                                    data-idcliente="@cliente.IdCliente"
+                                                    data-idmembresia="@cliente.IdMembresia"
+                                                    data-nombre="@cliente.Cliente"
+                                                    data-fechainicio="@cliente.FechaInicio?.ToString("yyyy-MM-dd")"
+                                                    data-fechafin="@cliente.FechaFin?.ToString("yyyy-MM-dd")"
+                                                    data-estado="@cliente.Estado">
+                                                Editar
+                                            </button>
+                                        }
 
-                                    <button class="btn-primary text-xs py-1 px-2"
-                                            onclick="mostrarHistorial(@cliente.IdCliente)">
-                                        Historial
-                                    </button>
+                                        <button class="btn-primary text-xs py-1 px-2"
+                                                onclick="mostrarHistorial(@cliente.IdCliente)">
+                                            Historial
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -278,7 +296,7 @@
                     </div>
                 </div>
             <div class="flex gap-3 pt-2 justify-end">
-                <button type="button" class="btn-secondary" onclick="closeModal('editModal')">Cancelar</button>
+                <button type="button" class="btn-secondary" onclick="closeModal('openEditModalMembresia')">Cancelar</button>
                 <button type="submit" class="btn-primary">
                     <span class="material-symbols-outlined text-[16px]">save</span> Guardar Cambios
                 </button>
@@ -287,13 +305,13 @@
     </div>
 </div>
 
-<!-- ===================== MODAL HISTORIAL MEMBRESIA ===================== -->
+<!-- ===================== MODAL HISTORIAL DE PAGOS ===================== -->
 <div class="modal-overlay" id="historialModal">
     <div class="modal-box" style="max-width:900px">
 
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-headline font-bold text-xl">
-                Historial de Mensualidades
+                Historial de Pagos
             </h3>
 
             <button onclick="closeModal('historialModal')" class="btn-icon">
@@ -304,9 +322,10 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Mensualidad</th>
-                    <th>Inicio</th>
-                    <th>Fin</th>
+                    <th>Fecha</th>
+                    <th>Monto</th>
+                    <th>Método</th>
+                    <th>Estado</th>
                 </tr>
             </thead>
 

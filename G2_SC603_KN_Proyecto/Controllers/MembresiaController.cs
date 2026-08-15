@@ -67,6 +67,13 @@ namespace G2_SC603_KN_Proyecto.Controllers
         [HttpPost]
         public async Task<IActionResult> EditarMembresia(ClienteMembresiaResumen clienteEditado)
         {
+            if (clienteEditado.FechaFin.HasValue && clienteEditado.FechaInicio.HasValue
+                && clienteEditado.FechaFin < clienteEditado.FechaInicio)
+            {
+                TempData["ErrorMessage"] = "La fecha de vencimiento no puede ser anterior a la fecha de inicio.";
+                return RedirectToAction("MostrarMembresia");
+            }
+
             try
             {
                 await _context.Database.ExecuteSqlRawAsync(
@@ -91,8 +98,17 @@ namespace G2_SC603_KN_Proyecto.Controllers
         #region Mostrar Historial
         public async Task<IActionResult> ObtenerHistorial(int idCliente)
         {
-            var historial = await _context.HistorialMembresias
-                .FromSqlRaw("CALL sp_obtenerHistorialMembresia({0})", idCliente)
+            var historial = await _context.Pagos
+                .Include(p => p.IdClienteMembresiaNavigation)
+                .Where(p => p.IdClienteMembresiaNavigation.IdCliente == idCliente)
+                .OrderByDescending(p => p.FechaPago)
+                .Select(p => new
+                {
+                    fecha = p.FechaPago,
+                    monto = p.Monto,
+                    metodo = p.MetodoPago,
+                    estado = p.EstadoVerificacion
+                })
                 .ToListAsync();
 
             return Json(historial);

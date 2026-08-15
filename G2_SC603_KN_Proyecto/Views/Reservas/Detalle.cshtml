@@ -48,7 +48,7 @@
         </div>
         <div class="flex justify-between">
             <span class="text-on-surface-variant text-sm">Estado</span>
-            <span class="@(Model.Estado == "Activa" ? "badge-active" : "badge-expired") inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase">@Model.Estado</span>
+            <span class="badge-status @(Model.Estado == "Activa" ? "badge-active" : "badge-expired")">@Model.Estado</span>
         </div>
     </div>
 </div>

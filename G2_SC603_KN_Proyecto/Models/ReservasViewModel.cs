@@ -25,6 +25,12 @@ public class ReservasViewModel
 
     /// <summary>Cliente: total de personas que ya votaron algún horario para el WOD pendiente.</summary>
     public int TotalVotantesHorario { get; set; }
+
+    /// <summary>Mes que se está viendo en el historial, formato "yyyy-MM".</summary>
+    public string MesSeleccionado { get; set; } = "";
+
+    /// <summary>Cliente: WOD pendiente de confirmar (siempre el actual, sin filtrar por mes).</summary>
+    public ConfirmacionWodVM? WodPendienteActual { get; set; }
 }
 
 public class ConfirmacionWodVM

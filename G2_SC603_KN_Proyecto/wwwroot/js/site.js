@@ -241,7 +241,7 @@ function filterClients() {
     rows.forEach(row => {
         const name = row.cells[0] ? row.cells[0].textContent.toLowerCase() : "";
         const cel = row.cells[1] ? row.cells[1].textContent.toLowerCase() : "";
-        const status = row.cells[5] ? row.cells[5].textContent : "";
+        const status = row.cells[5] ? row.cells[5].textContent.trim() : "";
 
         const matchesSearch = name.includes(searchValue);
         const matchesSearchCel = cel.includes(searchValue);
@@ -310,7 +310,7 @@ function filterMembresia() {
     rows.forEach(row => {
         const name = row.cells[0] ? row.cells[0].textContent.toLowerCase() : "";
         const cel = row.cells[1] ? row.cells[1].textContent.toLowerCase() : "";
-        const status = row.cells[5] ? row.cells[5].textContent : "";
+        const status = row.cells[5] ? row.cells[5].textContent.trim() : "";
 
         const matchesSearch = name.includes(searchValue);
         const matchesSearchCel = cel.includes(searchValue);
@@ -328,13 +328,26 @@ function filterMembresia() {
     if (counter) counter.textContent = `Mostrando ${visibleCount} cliente(s)`;
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    var editInicio = document.getElementById("editMembershipStart");
+    var editFin = document.getElementById("editMembershipEnd");
+    if (editInicio && editFin) {
+        editInicio.addEventListener("change", function () { editFin.min = editInicio.value; });
+        editFin.addEventListener("change", function () { editInicio.max = editFin.value; });
+    }
+});
+
 function openEditModalMembresia(btn) {
     const modal = document.getElementById("openEditModalMembresia");
     if (!modal) return;
     document.getElementById("editIdCliente").value = btn.dataset.idcliente || "";
     document.getElementById("editNombre").value = btn.dataset.nombre || "";
-    document.getElementById("editMembershipStart").value = btn.dataset.fechainicio || "";
-    document.getElementById("editMembershipEnd").value = btn.dataset.fechafin || "";
+    const inputInicio = document.getElementById("editMembershipStart");
+    const inputFin = document.getElementById("editMembershipEnd");
+    inputInicio.value = btn.dataset.fechainicio || "";
+    inputFin.value = btn.dataset.fechafin || "";
+    inputFin.min = inputInicio.value;
+    inputInicio.max = inputFin.value;
     const selectEstado = document.getElementById("editMembershipStatus");
     if (selectEstado) selectEstado.value = btn.dataset.estado || "Activa";
     const selectMembresia = document.getElementById("editMembershipPlan");
@@ -353,8 +366,8 @@ async function mostrarHistorial(idCliente) {
 
         html = `
             <tr>
-                <td colspan="3" class="text-center text-outline py-4">
-                    No hay datos registrados.
+                <td colspan="4" class="text-center text-outline py-4">
+                    Este cliente todavía no tiene pagos registrados.
                 </td>
             </tr>`;
     }
@@ -363,9 +376,10 @@ async function mostrarHistorial(idCliente) {
         datos.forEach(x => {
             html += `
                 <tr>
-                    <td>${x.membresia}</td>
-                    <td>${x.fechaInicio.substring(0, 10)}</td>
-                    <td>${x.fechaFin.substring(0, 10)}</td>
+                    <td>${x.fecha.substring(0, 10)}</td>
+                    <td>₡${Number(x.monto).toLocaleString('es-CR')}</td>
+                    <td>${x.metodo ?? '—'}</td>
+                    <td>${x.estado}</td>
                 </tr>`;
         });
     }
@@ -419,10 +433,10 @@ function filterUsers() {
 
     rows.forEach(row => {
         const name = row.cells[2] ? row.cells[2].textContent.toLowerCase() : "";
-        const status = row.cells[1] ? row.cells[1].textContent : "";
+        const rolCrudo = row.dataset.rol || "";
 
         const matchesSearch = name.includes(searchValue);
-        const matchesStatus = statusValue === "" || status === statusValue;
+        const matchesStatus = statusValue === "" || rolCrudo.split(",").includes(statusValue);
 
         if (matchesSearch && matchesStatus) {
             row.style.display = "";

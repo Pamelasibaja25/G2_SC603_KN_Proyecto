@@ -32,36 +32,36 @@
 
     <!-- Metric Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="metric-card bg-surface-container rounded-2xl p-5 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-            <div class="flex justify-between items-start mb-3">
-                <span class="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold">Clientes Activos</span>
-                <span class="material-symbols-outlined text-primary-container text-[20px]" style="font-variation-settings:'wght' 300">group</span>
-            </div>
-            <div class="font-headline text-4xl font-black tracking-tighter text-on-surface">@Model.ClientesActivos</div>
+        <div class="kpi">
+            <div class="kpi-t">Clientes activos <span class="material-symbols-outlined">group</span></div>
+            <div class="kpi-v">@Model.ClientesActivos</div>
+            <div class="kpi-f">Con mensualidad registrada</div>
         </div>
-        <div class="metric-card wine bg-surface-container rounded-2xl p-5 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-            <div class="flex justify-between items-start mb-3">
-                <span class="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold">Ingresos del Mes</span>
-                <span class="material-symbols-outlined text-tertiary-fixed-dim text-[20px]" style="font-variation-settings:'wght' 300">monetization_on</span>
-            </div>
-            <div class="font-headline text-4xl font-black tracking-tighter text-on-surface">₡@Model.IngresosMes.ToString("N0")</div>
+        <div class="kpi">
+            <div class="kpi-t">Ingresos del mes <span class="material-symbols-outlined">monetization_on</span></div>
+            <div class="kpi-v">₡@Model.IngresosMes.ToString("N0")</div>
+            <div class="kpi-f">Pagos verificados este mes</div>
         </div>
-        <div class="metric-card bg-surface-container rounded-2xl p-5 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-            <div class="flex justify-between items-start mb-3">
-                <span class="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold">Asistencia Diaria</span>
-                <span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings:'wght' 300">directions_run</span>
-            </div>
-            <div class="font-headline text-4xl font-black tracking-tighter text-on-surface">@Model.AsistenciaHoy</div>
-            <div class="text-on-surface-variant text-[10px] mt-2">
-                @Model.ConfirmadosWodManana confirmado(s) para el WOD de mañana
-            </div>
+        <div class="kpi">
+            <div class="kpi-t">Asistencia diaria <span class="material-symbols-outlined">directions_run</span></div>
+            <div class="kpi-v">@Model.AsistenciaHoy</div>
+            <div class="kpi-f">@Model.ConfirmadosWodManana confirmado(s) para mañana</div>
+            @if (Model.AsistenciaSemanal != null && Model.AsistenciaSemanal.Any())
+            {
+                int maxAsistencia = Model.AsistenciaSemanal.Max(a => a.Cantidad);
+                <div class="spark">
+                    @foreach (var dia in Model.AsistenciaSemanal)
+                    {
+                        int alturaPct = maxAsistencia == 0 ? 4 : Math.Max(4, (int)(dia.Cantidad * 100.0 / maxAsistencia));
+                        <i style="height:@(alturaPct)%" title="@dia.Dia: @dia.Cantidad"></i>
+                    }
+                </div>
+            }
         </div>
-        <div class="metric-card bg-surface-container rounded-2xl p-5 shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
-            <div class="flex justify-between items-start mb-3">
-                <span class="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold">Vencen en 7 días</span>
-                <span class="material-symbols-outlined text-[#fbbf24] text-[20px]" style="font-variation-settings:'wght' 300">warning</span>
-            </div>
-            <div class="font-headline text-4xl font-black tracking-tighter text-[#fbbf24]">@Model.MembresiasPorVencer</div>
+        <div class="kpi">
+            <div class="kpi-t">Vencen en 7 días <span class="material-symbols-outlined" style="color:var(--warn)">event_busy</span></div>
+            <div class="kpi-v" style="color:var(--warn)">@Model.MembresiasPorVencer</div>
+            <div class="kpi-f">Requieren renovación pronto</div>
         </div>
     </div>
 
@@ -76,7 +76,7 @@
         </p>
         @if (Model.ConfirmadosPorDia != null && Model.ConfirmadosPorDia.Any())
         {
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div class="space-y-4">
                 @foreach (var item in Model.ConfirmadosPorDia)
                 {
                     bool esHoy = item.Fecha == DateOnly.FromDateTime(DateTime.Today);
@@ -91,7 +91,7 @@
                             }
                         </div>
                         <p class="text-on-surface-variant text-xs mb-3">@item.Confirmados confirmado(s)</p>
-                        <div style="max-height:220px; overflow-y:auto;">
+                        <div style="max-height:220px; overflow-y:auto; max-width:640px;">
                             <table class="w-full text-xs">
                                 <thead>
                                     <tr class="text-left">
@@ -253,10 +253,13 @@
                 </div>
 
                 <form method="get" asp-controller="Dashboard" asp-action="Dashboard" class="flex flex-wrap items-center gap-2 mb-4">
-                    <input type="date" name="fechaInicio" class="input-field text-xs py-1.5" style="max-width:160px"
-                           value="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))" required />
-                    <input type="date" name="fechaFin" class="input-field text-xs py-1.5" style="max-width:160px"
-                           value="@(Model.FechaFin?.ToString("yyyy-MM-dd"))" required />
+                    <input type="date" name="fechaInicio" id="fechaInicio" class="input-field text-xs py-1.5" style="max-width:160px"
+                           value="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))"
+                           max="@(Model.FechaFin?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"))" required />
+                    <input type="date" name="fechaFin" id="fechaFin" class="input-field text-xs py-1.5" style="max-width:160px"
+                           value="@(Model.FechaFin?.ToString("yyyy-MM-dd"))"
+                           min="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))"
+                           max="@(DateTime.Today.ToString("yyyy-MM-dd"))" required />
                     <button type="submit" class="tab-btn">Aplicar</button>
                 </form>
 
@@ -279,13 +282,16 @@
                       class="flex flex-wrap gap-2 items-end mb-4">
                     <div>
                         <label class="label-float text-[10px]">Desde</label>
-                        <input type="date" name="rankingInicio" class="input-field text-xs py-1.5" style="max-width:140px"
-                               value="@(Model.RankingInicio?.ToString("yyyy-MM-dd"))" />
+                        <input type="date" name="rankingInicio" id="rankingInicio" class="input-field text-xs py-1.5" style="max-width:140px"
+                               value="@(Model.RankingInicio?.ToString("yyyy-MM-dd"))"
+                               max="@(Model.RankingFin?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"))" />
                     </div>
                     <div>
                         <label class="label-float text-[10px]">Hasta</label>
-                        <input type="date" name="rankingFin" class="input-field text-xs py-1.5" style="max-width:140px"
-                               value="@(Model.RankingFin?.ToString("yyyy-MM-dd"))" />
+                        <input type="date" name="rankingFin" id="rankingFin" class="input-field text-xs py-1.5" style="max-width:140px"
+                               value="@(Model.RankingFin?.ToString("yyyy-MM-dd"))"
+                               min="@(Model.RankingInicio?.ToString("yyyy-MM-dd"))"
+                               max="@(DateTime.Today.ToString("yyyy-MM-dd"))" />
                     </div>
                     <button type="submit" class="tab-btn text-xs py-1.5">Filtrar</button>
                     @if (Model.RankingInicio.HasValue || Model.RankingFin.HasValue)
@@ -293,6 +299,11 @@
                         <a asp-controller="Dashboard" asp-action="Dashboard" class="tab-btn text-xs py-1.5">Limpiar</a>
                     }
                 </form>
+
+                @if (Model.RankingInicio.HasValue && Model.RankingFin.HasValue && Model.RankingInicio > Model.RankingFin)
+                {
+                    <p class="text-xs mb-3" style="color:#ffb4ab;">"Desde" no puede ser posterior a "Hasta" — se ignoró el filtro.</p>
+                }
 
                 @if (Model.RankingClientes != null && Model.RankingClientes.Any())
                 {
@@ -322,6 +333,23 @@
     document.getElementById('todayDate').textContent = new Date().toLocaleDateString('es-CR', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
+
+    // Evita que "Desde" quede después de "Hasta" (o viceversa) en los
+    // filtros de fecha, bloqueándolo directo en el selector nativo.
+    function sincronizarRangoFechas(idInicio, idFin) {
+        var inputInicio = document.getElementById(idInicio);
+        var inputFin = document.getElementById(idFin);
+        if (!inputInicio || !inputFin) return;
+
+        inputInicio.addEventListener('change', function () {
+            inputFin.min = inputInicio.value;
+        });
+        inputFin.addEventListener('change', function () {
+            inputInicio.max = inputFin.value;
+        });
+    }
+    sincronizarRangoFechas('fechaInicio', 'fechaFin');
+    sincronizarRangoFechas('rankingInicio', 'rankingFin');
 
     // El gráfico está dentro de un <details> colapsado: Chart.js lo mide
     // en 0x0 mientras está cerrado. Al abrirlo, hay que forzar un resize.

@@ -80,7 +80,7 @@
                     {
                         foreach (var cliente in Model)
                         {
-                            <tr>
+                            <tr data-rol="@cliente.Rol">
                                 <td>@cliente.Username</td>
                                 <td>@TraducirRoles(cliente.Rol)</td>
                                 <td>@cliente.Nombre</td>
@@ -88,33 +88,35 @@
                                 <td>
                                     @if (cliente.Activo)
                                     {
-                                        <span class="text-[#4ade80] text-xs font-semibold">Activo</span>
+                                        <span class="tag ok">Activo</span>
                                     }
                                     else
                                     {
-                                        <span class="text-[#ffb4ab] text-xs font-semibold">Desactivado</span>
+                                        <span class="tag no">Desactivado</span>
                                     }
                                 </td>
-                                <td class="flex gap-2 items-center">
-                                    <a href="javascript:void(0)"
-                                       onclick="openEditUserModal('@cliente.Username', '@cliente.Nombre', '@cliente.Correo', '@cliente.Rol', '@cliente.Telefono')"
-                                       class="btn-secondary text-xs py-1.5 px-3">Editar</a>
+                                <td>
+                                    <div class="flex gap-2 items-center">
+                                        <a href="javascript:void(0)"
+                                           onclick="openEditUserModal('@cliente.Username', '@cliente.Nombre', '@cliente.Correo', '@cliente.Rol', '@cliente.Telefono')"
+                                           class="btn-secondary text-xs py-1.5 px-3">Editar</a>
 
-                                    <form asp-action="ToggleActivoUsuario" method="post">
-                                        <input type="hidden" name="username" value="@cliente.Username" />
-                                        <button type="submit" class="btn-secondary text-xs py-1.5 px-3">
-                                            @(cliente.Activo ? "Desactivar" : "Activar")
-                                        </button>
-                                    </form>
-
-                                    @if (!cliente.Activo)
-                                    {
-                                        <form asp-action="EliminarUsuario" method="post"
-                                              onsubmit="return confirm('¿Eliminar definitivamente a @cliente.Username?');">
+                                        <form asp-action="ToggleActivoUsuario" method="post">
                                             <input type="hidden" name="username" value="@cliente.Username" />
-                                            <button type="submit" class="btn-outlined text-xs py-1.5 px-3">Eliminar</button>
+                                            <button type="submit" class="btn-secondary text-xs py-1.5 px-3">
+                                                @(cliente.Activo ? "Desactivar" : "Activar")
+                                            </button>
                                         </form>
-                                    }
+
+                                        @if (!cliente.Activo)
+                                        {
+                                            <form asp-action="EliminarUsuario" method="post"
+                                                  onsubmit="return confirm('¿Eliminar definitivamente a @cliente.Username?');">
+                                                <input type="hidden" name="username" value="@cliente.Username" />
+                                                <button type="submit" class="btn-outlined text-xs py-1.5 px-3">Eliminar</button>
+                                            </form>
+                                        }
+                                    </div>
                                 </td>
                             </tr>
                         }

@@ -14,8 +14,19 @@ namespace G2_SC603_KN_Proyecto.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string? filtroEstado = null)
+        public async Task<IActionResult> Index(string? filtroEstado = null, string? mes = null)
         {
+            // "mes" viene como "yyyy-MM" (ej: "2026-08"). Si no se manda,
+            // se usa el mes actual por defecto para no cargar todo el historial de una.
+            DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
+            DateOnly mesSeleccionado = hoy;
+            if (!string.IsNullOrEmpty(mes) && DateOnly.TryParse(mes + "-01", out DateOnly parsed))
+            {
+                mesSeleccionado = parsed;
+            }
+            DateOnly inicioMes = new DateOnly(mesSeleccionado.Year, mesSeleccionado.Month, 1);
+            DateOnly finMes = inicioMes.AddMonths(1).AddDays(-1);
+
             string rol = HttpContext.Session.GetString("Rol") ?? string.Empty;
             int? idUsuario = HttpContext.Session.GetInt32("ID");
 
@@ -26,13 +37,13 @@ namespace G2_SC603_KN_Proyecto.Controllers
             model.EsAdmin = rol.Contains("ADMIN") || rol.Contains("RECEPTION");
             model.EsCliente = cliente != null;
 
-            DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
-
             if (cliente != null)
             {
                 await PonerAlDiaConElUltimoWod(cliente.IdCliente, hoy);
 
-                model.MisConfirmaciones = await _context.ClienteRutinas
+                // Todas las confirmaciones del cliente, sin filtrar (para calcular el WOD
+                // pendiente actual, que siempre debe verse sin importar qué mes se esté mirando).
+                List<ConfirmacionWodVM> todasSusConfirmaciones = await _context.ClienteRutinas
                     .Include(cr => cr.IdRutinaNavigation)
                     .Where(cr => cr.IdCliente == cliente.IdCliente)
                     .OrderByDescending(cr => cr.FechaAsignacion)
@@ -48,9 +59,17 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     })
                     .ToListAsync();
 
+                model.WodPendienteActual = todasSusConfirmaciones
+                    .FirstOrDefault(c => c.Estado == "PENDIENTE" && c.Fecha >= hoy);
+
+                // Historial (tabla de abajo): sí se filtra por el mes elegido.
+                model.MisConfirmaciones = todasSusConfirmaciones
+                    .Where(c => c.Fecha >= inicioMes && c.Fecha <= finMes)
+                    .ToList();
+
                 // Votos de la encuesta de horarios para el WOD más reciente del cliente,
                 // para mostrar el conteo estilo encuesta de WhatsApp mientras elige.
-                var wodPendiente = model.MisConfirmaciones.OrderByDescending(c => c.Fecha).FirstOrDefault();
+                var wodPendiente = model.WodPendienteActual;
                 if (wodPendiente != null)
                 {
                     List<string?> horariosDeTodos = await _context.ClienteRutinas
@@ -100,7 +119,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
                 IQueryable<ClienteRutina> query = _context.ClienteRutinas
                     .Include(cr => cr.IdRutinaNavigation)
-                    .Include(cr => cr.IdClienteNavigation);
+                    .Include(cr => cr.IdClienteNavigation)
+                    .Where(cr => cr.FechaAsignacion >= inicioMes && cr.FechaAsignacion <= finMes);
 
                 if (filtroEstado == "ACEPTADO" || filtroEstado == "NO_ASISTE" || filtroEstado == "PENDIENTE")
                 {
@@ -162,6 +182,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     .ToList();
             }
 
+            model.MesSeleccionado = mesSeleccionado.ToString("yyyy-MM");
+
             return View(model);
         }
 
@@ -208,46 +230,50 @@ namespace G2_SC603_KN_Proyecto.Controllers
             return RedirectToAction("Index");
         }
 
-        // Pone al día a clientes creados después de publicarse el último WOD vigente
+
         private async Task PonerAlDiaConElUltimoWod(int idCliente, DateOnly hoy)
         {
-            var ultimoWod = await _context.Rutinas
-                .OrderByDescending(r => r.IdRutina)
-                .FirstOrDefaultAsync();
+            // Todas las rutinas que ALGÚN cliente ya tiene asignadas para hoy
+            // o más adelante: son las que siguen "vigentes".
+            var rutinasVigentes = await _context.ClienteRutinas
+                .Where(cr => cr.FechaAsignacion >= hoy)
+                .Select(cr => new { cr.IdRutina, cr.FechaAsignacion })
+                .Distinct()
+                .ToListAsync();
 
-            if (ultimoWod == null)
+            if (!rutinasVigentes.Any())
             {
                 return;
             }
 
-            bool yaTieneAsignacion = await _context.ClienteRutinas
-                .AnyAsync(cr => cr.IdCliente == idCliente && cr.IdRutina == ultimoWod.IdRutina);
+            var idsYaAsignados = await _context.ClienteRutinas
+                .Where(cr => cr.IdCliente == idCliente)
+                .Select(cr => cr.IdRutina)
+                .ToListAsync();
 
-            if (yaTieneAsignacion)
+            bool huboCambios = false;
+
+            foreach (var rutina in rutinasVigentes)
             {
-                return;
+                if (idsYaAsignados.Contains(rutina.IdRutina))
+                {
+                    continue;
+                }
+
+                _context.ClienteRutinas.Add(new ClienteRutina
+                {
+                    IdCliente = idCliente,
+                    IdRutina = rutina.IdRutina,
+                    FechaAsignacion = rutina.FechaAsignacion,
+                    EstadoAsistencia = "PENDIENTE"
+                });
+                huboCambios = true;
             }
 
-            DateOnly? fechaVigente = await _context.ClienteRutinas
-                .Where(cr => cr.IdRutina == ultimoWod.IdRutina)
-                .Select(cr => (DateOnly?)cr.FechaAsignacion)
-                .FirstOrDefaultAsync();
-
-            // No se reactiva si ya quedó en el pasado
-            if (fechaVigente == null || fechaVigente < hoy)
+            if (huboCambios)
             {
-                return;
+                await _context.SaveChangesAsync();
             }
-
-            _context.ClienteRutinas.Add(new ClienteRutina
-            {
-                IdCliente = idCliente,
-                IdRutina = ultimoWod.IdRutina,
-                FechaAsignacion = fechaVigente.Value,
-                EstadoAsistencia = "PENDIENTE"
-            });
-
-            await _context.SaveChangesAsync();
         }
     }
 }

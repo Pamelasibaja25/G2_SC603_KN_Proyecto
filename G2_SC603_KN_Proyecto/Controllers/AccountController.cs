@@ -1,6 +1,7 @@
 ﻿using G2_SC603_KN_Proyecto.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -39,14 +40,33 @@ namespace G2_SC603_KN_Proyecto.Controllers
         }
 
         [HttpPost]
-        public IActionResult Recuperar(string username, string nuevaPassword)
+        public IActionResult Recuperar(string username, string correo, string nuevaPassword)
         {
             var usuario = _context.Usuarios
+                .Include(u => u.Administradors)
+                .Include(u => u.Entrenadors)
+                .Include(u => u.Clientes)
                 .FirstOrDefault(u => u.Username == username);
+
+           
+            string errorGenerico = "El usuario y el correo no coinciden con ningún registro.";
 
             if (usuario == null)
             {
-                ViewBag.Error = "Usuario no encontrado";
+                ViewBag.Error = errorGenerico;
+                return View();
+            }
+
+            string correoIngresado = (correo ?? "").Trim().ToLower();
+
+            bool correoCoincide =
+                usuario.Administradors.Any(a => (a.Correo ?? "").Trim().ToLower() == correoIngresado) ||
+                usuario.Entrenadors.Any(e => (e.Correo ?? "").Trim().ToLower() == correoIngresado) ||
+                usuario.Clientes.Any(c => (c.Correo ?? "").Trim().ToLower() == correoIngresado);
+
+            if (string.IsNullOrWhiteSpace(correoIngresado) || !correoCoincide)
+            {
+                ViewBag.Error = errorGenerico;
                 return View();
             }
 

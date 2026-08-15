@@ -1,31 +1,81 @@
 ﻿@{
-    Layout = "_Layout";
+    Layout = "_LayoutExterno";
 }
 
-<h2>Recuperar contraseña</h2>
+<body class="bg-surface text-on-surface min-h-screen">
 
-<form method="post">
+    <div class="login-split">
 
-    <div>
-        <label>Usuario</label>
-        <input type="text" name="username" required />
+        <div class="login-art">
+            <img class="login-watermark" src="~/img/logo.jpg" alt="" />
+
+            <div class="login-art-top">
+                <img class="login-art-logo" src="~/img/logo.jpg" alt="Orion Fit Studio" />
+                <div>
+                    <div class="login-art-brand">Orion Fit Studio</div>
+                    <div class="login-art-sub">Elite Management</div>
+                </div>
+            </div>
+
+            <div class="login-art-mid">
+                <h1>Recuperá el acceso <em>a tu cuenta</em>.</h1>
+                <p>Vas a necesitar tu usuario y el correo con el que te registraste.</p>
+            </div>
+
+            <div></div>
+        </div>
+
+        <div class="login-form-panel">
+            <div class="login-form-box">
+
+                <h2 class="font-headline text-2xl font-bold mb-1">Recuperar contraseña</h2>
+                <p class="text-on-surface-variant text-sm mb-8">
+                    Por seguridad, necesitamos confirmar tu usuario y tu correo registrado antes de cambiar la clave.
+                </p>
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="toast show" style="background:#201f1f; color:#ffb4ab;">
+                        <span class="material-symbols-outlined">error</span>
+                        <span>@ViewBag.Error</span>
+                    </div>
+                }
+
+                @if (ViewBag.Mensaje != null)
+                {
+                    <div class="toast show" style="background:#201f1f; color:#4ade80;">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        <span>@ViewBag.Mensaje</span>
+                    </div>
+                }
+
+                <form method="post" class="space-y-5">
+                    <div>
+                        <label class="label-float" for="username">Usuario</label>
+                        <input class="input-field" id="username" name="username" type="text" placeholder="Tu usuario" required />
+                    </div>
+
+                    <div>
+                        <label class="label-float" for="correo">Correo registrado</label>
+                        <input class="input-field" id="correo" name="correo" type="email" placeholder="tu@correo.com" required />
+                    </div>
+
+                    <div>
+                        <label class="label-float" for="nuevaPassword">Nueva contraseña</label>
+                        <input class="input-field" id="nuevaPassword" name="nuevaPassword" type="password" placeholder="••••••••" required minlength="6" />
+                    </div>
+
+                    <button type="submit" class="btn-primary w-full justify-center text-base py-3.5">
+                        Actualizar contraseña
+                    </button>
+
+                    <p class="text-center text-xs text-outline mt-4">
+                        <a asp-controller="Home" asp-action="Index" class="text-primary-container">Volver al inicio de sesión</a>
+                    </p>
+                </form>
+
+            </div>
+        </div>
+
     </div>
-
-    <div>
-        <label>Nueva contraseña</label>
-        <input type="password" name="nuevaPassword" required />
-    </div>
-
-    <button type="submit">Actualizar contraseña</button>
-
-</form>
-
-@if (ViewBag.Error != null)
-{
-    <p style="color:red">@ViewBag.Error</p>
-}
-
-@if (ViewBag.Mensaje != null)
-{
-    <p style="color:green">@ViewBag.Mensaje</p>
-}
+</body>
