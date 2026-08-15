@@ -43,9 +43,31 @@ namespace G2_SC603_KN_Proyecto.Controllers
                         NombreWod = cr.IdRutinaNavigation.Nombre,
                         Imagen = cr.IdRutinaNavigation.Imagen,
                         Fecha = cr.FechaAsignacion,
-                        Estado = cr.EstadoAsistencia
+                        Estado = cr.EstadoAsistencia,
+                        Horarios = cr.Horarios
                     })
                     .ToListAsync();
+
+                // Votos de la encuesta de horarios para el WOD más reciente del cliente,
+                // para mostrar el conteo estilo encuesta de WhatsApp mientras elige.
+                var wodPendiente = model.MisConfirmaciones.OrderByDescending(c => c.Fecha).FirstOrDefault();
+                if (wodPendiente != null)
+                {
+                    List<string?> horariosDeTodos = await _context.ClienteRutinas
+                        .Where(cr => cr.IdRutina == wodPendiente.IdRutina
+                            && cr.EstadoAsistencia == "ACEPTADO"
+                            && cr.Horarios != null)
+                        .Select(cr => cr.Horarios)
+                        .ToListAsync();
+
+                    foreach (string h in HorariosWod.Opciones)
+                    {
+                        model.VotosPorHorario[h] = horariosDeTodos
+                            .Count(hs => hs != null && hs.Split(',').Contains(h));
+                    }
+
+                    model.TotalVotantesHorario = horariosDeTodos.Count;
+                }
             }
 
             if (model.EsAdmin)
@@ -124,7 +146,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
                                 Nombre = cg.Key.Nombre,
                                 YaIngreso = fecha == hoy && _context.Asistencia.Any(a =>
                                     a.IdCliente == cg.Key.IdCliente && a.Fecha == hoy),
-                                ConfirmoPorWod = wods.Select(w => cg.Any(x => x.IdRutinaNavigation.Nombre == w)).ToList()
+                                ConfirmoPorWod = wods.Select(w => cg.Any(x => x.IdRutinaNavigation.Nombre == w)).ToList(),
+                                Horarios = cg.Select(x => x.Horarios).FirstOrDefault(h => !string.IsNullOrEmpty(h))
                             })
                             .OrderBy(c => c.Nombre)
                             .ToList();

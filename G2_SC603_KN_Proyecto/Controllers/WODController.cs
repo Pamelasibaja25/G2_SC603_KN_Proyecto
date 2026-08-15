@@ -143,7 +143,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         // Cliente confirma o rechaza el WOD de mañana
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ConfirmarAsistenciaWOD(int idClienteRutina, string estado)
+        public async Task<IActionResult> ConfirmarAsistenciaWOD(int idClienteRutina, string estado, List<string>? horarios)
         {
             if (estado != "ACEPTADO" && estado != "NO_ASISTE")
             {
@@ -168,6 +168,12 @@ namespace G2_SC603_KN_Proyecto.Controllers
             }
 
             registro.EstadoAsistencia = estado;
+
+            // Solo guarda horarios si acepta; solo se permiten los del catálogo fijo.
+            registro.Horarios = estado == "ACEPTADO" && horarios != null && horarios.Any()
+                ? string.Join(",", horarios.Where(h => HorariosWod.Opciones.Contains(h)))
+                : null;
+
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = estado == "ACEPTADO"

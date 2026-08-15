@@ -112,7 +112,13 @@
                                     @foreach (var cliente in item.Clientes)
                                     {
                                         <tr class="border-t border-outline-variant/10">
-                                            <td class="py-1.5 pr-2">@cliente.Nombre</td>
+                                            <td class="py-1.5 pr-2">
+                                                @cliente.Nombre
+                                                @if (!string.IsNullOrEmpty(cliente.Horarios))
+                                                {
+                                                    <div class="text-on-surface-variant text-[10px]">@cliente.Horarios.Replace(",", ", ")</div>
+                                                }
+                                            </td>
                                             @for (int i = 0; i < item.Wods.Count; i++)
                                             {
                                                 <td class="text-center">

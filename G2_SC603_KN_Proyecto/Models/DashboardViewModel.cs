@@ -55,6 +55,9 @@ public class ClienteConfirmadoVM
 
     /// <summary>Uno por cada WOD en ConfirmadosDiaVM.Wods (mismo orden): true si el cliente confirmó ese WOD.</summary>
     public List<bool> ConfirmoPorWod { get; set; } = new();
+
+    /// <summary>Horario(s) que eligió el cliente para asistir, ej: "6 AM, 7 PM".</summary>
+    public string? Horarios { get; set; }
 }
 
 public class VencimientoVM

@@ -41,7 +41,8 @@ public class DashboardController : Controller
                 cr.FechaAsignacion,
                 NombreWod = cr.IdRutinaNavigation.Nombre,
                 NombreCliente = cr.IdClienteNavigation.Nombre,
-                cr.IdCliente
+                cr.IdCliente,
+                cr.Horarios
             })
             .ToList();
 
@@ -70,7 +71,8 @@ public class DashboardController : Controller
                     {
                         Nombre = cg.Key.NombreCliente,
                         YaIngreso = g.Key == hoy && idsClientesQueYaIngresaronHoy.Contains(cg.Key.IdCliente),
-                        ConfirmoPorWod = wods.Select(w => cg.Any(x => x.NombreWod == w)).ToList()
+                        ConfirmoPorWod = wods.Select(w => cg.Any(x => x.NombreWod == w)).ToList(),
+                        Horarios = cg.Select(x => x.Horarios).FirstOrDefault(h => !string.IsNullOrEmpty(h))
                     })
                     .OrderBy(c => c.Nombre)
                     .ToList();

@@ -19,6 +19,12 @@ public class ReservasViewModel
 
     /// <summary>Admin: vista tipo calendario, un bloque por día (hoy + próximos 6 días).</summary>
     public List<ConfirmadosDiaVM> Calendario { get; set; } = new();
+
+    /// <summary>Cliente: conteo de votos por horario para el WOD pendiente, tipo encuesta.</summary>
+    public Dictionary<string, int> VotosPorHorario { get; set; } = new();
+
+    /// <summary>Cliente: total de personas que ya votaron algún horario para el WOD pendiente.</summary>
+    public int TotalVotantesHorario { get; set; }
 }
 
 public class ConfirmacionWodVM
@@ -35,4 +41,7 @@ public class ConfirmacionWodVM
 
     /// <summary>Si ya hizo check-in físico hoy (tabla Asistencia).</summary>
     public bool AsistioHoy { get; set; }
+
+    /// <summary>Horarios que eligió el cliente (ej: "6 AM, 7 PM"), o vacío si no eligió ninguno.</summary>
+    public string? Horarios { get; set; }
 }

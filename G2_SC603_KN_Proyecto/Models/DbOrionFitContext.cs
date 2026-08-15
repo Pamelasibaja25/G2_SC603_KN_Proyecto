@@ -257,6 +257,9 @@ public partial class DbOrionFitContext : DbContext
                 .HasColumnName("estado_asistencia")
                 .HasMaxLength(20)
                 .HasDefaultValue("PENDIENTE");
+            entity.Property(e => e.Horarios)
+                .HasColumnName("horarios")
+                .HasMaxLength(100);
             entity.Property(e => e.IdCliente).HasColumnName("id_cliente");
             entity.Property(e => e.IdRutina).HasColumnName("id_rutina");
 
