@@ -53,9 +53,12 @@
                                 int max = Model.VotosPorHorario.Values.DefaultIfEmpty(0).Max();
                                 int porcentaje = max == 0 ? 0 : (int)Math.Round(votos * 100.0 / max);
 
-                                <label class="horario-chip" style="--pct:@(porcentaje)%">
-                                    <input type="checkbox" name="horarios" value="@horario" class="sr-only horario-checkbox" />
-                                    <span>@horario</span>
+                                bool yaPaso = pendiente.Fecha == DateOnly.FromDateTime(DateTime.Today)
+                                    && HorariosWod.ParseHora(horario) < TimeOnly.FromDateTime(DateTime.Now);
+
+                                <label class="horario-chip @(yaPaso ? "horario-chip-disabled" : "")" style="--pct:@(porcentaje)%">
+                                    <input type="checkbox" name="horarios" value="@horario" class="sr-only horario-checkbox" @(yaPaso ? "disabled" : "") />
+                                    <span>@horario @(yaPaso ? "(ya pasó)" : "")</span>
                                     <span class="horario-chip-votes">@votos</span>
                                 </label>
                             }

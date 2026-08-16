@@ -9,4 +9,11 @@ public static class HorariosWod
         "5 AM", "6 AM", "7 AM", "8 AM",
         "4 PM", "5 PM", "6 PM", "7 PM"
     };
+
+    /// <summary>Convierte "5 AM" / "7 PM" a la hora real, para poder
+    /// compararla contra la hora actual y bloquear horarios ya pasados.</summary>
+    public static TimeOnly ParseHora(string horario)
+    {
+        return TimeOnly.ParseExact(horario, "h tt", System.Globalization.CultureInfo.InvariantCulture);
+    }
 }

@@ -12,6 +12,7 @@ public class DashboardViewModel
     public List<ConfirmadosDiaVM> ConfirmadosPorDia { get; set; } = new();
     public int MembresiasPorVencer { get; set; }
     public int MembresiasPendientesDePago { get; set; }
+    public int ConfirmadosSinCheckInHoy { get; set; }
 
     public List<AsistenciaSemanalVM> AsistenciaSemanal { get; set; } = new();
     public List<AsistenciaSemanalVM> AsistenciaMensual { get; set; } = new();

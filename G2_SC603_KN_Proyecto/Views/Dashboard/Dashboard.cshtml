@@ -177,6 +177,20 @@
                 </a>
             }
 
+            @if (Model.ConfirmadosSinCheckInHoy > 0)
+            {
+                <a asp-controller="Reservas" asp-action="Index"
+                   class="block rounded-xl p-3 mb-4 hover:opacity-80 cursor-pointer"
+                   style="background: rgba(124,183,255,0.12); border: 1px solid rgba(124,183,255,0.35);">
+                    <span class="text-[#7cb7ff] font-semibold text-sm">
+                        @Model.ConfirmadosSinCheckInHoy confirmación(es) de hoy sin marcar ingreso
+                    </span>
+                    <p class="text-on-surface-variant text-xs mt-1">
+                        Confirmaron que iban a venir hoy, pero todavía nadie les marcó el check-in en Reservas.
+                    </p>
+                </a>
+            }
+
             @if (Model.Vencimientos != null && Model.Vencimientos.Any())
             {
                 @foreach (var item in Model.Vencimientos)
@@ -189,7 +203,7 @@
                     </a>
                 }
             }
-            else if (Model.MembresiasPendientesDePago == 0)
+            else if (Model.MembresiasPendientesDePago == 0 && Model.ConfirmadosSinCheckInHoy == 0)
             {
                 <p class="text-on-surface-variant text-sm">No hay alertas de vencimiento en los próximos 7 días.</p>
             }

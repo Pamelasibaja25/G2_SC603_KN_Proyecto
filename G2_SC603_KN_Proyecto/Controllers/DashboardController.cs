@@ -93,6 +93,12 @@ public class DashboardController : Controller
         model.MembresiasPendientesDePago = _context.ClienteMembresia
             .Count(c => c.Estado == "Pendiente");
 
+        model.ConfirmadosSinCheckInHoy = _context.ClienteRutinas
+            .Count(cr => cr.FechaAsignacion == hoy
+                && cr.EstadoAsistencia == "ACEPTADO"
+                && cr.IdClienteNavigation.Estado == "Activo"
+                && !_context.Asistencia.Any(a => a.IdClienteRutina == cr.IdClienteRutina));
+
         model.AsistenciaSemanal = Enumerable.Range(0, 7)
             .Select(i =>
             {

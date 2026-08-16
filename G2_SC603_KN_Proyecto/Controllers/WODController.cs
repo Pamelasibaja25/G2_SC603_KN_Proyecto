@@ -169,9 +169,15 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             registro.EstadoAsistencia = estado;
 
-            // Solo guarda horarios si acepta; solo se permiten los del catálogo fijo.
+            // Solo guarda horarios si acepta; solo se permiten los del catálogo fijo,
+            // y si el WOD es para hoy, ningún horario que ya haya pasado.
+            bool esWodDeHoy = registro.FechaAsignacion == DateOnly.FromDateTime(DateTime.Today);
+            TimeOnly ahora = TimeOnly.FromDateTime(DateTime.Now);
+
             registro.Horarios = estado == "ACEPTADO" && horarios != null && horarios.Any()
-                ? string.Join(",", horarios.Where(h => HorariosWod.Opciones.Contains(h)))
+                ? string.Join(",", horarios
+                    .Where(h => HorariosWod.Opciones.Contains(h))
+                    .Where(h => !esWodDeHoy || HorariosWod.ParseHora(h) >= ahora))
                 : null;
 
             await _context.SaveChangesAsync();
