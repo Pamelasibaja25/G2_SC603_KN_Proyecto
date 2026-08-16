@@ -1,4 +1,5 @@
 ﻿using G2_SC603_KN_Proyecto.Models;
+using G2_SC603_KN_Proyecto.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,27 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 .FromSqlRaw("CALL sp_obtenerClientesMembresias()")
                 .ToListAsync();
 
+            // El SP no trae el monto realmente pagado (solo el precio fijo
+            // del plan); se completa aparte con el último pago verificado
+            // de cada cliente, para no confundir "precio del plan" con
+            // "lo que efectivamente cobró" cuando paga varios meses juntos.
+            var idsClientes = clientes.Where(c => c.IdCliente.HasValue).Select(c => c.IdCliente!.Value).ToList();
+            var ultimosPagos = await _context.Pagos
+                .Include(p => p.IdClienteMembresiaNavigation)
+                .Where(p => p.EstadoVerificacion == "Verificado"
+                    && idsClientes.Contains(p.IdClienteMembresiaNavigation.IdCliente))
+                .GroupBy(p => p.IdClienteMembresiaNavigation.IdCliente)
+                .Select(g => new { IdCliente = g.Key, Monto = g.OrderByDescending(p => p.FechaPago).First().Monto })
+                .ToDictionaryAsync(x => x.IdCliente, x => x.Monto);
+
+            foreach (var c in clientes)
+            {
+                if (c.IdCliente.HasValue && ultimosPagos.TryGetValue(c.IdCliente.Value, out decimal monto))
+                {
+                    c.MontoPagado = monto;
+                }
+            }
+
             var listaclientes = _context.Clientes.ToList();
             var listamembresias = _context.Membresia.ToList();
 
@@ -34,6 +56,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
         #region Agregar Membresia
         [HttpPost]
+        [RolAutorizado("ADMIN", "RECEPTION")]
         public async Task<IActionResult> AgregarMembresia(ClienteMembresiaResumen nuevoCliente)
         {
             try
@@ -52,6 +75,42 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     nuevoCliente.FechaFin,
                     nuevoCliente.Estado
                 );
+
+                // Si el admin la marcó como "Activa" es porque ya cobró el
+                // período completo (1, 3, 6, 12 meses...) — se registra el
+                // pago real para que Ingresos y el historial del cliente
+                // reflejen la plata que efectivamente entró, no solo el
+                // precio de un mes.
+                if (nuevoCliente.Estado == "Activa")
+                {
+                    int meses = nuevoCliente.Meses.GetValueOrDefault(1);
+                    if (meses < 1) meses = 1;
+
+                    var membresiaCreada = await _context.ClienteMembresia
+                        .Include(cm => cm.IdMembresiaNavigation)
+                        .Where(cm => cm.IdCliente == nuevoCliente.IdCliente)
+                        .OrderByDescending(cm => cm.IdClienteMembresia)
+                        .FirstOrDefaultAsync();
+
+                    if (membresiaCreada != null)
+                    {
+                        decimal precioMensual = membresiaCreada.IdMembresiaNavigation?.Precio ?? 0;
+
+                        _context.Pagos.Add(new Pago
+                        {
+                            IdClienteMembresia = membresiaCreada.IdClienteMembresia,
+                            Monto = precioMensual * meses,
+                            FechaPago = DateOnly.FromDateTime(DateTime.Today),
+                            MetodoPago = "Efectivo",
+                            Descripcion = meses > 1
+                                ? $"Pago adelantado registrado por el admin ({meses} meses)."
+                                : "Pago registrado directamente por el admin.",
+                            EstadoVerificacion = "Verificado"
+                        });
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
                 TempData["SuccessMessage"] = "Cliente agregado correctamente.";
             }
             catch (Exception ex)
@@ -65,6 +124,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
         #region Editar Membresía
         [HttpPost]
+        [RolAutorizado("ADMIN", "RECEPTION")]
         public async Task<IActionResult> EditarMembresia(ClienteMembresiaResumen clienteEditado)
         {
             if (clienteEditado.FechaFin.HasValue && clienteEditado.FechaInicio.HasValue
@@ -96,6 +156,9 @@ namespace G2_SC603_KN_Proyecto.Controllers
         #endregion
 
         #region Mostrar Historial
+        // La tabla historial_membresias nunca se llena (el SP de crear
+        // mensualidad no escribe ahí), así que en vez de depender de eso
+        // mostramos el historial de pagos real del cliente.
         public async Task<IActionResult> ObtenerHistorial(int idCliente)
         {
             var historial = await _context.Pagos
@@ -127,6 +190,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         #endregion
         #region Configurar Monto de la Mensualidad
         [HttpPost]
+        [RolAutorizado("ADMIN")]
         public async Task<IActionResult> EditarMontoMensualidad(int idMembresia, decimal precio)
         {
             try

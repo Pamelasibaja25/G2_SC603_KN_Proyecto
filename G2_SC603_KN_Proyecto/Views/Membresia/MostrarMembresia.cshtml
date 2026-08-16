@@ -38,7 +38,7 @@
         </select>
         @if (rolActual.Contains("ADMIN") || rolActual.Contains("RECEPTION"))
         {
-            <button class="btn-primary py-2.5 text-sm" onclick="openModal('membershipModal')">
+            <button class="btn-primary py-2.5 text-sm" onclick="openModal('membershipModal'); alCambiarEstadoMensualidad();">
                 <span class="material-symbols-outlined text-[18px]">add</span> Nueva Mensualidad
             </button>
             <button class="btn-secondary py-2.5 text-sm"
@@ -109,7 +109,7 @@
                                 <td>@cliente.TipoPlan</td>
                                 <td>@cliente.FechaInicio?.ToString("dd/MM/yyyy")</td>
                                 <td>@cliente.FechaFin?.ToString("dd/MM/yyyy")</td>
-                                <td>@cliente.Precio?.ToString("N2")</td>
+                                <td>@((cliente.MontoPagado ?? cliente.Precio)?.ToString("N2"))</td>
                                 <td>
                                     @if (cliente.Estado == "Activa")
                                     {
@@ -203,7 +203,7 @@
                 </div>
                 <div>
                     <label class="label-float">Estado</label>
-                    <select id="membershipStatus" name="Estado" class="input-field" required>
+                    <select id="membershipStatus" name="Estado" class="input-field" required onchange="alCambiarEstadoMensualidad()">
                         <option value="Pendiente" selected>Pendiente de pago</option>
                         <option value="Activa">Activa (ya pagó / se le otorga acceso ahora)</option>
                         <option value="Vencida">Vencida</option>
@@ -218,13 +218,14 @@
                 </div>
                 <div>
                     <label class="label-float">Periodo (pago adelantado)</label>
-                    <select id="membershipMeses" class="input-field" onchange="calcularFechaFin()">
+                    <select id="membershipMeses" name="Meses" class="input-field" onchange="calcularFechaFin()">
                         <option value="1">1 mes</option>
                         <option value="2">2 meses</option>
                         <option value="3">3 meses</option>
                         <option value="6">6 meses</option>
                         <option value="12">12 meses</option>
                     </select>
+                    <p class="text-outline text-[11px] mt-1" id="membershipTotalTexto"></p>
                 </div>
                 <div>
                     <label class="label-float">Fecha de Vencimiento *</label>
@@ -232,6 +233,8 @@
                 </div>
             </div>
             <script>
+                const precioMensualidad = @(ViewBag.MembresiaUnica?.Precio ?? 0);
+
                 function calcularFechaFin() {
                     const inicio = document.getElementById('membershipStart').value;
                     const meses = parseInt(document.getElementById('membershipMeses').value, 10);
@@ -239,6 +242,28 @@
                     const fecha = new Date(inicio + 'T00:00:00');
                     fecha.setMonth(fecha.getMonth() + meses);
                     document.getElementById('membershipEnd').value = fecha.toISOString().split('T')[0];
+
+                    const total = precioMensualidad * meses;
+                    document.getElementById('membershipTotalTexto').textContent =
+                        meses > 1 ? `Total a cobrar por los ${meses} meses: ₡${total.toLocaleString('es-CR')}` : '';
+                }
+
+                // El "pago adelantado por varios meses" solo tiene sentido si
+                // el admin ya cobró (Estado = Activa). Si queda Pendiente, se
+                // bloquea a 1 mes: el cliente paga mes a mes por el flujo
+                // normal de SINPE/Efectivo, y cada pago verificado extiende
+                // lo que efectivamente pagó (ver VerificarPago).
+                function alCambiarEstadoMensualidad() {
+                    const estado = document.getElementById('membershipStatus').value;
+                    const selectMeses = document.getElementById('membershipMeses');
+
+                    if (estado === 'Pendiente') {
+                        selectMeses.value = '1';
+                        selectMeses.disabled = true;
+                    } else {
+                        selectMeses.disabled = false;
+                    }
+                    calcularFechaFin();
                 }
             </script>
             <div class="flex gap-3 pt-2 justify-end">

@@ -76,10 +76,19 @@
                 <form asp-action="SubirComprobante" method="post" enctype="multipart/form-data" class="space-y-4">
                     <input type="hidden" name="idClienteMembresia" value="@membresia?.IdClienteMembresia" />
                     <div>
-                        <label class="label-float">Monto pagado (₡) *</label>
-                        <input type="number" step="0.01" min="0" name="monto"
-                               value="@membresia?.IdMembresiaNavigation?.Precio" class="input-field" required />
+                        <label class="label-float">¿Cuántos meses vas a pagar? *</label>
+                        <div class="flex gap-2 mb-2" id="mesesPresetSinpe">
+                            <button type="button" class="btn-secondary text-sm meses-preset" data-panel="sinpe" data-meses="1">1 mes</button>
+                            <button type="button" class="btn-secondary text-sm meses-preset" data-panel="sinpe" data-meses="3">3 meses</button>
+                            <button type="button" class="btn-secondary text-sm meses-preset" data-panel="sinpe" data-meses="6">6 meses</button>
+                            <button type="button" class="btn-secondary text-sm meses-preset" data-panel="sinpe" data-meses="12">12 meses</button>
+                        </div>
+                        <input type="number" step="1" min="1" max="12" name="meses" id="mesesInputSinpe"
+                               value="1" class="input-field" required />
                     </div>
+                    <p class="text-sm">
+                        Monto a transferir: <strong>₡<span id="montoCalculadoSinpe">@membresia?.IdMembresiaNavigation?.Precio.ToString("N2")</span></strong>
+                    </p>
                     <div>
                         <label class="label-float">Comprobante (imagen) *</label>
                         <input type="file" name="comprobante" accept="image/*" class="input-field" required />
@@ -99,12 +108,23 @@
                     Vas a poder reservar y entrenar igual. Pagás en la recepción del gimnasio cuando llegues,
                     y el equipo confirma el pago desde el sistema.
                 </p>
+                <div class="mb-4">
+                    <label class="label-float">¿Cuántos meses vas a pagar? *</label>
+                    <div class="flex gap-2 mb-2" id="mesesPresetEfectivo">
+                        <button type="button" class="btn-secondary text-sm meses-preset" data-panel="efectivo" data-meses="1">1 mes</button>
+                        <button type="button" class="btn-secondary text-sm meses-preset" data-panel="efectivo" data-meses="3">3 meses</button>
+                        <button type="button" class="btn-secondary text-sm meses-preset" data-panel="efectivo" data-meses="6">6 meses</button>
+                        <button type="button" class="btn-secondary text-sm meses-preset" data-panel="efectivo" data-meses="12">12 meses</button>
+                    </div>
+                    <input type="number" step="1" min="1" max="12" id="mesesInputEfectivo" value="1" class="input-field" />
+                </div>
                 <p class="text-sm mb-4">
-                    Monto a pagar: <strong>₡@membresia?.IdMembresiaNavigation?.Precio.ToString("N2")</strong>
+                    Monto a pagar: <strong>₡<span id="montoCalculadoEfectivo">@membresia?.IdMembresiaNavigation?.Precio.ToString("N2")</span></strong>
                 </p>
                 <form asp-action="PagarEnEfectivo" method="post">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="idClienteMembresia" value="@membresia?.IdClienteMembresia" />
+                    <input type="hidden" name="meses" id="mesesHiddenEfectivo" value="1" />
                     <button type="submit" class="btn-primary w-full">
                         <span class="material-symbols-outlined text-[16px]">check_circle</span>
                         Voy a pagar en efectivo al llegar
@@ -114,6 +134,51 @@
         </div>
 
         <script>
+            const precioMensual = @(membresia?.IdMembresiaNavigation?.Precio ?? 0);
+
+            function formatearMonto(valor) {
+                return valor.toLocaleString('es-CR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            function actualizarMontoSinpe(meses) {
+                document.getElementById('mesesInputSinpe').value = meses;
+                document.getElementById('montoCalculadoSinpe').textContent = formatearMonto(precioMensual * meses);
+            }
+
+            function actualizarMontoEfectivo(meses) {
+                document.getElementById('mesesInputEfectivo').value = meses;
+                document.getElementById('mesesHiddenEfectivo').value = meses;
+                document.getElementById('montoCalculadoEfectivo').textContent = formatearMonto(precioMensual * meses);
+            }
+
+            document.querySelectorAll('.meses-preset').forEach(function (boton) {
+                boton.addEventListener('click', function () {
+                    const meses = parseInt(this.dataset.meses, 10);
+                    if (this.dataset.panel === 'sinpe') {
+                        actualizarMontoSinpe(meses);
+                    } else {
+                        actualizarMontoEfectivo(meses);
+                    }
+                });
+            });
+
+            const mesesInputSinpe = document.getElementById('mesesInputSinpe');
+            if (mesesInputSinpe) {
+                mesesInputSinpe.addEventListener('input', function () {
+                    const meses = Math.min(12, Math.max(1, parseInt(this.value, 10) || 1));
+                    document.getElementById('montoCalculadoSinpe').textContent = formatearMonto(precioMensual * meses);
+                });
+            }
+
+            const mesesInputEfectivo = document.getElementById('mesesInputEfectivo');
+            if (mesesInputEfectivo) {
+                mesesInputEfectivo.addEventListener('input', function () {
+                    const meses = Math.min(12, Math.max(1, parseInt(this.value, 10) || 1));
+                    document.getElementById('mesesHiddenEfectivo').value = meses;
+                    document.getElementById('montoCalculadoEfectivo').textContent = formatearMonto(precioMensual * meses);
+                });
+            }
+
             function mostrarMetodoPago(metodo) {
                 const panelSinpe = document.getElementById('panelSinpe');
                 const panelEfectivo = document.getElementById('panelEfectivo');

@@ -34,7 +34,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 .FirstOrDefaultAsync(c => c.IdUsuario == idUsuario);
 
             ReservasViewModel model = new ReservasViewModel();
-            model.EsAdmin = rol.Contains("ADMIN") || rol.Contains("RECEPTION");
+            model.EsAdmin = rol.Contains("ADMIN") || rol.Contains("RECEPTION") || rol.Contains("TRAINER");
             model.EsCliente = cliente != null;
 
             if (cliente != null)
@@ -193,7 +193,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         public async Task<IActionResult> RegistrarAsistencia(int idClienteRutina)
         {
             string rol = HttpContext.Session.GetString("Rol") ?? string.Empty;
-            if (!rol.Contains("ADMIN") && !rol.Contains("RECEPTION"))
+            if (!rol.Contains("ADMIN") && !rol.Contains("RECEPTION") && !rol.Contains("TRAINER"))
             {
                 TempData["ErrorMessage"] = "No tiene permisos para esta acción.";
                 return RedirectToAction("Index");

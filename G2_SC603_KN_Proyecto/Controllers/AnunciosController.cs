@@ -1,4 +1,5 @@
 ﻿using G2_SC603_KN_Proyecto.Models;
+using G2_SC603_KN_Proyecto.Filters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,6 +21,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         }
 
         [HttpPost]
+        [RolAutorizado("ADMIN", "TRAINER")]
         public IActionResult Crear(Anuncio anuncio)
         {
             _context.Anuncios.Add(anuncio);

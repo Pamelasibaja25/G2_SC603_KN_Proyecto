@@ -31,7 +31,7 @@ namespace G2_SC603_KN_Proyecto.Filters
                     controller.TempData["ErrorMessage"] = "No tiene permisos para realizar esta acción.";
                 }
 
-                context.Result = new RedirectToActionResult("MostrarWOD", "WOD", null);
+                context.Result = new RedirectToActionResult("Home", "Home", null);
                 return;
             }
 

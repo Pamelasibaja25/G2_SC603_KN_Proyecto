@@ -1,4 +1,5 @@
 ﻿using G2_SC603_KN_Proyecto.Models;
+using G2_SC603_KN_Proyecto.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MySqlX.XDevAPI.Common;
@@ -30,6 +31,7 @@ public class EquiposController : Controller
     }
 
     [HttpPost]
+    [RolAutorizado("ADMIN", "TRAINER")]
     public IActionResult EditarEquipo(
     int idEquipo,
     string nombre,
@@ -62,6 +64,7 @@ public class EquiposController : Controller
 
 
     [HttpPost]
+    [RolAutorizado("ADMIN", "TRAINER")]
     public IActionResult AgregarEquipo(
     string Nombre,
     DateTime? FechaCompra,
@@ -104,6 +107,7 @@ public class EquiposController : Controller
     }
 
     [HttpPost]
+    [RolAutorizado("ADMIN", "TRAINER")]
     public IActionResult Activar(int id)
     {
         var equipo = _context.Equipo
@@ -125,6 +129,7 @@ public class EquiposController : Controller
     }
 
     [HttpPost]
+    [RolAutorizado("ADMIN", "TRAINER")]
     public IActionResult Desactivar(int id)
     {
         var equipo = _context.Equipo
@@ -146,6 +151,7 @@ public class EquiposController : Controller
     }
 
     [HttpPost]
+    [RolAutorizado("ADMIN")]
     public IActionResult EliminarEquipo(int idEquipo)
     {
         try

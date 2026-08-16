@@ -1,4 +1,5 @@
 ﻿using G2_SC603_KN_Proyecto.Models;
+using G2_SC603_KN_Proyecto.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,6 +27,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
         #region Agregar Cliente
         [HttpPost]
+        [RolAutorizado("ADMIN", "RECEPTION")]
         public async Task<IActionResult> AgregarCliente(ClienteResumen nuevoCliente)
         {
             try
@@ -52,6 +54,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
         #region Editar Cliente
         [HttpPost]
+        [RolAutorizado("ADMIN", "RECEPTION")]
         public async Task<IActionResult> EditarCliente(ClienteResumen clienteEditado)
         {
             try
@@ -79,6 +82,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
         #region Eliminar Cliente
         [HttpPost]
+        [RolAutorizado("ADMIN")]
         public async Task<IActionResult> EliminarCliente(int idCliente)
         {
             try

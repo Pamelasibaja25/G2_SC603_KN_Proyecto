@@ -1,4 +1,5 @@
 using G2_SC603_KN_Proyecto.Models;
+using G2_SC603_KN_Proyecto.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,6 +36,7 @@ public class MantenimientoController : Controller
     }
 
     [HttpPost]
+    [RolAutorizado("ADMIN", "TRAINER")]
     public IActionResult Programar(int idEquipo, DateOnly fecha, string tipo, string? descripcion, decimal? costo, bool confirmarConflicto = false)
     {
         var equipo = _context.Equipo.FirstOrDefault(e => e.IdEquipo == idEquipo);
@@ -116,6 +118,7 @@ public class MantenimientoController : Controller
 
 
     [HttpPost]
+    [RolAutorizado("ADMIN", "TRAINER")]
     public IActionResult RegistrarRealizado(int? idMantenimientoProgramado, int idEquipo, DateOnly fecha, string tipo, string? descripcion, decimal? costo)
     {
         var equipo = _context.Equipo.FirstOrDefault(e => e.IdEquipo == idEquipo);
@@ -263,6 +266,7 @@ public class MantenimientoController : Controller
     }
 
     [HttpPost]
+    [RolAutorizado("ADMIN", "TRAINER")]
     public IActionResult EditarMantenimiento(int idMantenimiento, int idEquipo, DateOnly fecha, string tipo, string? descripcion, decimal? costo, string estado)
     {
         var mantenimiento = _context.Mantenimientos.FirstOrDefault(m => m.IdMantenimiento == idMantenimiento);
@@ -309,6 +313,7 @@ public class MantenimientoController : Controller
     }
 
     [HttpPost]
+    [RolAutorizado("ADMIN")]
     public IActionResult EliminarMantenimiento(int idMantenimiento)
     {
         var mantenimiento = _context.Mantenimientos.FirstOrDefault(m => m.IdMantenimiento == idMantenimiento);
