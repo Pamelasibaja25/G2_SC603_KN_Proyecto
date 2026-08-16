@@ -177,8 +177,18 @@
         </div>
 
         <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)] mb-8">
-            <div class="p-6 pb-0">
-                <h3 class="font-headline font-bold text-base mb-4">Asistencia de Hoy</h3>
+            <div class="p-6 pb-0 flex flex-wrap items-center justify-between gap-3">
+                <h3 class="font-headline font-bold text-base">Asistencia de Hoy</h3>
+                @if (Model.ConfirmadosHoy.Any())
+                {
+                    <select id="horarioFiltro" class="input-field text-xs py-1.5" style="max-width:180px" onchange="filtrarAsistenciaPorHorario()">
+                        <option value="">Todos los horarios</option>
+                        @foreach (string h in HorariosWod.Opciones)
+                        {
+                            <option value="@h">@h</option>
+                        }
+                    </select>
+                }
             </div>
             <div class="overflow-x-auto">
                 @if (!Model.ConfirmadosHoy.Any())
@@ -192,16 +202,18 @@
                             <tr>
                                 <th>Cliente</th>
                                 <th>WOD</th>
+                                <th>Horario</th>
                                 <th>Check-in</th>
                                 <th></th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="tablaAsistenciaHoy">
                             @foreach (var c in Model.ConfirmadosHoy)
                             {
-                                <tr>
+                                <tr data-horarios="@c.Horarios">
                                     <td>@c.NombreCliente</td>
                                     <td>@c.NombreWod</td>
+                                    <td>@(string.IsNullOrEmpty(c.Horarios) ? "—" : c.Horarios.Replace(",", ", "))</td>
                                     <td>
                                         @if (c.AsistioHoy)
                                         {

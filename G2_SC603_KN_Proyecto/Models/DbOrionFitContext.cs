@@ -142,11 +142,17 @@ public partial class DbOrionFitContext : DbContext
                 .HasColumnType("time")
                 .HasColumnName("hora_salida");
             entity.Property(e => e.IdCliente).HasColumnName("id_cliente");
+            entity.Property(e => e.IdClienteRutina).HasColumnName("id_cliente_rutina");
 
             entity.HasOne(d => d.IdClienteNavigation).WithMany(p => p.Asistencia)
                 .HasForeignKey(d => d.IdCliente)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Asistencia_Cliente");
+
+            entity.HasOne(d => d.IdClienteRutinaNavigation).WithMany()
+                .HasForeignKey(d => d.IdClienteRutina)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_asistencia_cliente_rutina");
         });
 
         modelBuilder.Entity<Clase>(entity =>

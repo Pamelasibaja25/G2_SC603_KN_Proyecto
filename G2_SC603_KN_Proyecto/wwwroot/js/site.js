@@ -151,6 +151,18 @@ function filterReportMembresia() {
 }
 
 
+//===================== VISTA: RESERVAS (Asistencia de Hoy) =====================
+function filtrarAsistenciaPorHorario() {
+    const horario = document.getElementById("horarioFiltro").value;
+    const filas = document.querySelectorAll("#tablaAsistenciaHoy tr");
+
+    filas.forEach(fila => {
+        const horariosDeLaFila = (fila.dataset.horarios || "").split(",").map(h => h.trim());
+        const coincide = horario === "" || horariosDeLaFila.includes(horario);
+        fila.style.display = coincide ? "" : "none";
+    });
+}
+
 //===================== VISTA: REPORTE INDEX =====================
 function limpiarFiltros() {
     document.getElementById("filtroReporte").reset();

@@ -101,9 +101,9 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     .ToListAsync();
 
                 var idsClientesHoy = confirmadosHoy.Select(cr => cr.IdCliente).Distinct().ToList();
-                var yaAsistieron = await _context.Asistencia
-                    .Where(a => a.Fecha == hoy && idsClientesHoy.Contains(a.IdCliente))
-                    .Select(a => a.IdCliente)
+                var idsClienteRutinaYaAsistidos = await _context.Asistencia
+                    .Where(a => a.Fecha == hoy && a.IdClienteRutina != null)
+                    .Select(a => a.IdClienteRutina!.Value)
                     .ToListAsync();
 
                 model.ConfirmadosHoy = confirmadosHoy.Select(cr => new ConfirmacionWodVM
@@ -114,7 +114,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     NombreCliente = cr.IdClienteNavigation.Nombre,
                     Fecha = cr.FechaAsignacion,
                     Estado = cr.EstadoAsistencia,
-                    AsistioHoy = yaAsistieron.Contains(cr.IdCliente)
+                    Horarios = cr.Horarios,
+                    AsistioHoy = idsClienteRutinaYaAsistidos.Contains(cr.IdClienteRutina)
                 }).ToList();
 
                 IQueryable<ClienteRutina> query = _context.ClienteRutinas
@@ -209,17 +210,18 @@ namespace G2_SC603_KN_Proyecto.Controllers
             DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
 
             bool yaRegistrada = await _context.Asistencia.AnyAsync(a =>
-                a.IdCliente == confirmacion.IdCliente && a.Fecha == hoy);
+                a.IdClienteRutina == idClienteRutina);
 
             if (yaRegistrada)
             {
-                TempData["ErrorMessage"] = "La asistencia de hoy ya fue registrada.";
+                TempData["ErrorMessage"] = "El check-in de este WOD ya fue registrado.";
                 return RedirectToAction("Index");
             }
 
             _context.Asistencia.Add(new Asistencium
             {
                 IdCliente = confirmacion.IdCliente,
+                IdClienteRutina = idClienteRutina,
                 Fecha = hoy,
                 HoraEntrada = TimeOnly.FromDateTime(DateTime.Now)
             });
@@ -230,7 +232,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
             return RedirectToAction("Index");
         }
 
-
+        // Pone al día a clientes creados después de publicarse un WOD vigente
+        // (puede haber más de uno publicado para el mismo día).
         private async Task PonerAlDiaConElUltimoWod(int idCliente, DateOnly hoy)
         {
             // Todas las rutinas que ALGÚN cliente ya tiene asignadas para hoy
