@@ -1,4 +1,5 @@
 ﻿using G2_SC603_KN_Proyecto.Models;
+using G2_SC603_KN_Proyecto.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,6 +38,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
         #region Activar / Desactivar Usuario
         [HttpPost]
+        [RolAutorizado("ADMIN")]
         public async Task<IActionResult> ToggleActivoUsuario(string username)
         {
             string usuarioSesion = HttpContext.Session.GetString("Usuario") ?? "";
@@ -66,6 +68,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
         #region Eliminar Usuario
         [HttpPost]
+        [RolAutorizado("ADMIN")]
         public async Task<IActionResult> EliminarUsuario(string username)
         {
             Usuario? usuario = await _context.Usuarios
@@ -104,6 +107,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
         #region Agregar Usuario
         [HttpPost]
+        [RolAutorizado("ADMIN")]
         public async Task<IActionResult> AgregarUsuario(UsuarioNombre nuevoUsuario, List<string> roles)
         {
             try
@@ -133,6 +137,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
         #region Editar Usuario
         [HttpPost]
+        [RolAutorizado("ADMIN")]
         public async Task<IActionResult> EditarUsuario(UsuarioNombre nuevoUsuario, List<string> roles)
         {
             try
@@ -203,9 +208,31 @@ namespace G2_SC603_KN_Proyecto.Controllers
         #endregion
 
         #region Cambiar Datos
+        // Autoservicio: el usuario logueado edita SUS PROPIOS datos de
+        // contacto. El username objetivo y el rol NUNCA se toman del
+        // formulario — se resuelven siempre desde la sesión / la base de
+        // datos, para que nadie pueda mandar un username distinto al suyo
+        // ni un rol distinto al que ya tiene (antes esta acción ni
+        // siquiera exigía sesión iniciada, y aceptaba username y rol
+        // arbitrarios enviados en el formulario: cualquiera podía editar
+        // la cuenta de cualquier otra persona, incluyendo asignarse ADMIN).
         [HttpPost]
         public async Task<IActionResult> CambiarDatos(UsuarioNombre nuevoUsuario)
         {
+            int? idUsuario = HttpContext.Session.GetInt32("ID");
+            if (idUsuario == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            Usuario? usuarioSesion = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
+
+            if (usuarioSesion == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             try
             {
                 await _context.Database.ExecuteSqlRawAsync(
@@ -213,8 +240,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 nuevoUsuario.Nombre,
                 nuevoUsuario.Telefono,
                 nuevoUsuario.Correo,
-                nuevoUsuario.Rol,
-                nuevoUsuario.Username
+                usuarioSesion.Rol,
+                usuarioSesion.Username
             );
                 TempData["SuccessMessage"] = "Usuario editado correctamente.";
             }
