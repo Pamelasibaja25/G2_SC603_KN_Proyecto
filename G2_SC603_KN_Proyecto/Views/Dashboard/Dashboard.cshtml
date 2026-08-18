@@ -79,7 +79,7 @@
             <div class="space-y-4">
                 @foreach (var item in Model.ConfirmadosPorDia)
                 {
-                    bool esHoy = item.Fecha == DateOnly.FromDateTime(DateTime.Today);
+                    bool esHoy = item.Fecha == (DateOnly)ViewBag.DiaOperativo;
                     <div class="bg-surface-container-high rounded-xl p-4">
                         <div class="flex items-center justify-between mb-1">
                             <span class="font-headline font-bold text-sm capitalize">
@@ -269,11 +269,11 @@
                 <form method="get" asp-controller="Dashboard" asp-action="Dashboard" class="flex flex-wrap items-center gap-2 mb-4">
                     <input type="date" name="fechaInicio" id="fechaInicio" class="input-field text-xs py-1.5" style="max-width:160px"
                            value="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))"
-                           max="@(Model.FechaFin?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"))" required />
+                           max="@(Model.FechaFin?.ToString("yyyy-MM-dd") ?? ((DateOnly)ViewBag.Hoy).ToString("yyyy-MM-dd"))" required />
                     <input type="date" name="fechaFin" id="fechaFin" class="input-field text-xs py-1.5" style="max-width:160px"
                            value="@(Model.FechaFin?.ToString("yyyy-MM-dd"))"
                            min="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))"
-                           max="@(DateTime.Today.ToString("yyyy-MM-dd"))" required />
+                           max="@(((DateOnly)ViewBag.Hoy).ToString("yyyy-MM-dd"))" required />
                     <button type="submit" class="tab-btn">Aplicar</button>
                 </form>
 
@@ -298,14 +298,14 @@
                         <label class="label-float text-[10px]">Desde</label>
                         <input type="date" name="rankingInicio" id="rankingInicio" class="input-field text-xs py-1.5" style="max-width:140px"
                                value="@(Model.RankingInicio?.ToString("yyyy-MM-dd"))"
-                               max="@(Model.RankingFin?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd"))" />
+                               max="@(Model.RankingFin?.ToString("yyyy-MM-dd") ?? ((DateOnly)ViewBag.Hoy).ToString("yyyy-MM-dd"))" />
                     </div>
                     <div>
                         <label class="label-float text-[10px]">Hasta</label>
                         <input type="date" name="rankingFin" id="rankingFin" class="input-field text-xs py-1.5" style="max-width:140px"
                                value="@(Model.RankingFin?.ToString("yyyy-MM-dd"))"
                                min="@(Model.RankingInicio?.ToString("yyyy-MM-dd"))"
-                               max="@(DateTime.Today.ToString("yyyy-MM-dd"))" />
+                               max="@(((DateOnly)ViewBag.Hoy).ToString("yyyy-MM-dd"))" />
                     </div>
                     <button type="submit" class="tab-btn text-xs py-1.5">Filtrar</button>
                     @if (Model.RankingInicio.HasValue || Model.RankingFin.HasValue)

@@ -122,7 +122,6 @@
                     Monto a pagar: <strong>₡<span id="montoCalculadoEfectivo">@membresia?.IdMembresiaNavigation?.Precio.ToString("N2")</span></strong>
                 </p>
                 <form asp-action="PagarEnEfectivo" method="post">
-                    @Html.AntiForgeryToken()
                     <input type="hidden" name="idClienteMembresia" value="@membresia?.IdClienteMembresia" />
                     <input type="hidden" name="meses" id="mesesHiddenEfectivo" value="1" />
                     <button type="submit" class="btn-primary w-full">

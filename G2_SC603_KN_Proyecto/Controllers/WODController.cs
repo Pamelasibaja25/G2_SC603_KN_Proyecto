@@ -1,5 +1,6 @@
 ﻿using G2_SC603_KN_Proyecto.Models;
 using G2_SC603_KN_Proyecto.Filters;
+using G2_SC603_KN_Proyecto.Helpers;
 using G2_SC603_KN_Proyecto.Models.ViewModels.Wod;
 using G2_SC603_KN_Proyecto.Services.Wod;
 using Microsoft.AspNetCore.Mvc;
@@ -46,7 +47,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             if (clienteActual != null)
             {
-                await PonerAlDiaConElUltimoWod(clienteActual.IdCliente, DateOnly.FromDateTime(DateTime.Today));
+                await PonerAlDiaConElUltimoWod(clienteActual.IdCliente, ZonaHoraria.Hoy);
 
                 ViewBag.FechasPorRutina = await _context.ClienteRutinas
                     .Where(cr => cr.IdCliente == clienteActual.IdCliente)
@@ -123,7 +124,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         // El WOD publicado hoy se asigna como el de mañana a todos los clientes activos (estado PENDIENTE)
         private void AsignarWodClientesParaManana(int idRutina)
         {
-            DateOnly manana = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
+            DateOnly manana = ZonaHoraria.Hoy.AddDays(1);
             var clientes = _context.Clientes.ToList();
 
             foreach (var cliente in clientes)
@@ -171,8 +172,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             // Solo guarda horarios si acepta; solo se permiten los del catálogo fijo,
             // y si el WOD es para hoy, ningún horario que ya haya pasado.
-            bool esWodDeHoy = registro.FechaAsignacion == DateOnly.FromDateTime(DateTime.Today);
-            TimeOnly ahora = TimeOnly.FromDateTime(DateTime.Now);
+            bool esWodDeHoy = registro.FechaAsignacion == ZonaHoraria.Hoy;
+            TimeOnly ahora = TimeOnly.FromDateTime(ZonaHoraria.Ahora);
 
             registro.Horarios = estado == "ACEPTADO" && horarios != null && horarios.Any()
                 ? string.Join(",", horarios
@@ -337,12 +338,14 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
                 if (clienteActual != null)
                 {
-                    await PonerAlDiaConElUltimoWod(clienteActual.IdCliente, DateOnly.FromDateTime(DateTime.Today));
+                    await PonerAlDiaConElUltimoWod(clienteActual.IdCliente, ZonaHoraria.Hoy);
                 }
             }
 
             List<WodHistorialItemViewModel> entrenamientoDiario =
                 await _wodConsultaService.ObtenerEntrenamientoDiarioAsync(idUsuario, rol);
+
+            ViewBag.Manana = ZonaHoraria.Hoy.AddDays(1);
 
             return View(entrenamientoDiario);
         }

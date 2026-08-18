@@ -1,4 +1,5 @@
 ﻿using G2_SC603_KN_Proyecto.Models;
+using G2_SC603_KN_Proyecto.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +15,7 @@ public class DashboardController : Controller
     public IActionResult Dashboard(DateOnly? fechaInicio, DateOnly? fechaFin,
         DateOnly? rankingInicio, DateOnly? rankingFin)
     {
-        DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
+        DateOnly hoy = ZonaHoraria.Hoy;
         DateOnly inicioMes = new DateOnly(hoy.Year, hoy.Month, 1);
 
         DashboardViewModel model = new DashboardViewModel();
@@ -31,10 +32,12 @@ public class DashboardController : Controller
         model.ConfirmadosWodManana = _context.ClienteRutinas
             .Count(cr => cr.FechaAsignacion == manana && cr.EstadoAsistencia == "ACEPTADO");
 
+        DateOnly diaOperativo = ZonaHoraria.DiaOperativo;
+
         var confirmacionesFlat = _context.ClienteRutinas
             .Include(cr => cr.IdRutinaNavigation)
             .Include(cr => cr.IdClienteNavigation)
-            .Where(cr => cr.FechaAsignacion >= hoy && cr.EstadoAsistencia == "ACEPTADO"
+            .Where(cr => cr.FechaAsignacion >= diaOperativo && cr.EstadoAsistencia == "ACEPTADO"
                 && cr.IdClienteNavigation.Estado == "Activo")
             .Select(cr => new
             {
@@ -200,6 +203,9 @@ public class DashboardController : Controller
                 CantidadActual = i.Cantidad,
                 StockMinimo = i.StockMinimo
             }).ToList();
+
+        ViewBag.Hoy = hoy;
+        ViewBag.DiaOperativo = diaOperativo;
 
         return View(model);
     }

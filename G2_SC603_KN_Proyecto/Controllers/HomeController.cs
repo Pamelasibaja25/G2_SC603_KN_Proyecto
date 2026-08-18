@@ -12,7 +12,9 @@ namespace G2_SC603_KN_Proyecto.Controllers
     {
         private readonly DbOrionFitContext _context;
 
-        //protege contra ataques de fuerza bruta: bloquea temporalmente el login si hay demasiados intentos fallidos
+        // Protección contra fuerza bruta: solo en memoria del proceso (se
+        // reinicia si la app se reinicia; para producción con más de una
+        // instancia haría falta guardarlo en algo compartido como Redis).
         private static readonly ConcurrentDictionary<string, (int intentos, DateTime bloqueadoHasta)> _intentosFallidos = new();
         private const int MaxIntentos = 5;
         private static readonly TimeSpan TiempoBloqueo = TimeSpan.FromMinutes(5);
@@ -47,7 +49,9 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             if (user != null && PasswordHasher.Verify(password, user.Contrasena, out bool esHashViejo))
             {
-                //migrar hash a PBKDF2 si es necesario
+                // Migración transparente: si todavía tenía el hash SHA-256
+                // viejo, se reemplaza acá mismo por el hash seguro (PBKDF2 +
+                // salt), sin que el usuario tenga que resetear nada.
                 if (esHashViejo)
                 {
                     user.Contrasena = PasswordHasher.HashPassword(password);
@@ -76,7 +80,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     bool tieneAcceso = _context.ClienteMembresia.Any(cm =>
                         cm.IdCliente == cliente.IdCliente &&
                         (
-                            (cm.Estado == "Activa" && cm.FechaFin >= DateOnly.FromDateTime(DateTime.Today))
+                            (cm.Estado == "Activa" && cm.FechaFin >= ZonaHoraria.Hoy)
                             || cm.Estado == "Pendiente"
                         ));
 
@@ -133,7 +137,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 .FirstOrDefault(cm =>
                     cm.IdCliente == cliente.IdCliente &&
                     cm.Estado.Trim().ToLower() == "activa" &&
-                    cm.FechaFin >= DateOnly.FromDateTime(DateTime.Today)
+                    cm.FechaFin >= ZonaHoraria.Hoy
                 );
 
             ViewBag.MembresiaActiva = membresiaActiva;
@@ -157,7 +161,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         // Notifica al cliente si la mensualidad vence en 5 días o menos (una vez por día)
         private void GenerarNotificacionVencimientoSiCorresponde(int idCliente, DateOnly fechaFin)
         {
-            DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
+            DateOnly hoy = ZonaHoraria.Hoy;
             int diasRestantes = fechaFin.DayNumber - hoy.DayNumber;
 
             if (diasRestantes < 0 || diasRestantes > 5)
@@ -168,7 +172,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
             bool yaNotificadoHoy = _context.Notificaciones.Any(n =>
                 n.IdCliente == idCliente &&
                 n.Tipo == "Vencimiento" &&
-                n.Fecha.Date == DateTime.Today);
+                n.Fecha.Date == ZonaHoraria.HoyDateTime);
 
             if (yaNotificadoHoy)
             {

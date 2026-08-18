@@ -1,4 +1,5 @@
 ﻿using G2_SC603_KN_Proyecto.Models;
+using G2_SC603_KN_Proyecto.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
         {
             // "mes" viene como "yyyy-MM" (ej: "2026-08"). Si no se manda,
             // se usa el mes actual por defecto para no cargar todo el historial de una.
-            DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
+            DateOnly hoy = ZonaHoraria.Hoy;
             DateOnly mesSeleccionado = hoy;
             if (!string.IsNullOrEmpty(mes) && DateOnly.TryParse(mes + "-01", out DateOnly parsed))
             {
@@ -143,12 +144,13 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
                 ViewBag.FiltroEstado = filtroEstado ?? "Todas";
 
-                // Calendario: hoy + próximos 6 días
-                DateOnly finVentana = hoy.AddDays(6);
+                // Calendario: día operativo (rota a las 9pm) + próximos 6 días
+                DateOnly diaOperativo = ZonaHoraria.DiaOperativo;
+                DateOnly finVentana = diaOperativo.AddDays(6);
                 var confirmadosVentana = await _context.ClienteRutinas
                     .Include(cr => cr.IdRutinaNavigation)
                     .Include(cr => cr.IdClienteNavigation)
-                    .Where(cr => cr.FechaAsignacion >= hoy && cr.FechaAsignacion <= finVentana
+                    .Where(cr => cr.FechaAsignacion >= diaOperativo && cr.FechaAsignacion <= finVentana
                         && cr.EstadoAsistencia == "ACEPTADO"
                         && cr.IdClienteNavigation.Estado == "Activo")
                     .ToListAsync();
@@ -156,7 +158,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 model.Calendario = Enumerable.Range(0, 7)
                     .Select(i =>
                     {
-                        DateOnly fecha = hoy.AddDays(i);
+                        DateOnly fecha = diaOperativo.AddDays(i);
                         var delDia = confirmadosVentana.Where(cr => cr.FechaAsignacion == fecha).ToList();
                         List<string> wods = delDia.Select(cr => cr.IdRutinaNavigation.Nombre).Distinct().ToList();
 
@@ -185,6 +187,10 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             model.MesSeleccionado = mesSeleccionado.ToString("yyyy-MM");
 
+            ViewBag.Hoy = hoy;
+            ViewBag.Ahora = ZonaHoraria.Ahora;
+            ViewBag.DiaOperativo = ZonaHoraria.DiaOperativo;
+
             return View(model);
         }
 
@@ -207,7 +213,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 return RedirectToAction("Index");
             }
 
-            DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
+            DateOnly hoy = ZonaHoraria.Hoy;
 
             bool yaRegistrada = await _context.Asistencia.AnyAsync(a =>
                 a.IdClienteRutina == idClienteRutina);
@@ -223,7 +229,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 IdCliente = confirmacion.IdCliente,
                 IdClienteRutina = idClienteRutina,
                 Fecha = hoy,
-                HoraEntrada = TimeOnly.FromDateTime(DateTime.Now)
+                HoraEntrada = TimeOnly.FromDateTime(ZonaHoraria.Ahora)
             });
 
             await _context.SaveChangesAsync();

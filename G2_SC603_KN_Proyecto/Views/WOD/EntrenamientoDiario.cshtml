@@ -28,8 +28,8 @@
         </a>
         <div>
             <h2 class="font-headline text-3xl font-bold tracking-tight">WOD de Mañana</h2>
-            <p class="text-on-surface-variant text-xs mt-1"> @DateTime.Today.AddDays(1).ToString("dddd dd 'de' MMMM, yyyy",
-                                 new System.Globalization.CultureInfo("es-ES"))
+            <p class="text-on-surface-variant text-xs mt-1"> @(((DateOnly)ViewBag.Manana).ToDateTime(TimeOnly.MinValue).ToString("dddd dd 'de' MMMM, yyyy",
+                                 new System.Globalization.CultureInfo("es-ES")))
             </p>
         </div>
     </div>

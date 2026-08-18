@@ -1,4 +1,5 @@
 ﻿using G2_SC603_KN_Proyecto.Models;
+using G2_SC603_KN_Proyecto.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,7 +42,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             ViewBag.ClientesVencidos = _context.ClienteMembresia
                 .Include(cm => cm.IdClienteNavigation)
-                .Where(cm => cm.FechaFin < DateOnly.FromDateTime(DateTime.Today))
+                .Where(cm => cm.FechaFin < ZonaHoraria.Hoy)
                 .ToList();
 
             ViewBag.Sinpe = _context.ConfiguracionSinpe.FirstOrDefault();
@@ -87,10 +88,12 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 pago.EstadoVerificacion = "Verificado";
 
                 ClienteMembresium membresiaCliente = pago.IdClienteMembresiaNavigation;
-                DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
+                DateOnly hoy = ZonaHoraria.Hoy;
                 DateOnly baseFecha = membresiaCliente.FechaFin > hoy ? membresiaCliente.FechaFin : hoy;
 
-                //si pagó más de un mes, se calcula cuántos meses corresponden según el monto pagado y el precio mensual de la membresía
+                // Si pagó más de un mes de una vez (ej: ₡75,000 con mensualidad
+                // de ₡25,000), se extienden los meses que efectivamente pagó,
+                // no siempre 1 solo.
                 decimal precioMensual = membresiaCliente.IdMembresiaNavigation?.Precio ?? pago.Monto;
                 int meses = precioMensual > 0
                     ? Math.Max(1, (int)Math.Round(pago.Monto / precioMensual, MidpointRounding.AwayFromZero))
@@ -246,7 +249,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             ViewBag.MembresiaActual = membresiaActual;
 
-            DateOnly hoy = DateOnly.FromDateTime(DateTime.Today);
+            DateOnly hoy = ZonaHoraria.Hoy;
 
             // No permite otro envío mientras haya uno pendiente de revisión
             Pago? pagoPendiente = await _context.Pagos
@@ -341,7 +344,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
             {
                 IdClienteMembresia = idClienteMembresia,
                 Monto = monto,
-                FechaPago = DateOnly.FromDateTime(DateTime.Today),
+                FechaPago = ZonaHoraria.Hoy,
                 MetodoPago = "SINPE",
                 Descripcion = meses > 1
                     ? $"Comprobante adjuntado por el cliente ({meses} meses), pendiente de verificación."
@@ -404,7 +407,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
             {
                 IdClienteMembresia = idClienteMembresia,
                 Monto = monto,
-                FechaPago = DateOnly.FromDateTime(DateTime.Today),
+                FechaPago = ZonaHoraria.Hoy,
                 MetodoPago = "Efectivo",
                 Descripcion = meses > 1
                     ? $"El cliente eligió pagar en efectivo al llegar al gimnasio ({meses} meses), pendiente de cobro."
@@ -420,7 +423,10 @@ namespace G2_SC603_KN_Proyecto.Controllers
         }
         #endregion
 
-        //validación de imagenes
+        // Valida que el archivo subido sea realmente una imagen: revisa la
+        // extensión, el tamaño máximo, y la "firma" de los primeros bytes
+        // del archivo (no alcanza con confiar en el nombre/extensión, que
+        // se puede falsificar fácilmente).
         private static bool EsImagenValida(IFormFile archivo, out string error)
         {
             const long tamanoMaximoBytes = 5 * 1024 * 1024; // 5 MB

@@ -1,5 +1,6 @@
 using G2_SC603_KN_Proyecto.Models;
 using G2_SC603_KN_Proyecto.Filters;
+using G2_SC603_KN_Proyecto.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -52,7 +53,7 @@ public class MantenimientoController : Controller
             return RedirectToAction("MostrarMantenimiento");
         }
 
-        if (fecha < DateOnly.FromDateTime(DateTime.Today))
+        if (fecha < ZonaHoraria.Hoy)
         {
             TempData["ErrorMessage"] = "La fecha programada no es valida: no puede ser anterior a la fecha actual.";
             return RedirectToAction("MostrarMantenimiento");
@@ -234,7 +235,7 @@ public class MantenimientoController : Controller
     [HttpGet]
     public IActionResult Disponibilidad(DateOnly? fecha)
     {
-        var fechaConsulta = fecha ?? DateOnly.FromDateTime(DateTime.Today);
+        var fechaConsulta = fecha ?? ZonaHoraria.Hoy;
 
         var equipos = _context.Equipo.ToList();
 

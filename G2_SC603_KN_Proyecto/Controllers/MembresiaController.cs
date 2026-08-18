@@ -1,5 +1,6 @@
 ﻿using G2_SC603_KN_Proyecto.Models;
 using G2_SC603_KN_Proyecto.Filters;
+using G2_SC603_KN_Proyecto.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -100,7 +101,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                         {
                             IdClienteMembresia = membresiaCreada.IdClienteMembresia,
                             Monto = precioMensual * meses,
-                            FechaPago = DateOnly.FromDateTime(DateTime.Today),
+                            FechaPago = ZonaHoraria.Hoy,
                             MetodoPago = "Efectivo",
                             Descripcion = meses > 1
                                 ? $"Pago adelantado registrado por el admin ({meses} meses)."

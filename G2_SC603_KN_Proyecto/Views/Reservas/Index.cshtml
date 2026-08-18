@@ -53,8 +53,8 @@
                                 int max = Model.VotosPorHorario.Values.DefaultIfEmpty(0).Max();
                                 int porcentaje = max == 0 ? 0 : (int)Math.Round(votos * 100.0 / max);
 
-                                bool yaPaso = pendiente.Fecha == DateOnly.FromDateTime(DateTime.Today)
-                                    && HorariosWod.ParseHora(horario) < TimeOnly.FromDateTime(DateTime.Now);
+                                bool yaPaso = pendiente.Fecha == (DateOnly)ViewBag.Hoy
+                                    && HorariosWod.ParseHora(horario) < TimeOnly.FromDateTime((DateTime)ViewBag.Ahora);
 
                                 <label class="horario-chip @(yaPaso ? "horario-chip-disabled" : "")" style="--pct:@(porcentaje)%">
                                     <input type="checkbox" name="horarios" value="@horario" class="sr-only horario-checkbox" @(yaPaso ? "disabled" : "") />
@@ -145,7 +145,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-3">
                 @foreach (var dia in Model.Calendario)
                 {
-                    bool esHoyCal = dia.Fecha == DateOnly.FromDateTime(DateTime.Today);
+                    bool esHoyCal = dia.Fecha == (DateOnly)ViewBag.DiaOperativo;
                     <div class="bg-surface-container-high rounded-xl p-3 @(esHoyCal ? "ring-2 ring-primary-container" : "")">
                         <div class="flex items-center justify-between mb-2">
                             <span class="font-headline font-bold text-xs capitalize">
