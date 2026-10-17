@@ -15,6 +15,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
         }
 
         #region Mostrar Usuarios
+        [HttpGet]
+        [RolAutorizado("ADMIN")]
         public async Task<IActionResult> MostrarUsuarios()
         {
 

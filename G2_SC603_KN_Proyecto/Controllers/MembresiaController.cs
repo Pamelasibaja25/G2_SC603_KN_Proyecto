@@ -16,6 +16,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
         }
 
         #region Mostrar Membresia
+        [HttpGet]
+        [RolAutorizado("ADMIN")]
         public async Task<IActionResult> MostrarMembresia()
         {
             List<ClienteMembresiaResumen> clientes = await _context.ClienteMembresiaResumen
