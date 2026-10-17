@@ -2,6 +2,7 @@
 using G2_SC603_KN_Proyecto.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using G2_SC603_KN_Proyecto.Helpers;
 
 namespace G2_SC603_KN_Proyecto.Controllers
 {
@@ -182,7 +183,6 @@ namespace G2_SC603_KN_Proyecto.Controllers
             return View(usuario);
         }
         #endregion
-
         #region Cambiar Contraseña
         [HttpPost]
         public async Task<IActionResult> CambiarContraseña(IFormCollection form)
@@ -190,14 +190,35 @@ namespace G2_SC603_KN_Proyecto.Controllers
             try
             {
                 var idUsuario = HttpContext.Session.GetInt32("ID");
+
+                if (idUsuario == null)
+                {
+                    TempData["ErrorMessage"] = "Sesión inválida.";
+                    return RedirectToAction("Configuracion");
+                }
+
                 var passwordActual = form["PasswordActual"].ToString().Trim();
                 var passwordNueva = form["PasswordNueva"].ToString().Trim();
-                await _context.Database.ExecuteSqlRawAsync(
-                "CALL sp_actualizarContraseña({0}, {1}, {2})",
-                idUsuario,
-                passwordActual,
-                passwordNueva
-            );
+
+                var usuario = await _context.Usuarios
+                    .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
+
+                if (usuario == null)
+                {
+                    TempData["ErrorMessage"] = "Usuario no encontrado.";
+                    return RedirectToAction("Configuracion");
+                }
+
+                if (!PasswordHasher.Verify(passwordActual, usuario.Contrasena, out _))
+                {
+                    TempData["ErrorMessage"] = "La contraseña actual no es correcta.";
+                    return RedirectToAction("Configuracion");
+                }
+
+                usuario.Contrasena = PasswordHasher.HashPassword(passwordNueva);
+
+                await _context.SaveChangesAsync();
+
                 TempData["SuccessMessage"] = "Contraseña editada correctamente.";
             }
             catch (Exception ex)
