@@ -211,18 +211,19 @@ namespace G2_SC603_KN_Proyecto.Controllers
         [HttpPost]
         public async Task<IActionResult> CambiarContraseña(IFormCollection form)
         {
-            try
+            var idUsuario = HttpContext.Session.GetInt32("ID");
+            if (idUsuario == null)
             {
-                var idUsuario = HttpContext.Session.GetInt32("ID");
-                var passwordActual = form["PasswordActual"].ToString().Trim();
-                var passwordNueva = form["PasswordNueva"].ToString().Trim();
-                await _context.Database.ExecuteSqlRawAsync(
-                "CALL sp_actualizarContraseña({0}, {1}, {2})",
-                idUsuario,
-                passwordActual,
-                passwordNueva
-            );
-                TempData["SuccessMessage"] = "Contraseña editada correctamente.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            var passwordActual = form["PasswordActual"].ToString().Trim();
+            var passwordNueva = form["PasswordNueva"].ToString().Trim();
+
+            if (passwordNueva.Length < 6)
+            {
+                TempData["ErrorMessage"] = "La nueva contraseña debe tener al menos 6 caracteres.";
+                return RedirectToAction("Configuracion");
             }
 
             Usuario? usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
