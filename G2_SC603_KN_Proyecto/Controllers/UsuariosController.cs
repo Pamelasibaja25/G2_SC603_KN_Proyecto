@@ -3,7 +3,6 @@ using G2_SC603_KN_Proyecto.Filters;
 using G2_SC603_KN_Proyecto.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Text.RegularExpressions;
 
 namespace G2_SC603_KN_Proyecto.Controllers
 {
@@ -17,6 +16,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
         }
 
         #region Mostrar Usuarios
+        [HttpGet]
+        [RolAutorizado("ADMIN")]
         public async Task<IActionResult> MostrarUsuarios()
         {
 
@@ -205,24 +206,22 @@ namespace G2_SC603_KN_Proyecto.Controllers
             return View(usuario);
         }
         #endregion
-
         #region Cambiar Contraseña
         [HttpPost]
         public async Task<IActionResult> CambiarContraseña(IFormCollection form)
         {
-            var idUsuario = HttpContext.Session.GetInt32("ID");
-            if (idUsuario == null)
+            try
             {
-                return RedirectToAction("Index", "Home");
-            }
-
-            var passwordActual = form["PasswordActual"].ToString().Trim();
-            var passwordNueva = form["PasswordNueva"].ToString().Trim();
-
-            if (passwordNueva.Length < 6)
-            {
-                TempData["ErrorMessage"] = "La nueva contraseña debe tener al menos 6 caracteres.";
-                return RedirectToAction("Configuracion");
+                var idUsuario = HttpContext.Session.GetInt32("ID");
+                var passwordActual = form["PasswordActual"].ToString().Trim();
+                var passwordNueva = form["PasswordNueva"].ToString().Trim();
+                await _context.Database.ExecuteSqlRawAsync(
+                "CALL sp_actualizarContraseña({0}, {1}, {2})",
+                idUsuario,
+                passwordActual,
+                passwordNueva
+            );
+                TempData["SuccessMessage"] = "Contraseña editada correctamente.";
             }
 
             Usuario? usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
