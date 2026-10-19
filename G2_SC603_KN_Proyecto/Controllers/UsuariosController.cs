@@ -1,6 +1,7 @@
 ﻿using G2_SC603_KN_Proyecto.Models;
 using G2_SC603_KN_Proyecto.Filters;
 using G2_SC603_KN_Proyecto.Helpers;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
