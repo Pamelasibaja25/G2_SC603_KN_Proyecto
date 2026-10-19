@@ -168,7 +168,7 @@
                 </div>
                 <div>
                     <label class="label-float">Cédula</label>
-                    <input type="text" name="Username" class="input-field" placeholder="XXXXXXXXX" required />
+                    <input type="text" name="Username" class="input-field" placeholder="Solo letras y números" pattern="[A-Za-z0-9]{3,30}" title="Entre 3 y 30 caracteres: solo letras y números" required />
                 </div>
                 <div>
                     <label class="label-float">Teléfono *</label>
@@ -177,6 +177,10 @@
                 <div class="col-span-2">
                     <label class="label-float">Correo Electrónico *</label>
                     <input type="email" name="Correo" class="input-field" placeholder="correo@ejemplo.com" required />
+                </div>
+                <div class="col-span-2">
+                    <label class="label-float">Contraseña inicial *</label>
+                    <input type="password" name="Contrasena" class="input-field" minlength="6" placeholder="Mínimo 6 caracteres" required />
                 </div>
             </div>
             <div class="flex gap-3 pt-2 justify-end">

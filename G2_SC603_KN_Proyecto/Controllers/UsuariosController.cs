@@ -1,7 +1,9 @@
 ﻿using G2_SC603_KN_Proyecto.Models;
 using G2_SC603_KN_Proyecto.Filters;
+using G2_SC603_KN_Proyecto.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace G2_SC603_KN_Proyecto.Controllers
 {
@@ -108,21 +110,40 @@ namespace G2_SC603_KN_Proyecto.Controllers
         #region Agregar Usuario
         [HttpPost]
         [RolAutorizado("ADMIN")]
-        public async Task<IActionResult> AgregarUsuario(UsuarioNombre nuevoUsuario, List<string> roles)
+        public async Task<IActionResult> AgregarUsuario(UsuarioNombre nuevoUsuario, List<string> roles, string contrasena)
         {
+            string username = (nuevoUsuario.Username ?? "").Trim();
+            if (!Regex.IsMatch(username, "^[A-Za-z0-9]{3,30}$"))
+            {
+                TempData["ErrorMessage"] = "El usuario debe tener entre 3 y 30 caracteres, solo letras y números (sin guiones, puntos ni espacios).";
+                return RedirectToAction("MostrarUsuarios");
+            }
+
+            if (string.IsNullOrWhiteSpace(contrasena) || contrasena.Trim().Length < 6)
+            {
+                TempData["ErrorMessage"] = "La contraseña inicial debe tener al menos 6 caracteres.";
+                return RedirectToAction("MostrarUsuarios");
+            }
+
+            if (roles == null || !roles.Any())
+            {
+                TempData["ErrorMessage"] = "Debe seleccionar al menos un rol.";
+                return RedirectToAction("MostrarUsuarios");
+            }
+
             try
             {
-                string rolCsv = roles != null && roles.Any()
-                    ? string.Join(",", roles.Distinct())
-                    : nuevoUsuario.Rol; // fallback por si el form no manda la lista
+                string rolCsv = string.Join(",", roles.Distinct());
+                string hashContrasena = PasswordHasher.HashPassword(contrasena.Trim());
 
                 await _context.Database.ExecuteSqlRawAsync(
-                "CALL sp_agregarUsuario({0}, {1}, {2}, {3}, {4})",
+                "CALL sp_agregarUsuario({0}, {1}, {2}, {3}, {4}, {5})",
                 nuevoUsuario.Nombre,
                 nuevoUsuario.Telefono,
                 nuevoUsuario.Correo,
                 rolCsv,
-                nuevoUsuario.Username
+                username,
+                hashContrasena
             );
                 TempData["SuccessMessage"] = "Usuario agregado correctamente.";
             }
@@ -140,11 +161,15 @@ namespace G2_SC603_KN_Proyecto.Controllers
         [RolAutorizado("ADMIN")]
         public async Task<IActionResult> EditarUsuario(UsuarioNombre nuevoUsuario, List<string> roles)
         {
+            if (roles == null || !roles.Any())
+            {
+                TempData["ErrorMessage"] = "Debe seleccionar al menos un rol.";
+                return RedirectToAction("MostrarUsuarios");
+            }
+
             try
             {
-                string rolCsv = roles != null && roles.Any()
-                    ? string.Join(",", roles.Distinct())
-                    : nuevoUsuario.Rol;
+                string rolCsv = string.Join(",", roles.Distinct());
 
                 await _context.Database.ExecuteSqlRawAsync(
                 "CALL sp_editarUsuario({0}, {1}, {2}, {3}, {4})",
@@ -185,24 +210,32 @@ namespace G2_SC603_KN_Proyecto.Controllers
         [HttpPost]
         public async Task<IActionResult> CambiarContraseña(IFormCollection form)
         {
-            try
+            var idUsuario = HttpContext.Session.GetInt32("ID");
+            if (idUsuario == null)
             {
-                var idUsuario = HttpContext.Session.GetInt32("ID");
-                var passwordActual = form["PasswordActual"].ToString().Trim();
-                var passwordNueva = form["PasswordNueva"].ToString().Trim();
-                await _context.Database.ExecuteSqlRawAsync(
-                "CALL sp_actualizarContraseña({0}, {1}, {2})",
-                idUsuario,
-                passwordActual,
-                passwordNueva
-            );
-                TempData["SuccessMessage"] = "Contraseña editada correctamente.";
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = "Error al editar la contraseña: " + ex.Message;
+                return RedirectToAction("Index", "Home");
             }
 
+            var passwordActual = form["PasswordActual"].ToString().Trim();
+            var passwordNueva = form["PasswordNueva"].ToString().Trim();
+
+            if (passwordNueva.Length < 6)
+            {
+                TempData["ErrorMessage"] = "La nueva contraseña debe tener al menos 6 caracteres.";
+                return RedirectToAction("Configuracion");
+            }
+
+            Usuario? usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
+            if (usuario == null || !PasswordHasher.Verify(passwordActual, usuario.Contrasena, out _))
+            {
+                TempData["ErrorMessage"] = "Error al editar la contraseña: la contraseña actual no es correcta.";
+                return RedirectToAction("Configuracion");
+            }
+
+            usuario.Contrasena = PasswordHasher.HashPassword(passwordNueva);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Contraseña editada correctamente.";
             return RedirectToAction("Configuracion");
         }
         #endregion

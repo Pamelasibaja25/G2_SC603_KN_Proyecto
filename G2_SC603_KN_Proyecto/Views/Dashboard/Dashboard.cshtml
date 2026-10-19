@@ -242,8 +242,7 @@
         </div>
     </div>
 
-    <!-- Analítica: útil, pero no es lo primero que hay que ver cada día -->
-    <details class="bg-surface-container rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
+    <details id="analitica" class="bg-surface-container rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.3)]" @(Model.FechaInicio.HasValue || Model.FechaFin.HasValue || Model.RankingInicio.HasValue || Model.RankingFin.HasValue ? "open" : "")>
         <summary class="cursor-pointer list-none p-6 flex items-center justify-between">
             <div>
                 <h3 class="font-headline font-bold text-base">Estadísticas y gráficos</h3>
@@ -367,7 +366,7 @@
 
     // El gráfico está dentro de un <details> colapsado: Chart.js lo mide
     // en 0x0 mientras está cerrado. Al abrirlo, hay que forzar un resize.
-    document.querySelector('details').addEventListener('toggle', function (e) {
+    document.getElementById('analitica').addEventListener('toggle', function (e) {
         if (e.target.open) {
             var chart = Chart.getChart('attendanceChart');
             if (chart) chart.resize();

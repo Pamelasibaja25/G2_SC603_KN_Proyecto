@@ -125,6 +125,14 @@ function openClientModal() {
     modal.style.display = "flex";
 }
 
+function toggleMenuMovil() {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("menuOverlay");
+    if (!sidebar || !overlay) return;
+    const abierto = sidebar.classList.toggle("menu-movil-abierto");
+    overlay.classList.toggle("hidden", !abierto);
+}
+
 function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));

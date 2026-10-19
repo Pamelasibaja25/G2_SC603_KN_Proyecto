@@ -55,8 +55,6 @@
     <!-- Tab: Cambiar Datos -->
     <div id="tab-data" class="tab-content hidden">
         <form asp-action="CambiarDatos" method="post" class="space-y-4">
-            <input type="hidden" name="Rol" value="@Model.Rol" />
-            <input type="hidden" name="Username" value="@Model.Username" />
             <div>
                 <label class="label-float">Nombre Completo *</label>
                 <input type="text" name="Nombre" class="input-field" value="@Model.Nombre" required />

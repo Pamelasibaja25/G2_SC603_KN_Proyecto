@@ -15,9 +15,10 @@ namespace G2_SC603_KN_Proyecto.Controllers
         // Protección contra fuerza bruta: solo en memoria del proceso (se
         // reinicia si la app se reinicia; para producción con más de una
         // instancia haría falta guardarlo en algo compartido como Redis).
-        private static readonly ConcurrentDictionary<string, (int intentos, DateTime bloqueadoHasta)> _intentosFallidos = new();
+        private static readonly ConcurrentDictionary<string, (int intentos, DateTime bloqueadoHasta, DateTime ultimoFallo)> _intentosFallidos = new();
         private const int MaxIntentos = 5;
         private static readonly TimeSpan TiempoBloqueo = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan VentanaIntentos = TimeSpan.FromMinutes(15);
 
         public HomeController(DbOrionFitContext context)
         {
@@ -35,12 +36,22 @@ namespace G2_SC603_KN_Proyecto.Controllers
         {
             string claveIntentos = (username ?? "").Trim().ToLower();
 
-            if (_intentosFallidos.TryGetValue(claveIntentos, out var estadoActual)
-                && estadoActual.bloqueadoHasta > DateTime.Now)
+            if (_intentosFallidos.TryGetValue(claveIntentos, out var estadoActual))
             {
-                int minutosRestantes = (int)Math.Ceiling((estadoActual.bloqueadoHasta - DateTime.Now).TotalMinutes);
-                ViewBag.Error = $"Demasiados intentos fallidos. Probá de nuevo en {minutosRestantes} minuto(s).";
-                return View();
+                if (estadoActual.bloqueadoHasta > DateTime.Now)
+                {
+                    int minutosRestantes = (int)Math.Ceiling((estadoActual.bloqueadoHasta - DateTime.Now).TotalMinutes);
+                    ViewBag.Error = $"Demasiados intentos fallidos. Probá de nuevo en {minutosRestantes} minuto(s).";
+                    return View();
+                }
+
+                // El bloqueo ya venció, o los fallos son viejos: se empieza a contar desde cero.
+                bool bloqueoVencido = estadoActual.bloqueadoHasta != DateTime.MinValue;
+                bool fallosViejos = DateTime.Now - estadoActual.ultimoFallo > VentanaIntentos;
+                if (bloqueoVencido || fallosViejos)
+                {
+                    _intentosFallidos.TryRemove(claveIntentos, out _);
+                }
             }
 
             var user = _context.Usuarios
@@ -100,14 +111,14 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             // Login fallido: cuenta el intento para el bloqueo temporal.
             _intentosFallidos.AddOrUpdate(claveIntentos,
-                (1, DateTime.MinValue),
+                _ => (1, DateTime.MinValue, DateTime.Now),
                 (_, actual) =>
                 {
                     int nuevosIntentos = actual.intentos + 1;
                     DateTime bloqueo = nuevosIntentos >= MaxIntentos
                         ? DateTime.Now.Add(TiempoBloqueo)
                         : DateTime.MinValue;
-                    return (nuevosIntentos, bloqueo);
+                    return (nuevosIntentos, bloqueo, DateTime.Now);
                 });
 
             ViewBag.Error = "Usuario o contraseña incorrectos";

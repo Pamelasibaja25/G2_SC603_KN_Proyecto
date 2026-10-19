@@ -1485,6 +1485,11 @@ body {
     box-shadow: 0 10px 30px rgba(18,18,26,0.18);
 }
 
+/* Menú lateral en móvil: se muestra como panel deslizable al tocar el botón de menú */
+#sidebar.menu-movil-abierto {
+    display: flex !important;
+}
+
 /* Botón toggle claro/oscuro en el header */
 .theme-toggle-btn .material-symbols-outlined {
     transition: transform 0.3s ease;
