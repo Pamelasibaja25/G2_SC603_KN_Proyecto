@@ -15,35 +15,35 @@ namespace G2_SC603_KN_Proyecto.Controllers
         public IActionResult Index()
         {
             int? idUsuario = HttpContext.Session.GetInt32("ID");
+            if (idUsuario == null) return RedirectToAction("Index", "Home");
 
-            if (idUsuario == null)
-                return RedirectToAction("Index", "Home");
-
-            var cliente = _context.Clientes
-                .FirstOrDefault(c => c.IdUsuario == idUsuario);
-
-            if (cliente == null)
-                return RedirectToAction("Home", "Home");
+            var cliente = _context.Clientes.FirstOrDefault(c => c.IdUsuario == (int)idUsuario);
+            if (cliente == null) return RedirectToAction("Index", "Home");
 
             var notificaciones = _context.Notificaciones
                 .Where(n => n.IdCliente == cliente.IdCliente)
                 .OrderByDescending(n => n.Fecha)
                 .ToList();
 
-            // Al abrir la pantalla se marcan todas como leídas, así el
-            // contador (badge) de la campanita se limpia.
-            bool huboSinLeer = false;
-            foreach (var n in notificaciones.Where(n => !n.Leida))
-            {
-                n.Leida = true;
-                huboSinLeer = true;
-            }
-            if (huboSinLeer)
-            {
-                _context.SaveChanges();
-            }
-
             return View(notificaciones);
+        }
+
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public IActionResult MarcarLeidas()
+        {
+            int? idUsuario = HttpContext.Session.GetInt32("ID");
+            if (idUsuario == null) return Json(new { ok = false });
+
+            var cliente = _context.Clientes.FirstOrDefault(c => c.IdUsuario == (int)idUsuario);
+            if (cliente == null) return Json(new { ok = false });
+
+            var sinLeer = _context.Notificaciones
+                .Where(n => n.IdCliente == cliente.IdCliente && !n.Leida).ToList();
+            sinLeer.ForEach(n => n.Leida = true);
+            if (sinLeer.Any()) _context.SaveChanges();
+
+            return Json(new { ok = true });
         }
     }
 }

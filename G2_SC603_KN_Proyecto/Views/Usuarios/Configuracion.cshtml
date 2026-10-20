@@ -1,24 +1,26 @@
 ﻿@model G2_SC603_KN_Proyecto.Models.UsuarioNombre
+
 @{
     Layout = "_Layout";
-    string rolActual = Context.Session.GetString("Rol") ?? string.Empty;
-}
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="toast show" style="background:#201f1f; color:#4ade80;">
-        <span class="material-symbols-outlined">check_circle</span>
-        <span>@TempData["SuccessMessage"]</span>
-    </div>
+    string iniciales = string.IsNullOrEmpty(Model?.Nombre) ? "?"
+        : string.Join("", Model.Nombre.Split(' ').Take(2).Select(p => p[0].ToString().ToUpper()));
 }
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <script>
+        window.__toastData = { type: 'success', message: '@TempData["SuccessMessage"]' };
+    </script>
+}
 @if (TempData["ErrorMessage"] != null)
 {
-    <div class="toast show" style="background:#201f1f; color:#ffb4ab;">
-        <span class="material-symbols-outlined">error</span>
-        <span>@TempData["ErrorMessage"]</span>
-    </div>
+    <script>
+        window.__toastData = { type: 'error', message: '@TempData["ErrorMessage"]' };
+    </script>
 }
-<div id="page-profile" class="section-page active p-6 lg:p-8">
+
+<div id="page-config" class="section-page active p-6 lg:p-8">
+
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
             <h2 class="font-headline text-3xl font-bold tracking-tight">Configuración de Cuenta</h2>
@@ -26,51 +28,110 @@
         </div>
     </div>
 
+    <!-- Tarjeta de perfil -->
+    <div class="metric-card p-6 flex items-center gap-5 mb-6">
+        <div class="flex items-center justify-center rounded-full text-xl font-bold flex-shrink-0"
+             style="width:64px;height:64px;background:rgba(124,108,245,0.15);border:2px solid #763df2;color:#ac79f2">
+            @iniciales
+        </div>
+        <div class="flex-1 min-w-0">
+            <div class="text-lg font-bold truncate">@Model?.Nombre</div>
+            <div class="flex gap-2 mt-1 flex-wrap">
+                <span class="tab-btn active text-xs px-3 py-1" style="pointer-events:none">@Model?.Rol</span>
+                <span class="tab-btn text-xs px-3 py-1" style="pointer-events:none">@@@Model?.Username</span>
+            </div>
+            <div class="mt-2 flex flex-col gap-1">
+                @if (!string.IsNullOrEmpty(Model?.Correo))
+                {
+                    <div class="flex items-center gap-2 text-xs text-on-surface-variant">
+                        <span class="material-symbols-outlined" style="font-size:13px">mail</span>
+                        @Model.Correo
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model?.Telefono))
+                {
+                    <div class="flex items-center gap-2 text-xs text-on-surface-variant">
+                        <span class="material-symbols-outlined" style="font-size:13px">call</span>
+                        @Model.Telefono
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
     <!-- Tabs -->
-    <div class="flex border-b border-outline mb-6">
-        <button class="tab-btn active" onclick="showTab('tab-password')">Cambiar Contraseña</button>
-        <button class="tab-btn" onclick="showTab('tab-data')">Cambiar Datos</button>
-    </div>
+    <div class="metric-card overflow-hidden">
+        <div class="flex border-b border-white border-opacity-10 px-1 gap-1">
+            <button class="tab-btn active flex-1 justify-center gap-2 py-3" onclick="showConfigTab('tab-pw', this)">
+                <span class="material-symbols-outlined" style="font-size:15px">lock_reset</span>
+                Cambiar Contraseña
+            </button>
+            <button class="tab-btn flex-1 justify-center gap-2 py-3" onclick="showConfigTab('tab-datos', this)">
+                <span class="material-symbols-outlined" style="font-size:15px">manage_accounts</span>
+                Mis Datos
+            </button>
+        </div>
 
-    <!-- Tab: Cambiar Contraseña -->
-    <div id="tab-password" class="tab-content active">
-        <form asp-action="CambiarContraseña" method="post" class="space-y-4">
-            <div>
-                <label class="label-float">Contraseña Actual *</label>
-                <input type="password" name="PasswordActual" class="input-field" required />
+        <!-- Tab: Contraseña -->
+        <div id="tab-pw" class="p-6">
+            <div class="flex gap-2 items-start rounded-lg p-3 mb-5 text-xs text-on-surface-variant"
+                 style="background:rgba(124,108,245,0.1);border:1px solid rgba(124,108,245,0.2)">
+                <span class="material-symbols-outlined flex-shrink-0" style="font-size:14px;margin-top:1px">info</span>
+                Ingresa tu contraseña actual para confirmar tu identidad antes de establecer una nueva.
             </div>
-            <div>
-                <label class="label-float">Nueva Contraseña *</label>
-                <input type="password" name="PasswordNueva" class="input-field" required />
-            </div>
-            <div class="flex gap-3 pt-2 justify-end">
-                <button type="reset" class="btn-secondary">Cancelar</button>
-                <button type="submit" class="btn-primary">
-                    <span class="material-symbols-outlined text-[16px]">lock_reset</span> Guardar Cambios
-                </button>
-            </div>
-        </form>
-    </div>
+            <form asp-action="CambiarContraseña" method="post" class="space-y-4">
+                <div>
+                    <label class="label-float">Contraseña Actual *</label>
+                    <input type="password" name="PasswordActual" class="input-field" placeholder="••••••••" required />
+                </div>
+                <div>
+                    <label class="label-float">Nueva Contraseña *</label>
+                    <input type="password" name="PasswordNueva" class="input-field" placeholder="••••••••" required />
+                </div>
+                <div class="flex gap-3 justify-end pt-4" style="border-top:1px solid rgba(255,255,255,0.08)">
+                    <button type="reset" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary">
+                        <span class="material-symbols-outlined text-[15px]">shield</span>
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
 
-    <!-- Tab: Cambiar Datos -->
-    <div id="tab-data" class="tab-content hidden">
-        <form asp-action="CambiarDatos" method="post" class="space-y-4">
-            <div>
-                <label class="label-float">Nombre Completo *</label>
-                <input type="text" name="Nombre" class="input-field" value="@Model.Nombre" required />
-            </div>
-            <div>
-                <label class="label-float">Correo Electrónico *</label>
-                <input type="email" name="Correo" class="input-field" value="@Model.Correo" required />
-            </div>
-            <div>
-                <label class="label-float">Teléfono</label>
-                <input type="text" name="Telefono" class="input-field" value="@Model.Telefono" />
-            </div>
-            <div class="flex gap-3 pt-2 justify-end">
-                <button type="reset" class="btn-secondary">Cancelar</button>
-                <button type="submit" class="btn-primary">Guardar Cambios</button>
-            </div>
-        </form>
+        <!-- Tab: Datos -->
+        <div id="tab-datos" class="p-6" style="display:none">
+            <form asp-action="CambiarDatos" method="post" class="space-y-4">
+                <input type="hidden" name="Rol" value="@Model?.Rol" />
+                <input type="hidden" name="Username" value="@Model?.Username" />
+                <div>
+                    <label class="label-float">Nombre Completo *</label>
+                    <input type="text" name="Nombre" class="input-field" value="@Model?.Nombre" required />
+                </div>
+                <div>
+                    <label class="label-float">Correo Electrónico *</label>
+                    <input type="email" name="Correo" class="input-field" value="@Model?.Correo" required />
+                </div>
+                <div>
+                    <label class="label-float">Teléfono</label>
+                    <input type="text" name="Telefono" class="input-field" value="@Model?.Telefono" />
+                </div>
+                <div class="flex gap-3 justify-end pt-4" style="border-top:1px solid rgba(255,255,255,0.08)">
+                    <button type="reset" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary">
+                        <span class="material-symbols-outlined text-[15px]">save</span>
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
+<script>
+    function showConfigTab(id, btn) {
+        document.querySelectorAll('#tab-pw, #tab-datos').forEach(t => t.style.display = 'none');
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).style.display = 'block';
+        btn.classList.add('active');
+    }
+</script>

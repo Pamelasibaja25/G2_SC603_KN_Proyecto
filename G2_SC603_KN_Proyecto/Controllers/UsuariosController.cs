@@ -211,32 +211,41 @@ namespace G2_SC603_KN_Proyecto.Controllers
         [HttpPost]
         public async Task<IActionResult> CambiarContraseña(IFormCollection form)
         {
-            var idUsuario = HttpContext.Session.GetInt32("ID");
-            if (idUsuario == null)
+            try
             {
-                return RedirectToAction("Index", "Home");
+                var idUsuario = HttpContext.Session.GetInt32("ID");
+                var passwordActual = form["PasswordActual"].ToString().Trim();
+                var passwordNueva = form["PasswordNueva"].ToString().Trim();
+
+                // Obtener el usuario de la BD
+                var usuario = await _context.Usuarios
+                    .FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
+
+                if (usuario == null)
+                {
+                    TempData["ErrorMessage"] = "Usuario no encontrado.";
+                    return RedirectToAction("Configuracion");
+                }
+
+                // Verificar contraseña actual con el hash almacenado
+                bool esValida = PasswordHasher.Verify(passwordActual, usuario.Contrasena, out _);
+                if (!esValida)
+                {
+                    TempData["ErrorMessage"] = "La contraseña actual es incorrecta.";
+                    return RedirectToAction("Configuracion");
+                }
+
+                // Hashear la nueva contraseña y guardar
+                usuario.Contrasena = PasswordHasher.HashPassword(passwordNueva);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Contraseña editada correctamente.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error al editar la contraseña: " + ex.Message;
             }
 
-            var passwordActual = form["PasswordActual"].ToString().Trim();
-            var passwordNueva = form["PasswordNueva"].ToString().Trim();
-
-            if (passwordNueva.Length < 6)
-            {
-                TempData["ErrorMessage"] = "La nueva contraseña debe tener al menos 6 caracteres.";
-                return RedirectToAction("Configuracion");
-            }
-
-            Usuario? usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
-            if (usuario == null || !PasswordHasher.Verify(passwordActual, usuario.Contrasena, out _))
-            {
-                TempData["ErrorMessage"] = "Error al editar la contraseña: la contraseña actual no es correcta.";
-                return RedirectToAction("Configuracion");
-            }
-
-            usuario.Contrasena = PasswordHasher.HashPassword(passwordNueva);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Contraseña editada correctamente.";
             return RedirectToAction("Configuracion");
         }
         #endregion

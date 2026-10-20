@@ -7,69 +7,53 @@
 <div class="p-6 space-y-6">
 
     <div>
-        <h1 class="text-3xl font-bold">
-            Historial de Notificaciones
-        </h1>
-
-        <p class="text-on-surface-variant">
-            Consulte todas las notificaciones recibidas.
-        </p>
+        <h1 class="text-3xl font-bold">Historial de Notificaciones</h1>
+        <p class="text-on-surface-variant">Consulte todas las notificaciones recibidas.</p>
     </div>
 
-    @if (!Model.Any())
+    @if (Model == null || !Model.Any())
     {
         <div class="bg-surface-container rounded-2xl p-8 text-center shadow">
-
-            <span class="material-symbols-outlined text-6xl text-gray-500">
-                notifications_off
-            </span>
-
-            <h2 class="text-xl font-semibold mt-4">
-                No hay notificaciones
-            </h2>
-
-            <p class="text-on-surface-variant mt-2">
-                Cuando reciba una notificación aparecerá aquí.
-            </p>
-
+            <span class="material-symbols-outlined" style="font-size:48px;color:#6b7280">notifications_off</span>
+            <h2 class="text-xl font-semibold mt-4">No hay notificaciones</h2>
+            <p class="text-on-surface-variant mt-2">Cuando reciba una notificación aparecerá aquí.</p>
         </div>
     }
     else
     {
         <div class="space-y-4">
-
-            @foreach(var item in Model)
+            @foreach (var item in Model)
             {
                 <div class="bg-surface-container rounded-2xl shadow p-5 border border-outline-variant">
-
-                    <div class="flex justify-between items-center">
-
-                        <div>
-
-                            <span class="text-xs uppercase tracking-wider text-primary font-semibold">
-                                @item.Tipo
+                    <div class="flex justify-between items-start gap-4">
+                        <div class="flex items-start gap-3">
+                            <span class="material-symbols-outlined mt-1" style="font-size:20px;color:#ac79f2">
+                                @(item.Tipo == "ALERTA" ? "warning" : item.Tipo == "ERROR" ? "error" : "notifications")
                             </span>
-
-                            <h3 class="text-lg font-bold mt-1">
-                                @item.Titulo
-                            </h3>
-
+                            <div>
+                                <span class="text-xs uppercase tracking-wider text-primary font-semibold">@item.Tipo</span>
+                                <h3 class="text-lg font-bold mt-1">@item.Titulo</h3>
+                                <p class="mt-2 text-on-surface">@item.Mensaje</p>
+                            </div>
                         </div>
-
-                        <span class="text-sm text-gray-400">
+                        <span class="text-sm text-gray-400 flex-shrink-0">
                             @item.Fecha.ToString("dd/MM/yyyy HH:mm")
                         </span>
-
                     </div>
-
-                    <p class="mt-4 text-on-surface">
-                        @item.Mensaje
-                    </p>
-
                 </div>
             }
-
         </div>
     }
 
 </div>
+
+<script>
+    setTimeout(function () {
+        fetch('/Notificaciones/MarcarLeidas', {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? ''
+            }
+        });
+    }, 3000);
+</script>

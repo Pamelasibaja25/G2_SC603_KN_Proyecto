@@ -1,19 +1,17 @@
-﻿@model List<G2_SC603_KN_Proyecto.Models.Equipo>
+﻿@model List<G2_SC603_KN_Proyecto.Models.Inventario>
 @{
     Layout = "_Layout";
-    var activos = Model?.Count(e => e.Estado == "Disponible") ?? 0;
-    var inactivos = Model?.Count(e => e.Estado == "No Disponible") ?? 0;
-    var enMant = Model?.Count(e => e.Estado != "Disponible" && e.Estado != "No Disponible") ?? 0;
+    int bajosStock = Model?.Count(p => p.Cantidad <= p.StockMinimo) ?? 0;
     bool vacio = ViewBag.Vacio == true || Model == null || !Model.Any();
 }
 
-<div id="page-inventario-reporte" class="section-page active p-6 lg:p-8">
+<div class="section-page active p-6 lg:p-8">
 
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
             <h2 class="font-headline text-3xl font-bold tracking-tight">Reporte de Inventario</h2>
+            <p class="text-on-surface-variant text-xs mt-1">Productos con cantidad actual y alertas de bajo stock</p>
         </div>
-
         @if (!vacio)
         {
             <div class="flex gap-3">
@@ -33,29 +31,33 @@
     {
         <div class="bg-surface-container rounded-2xl p-10 text-center text-on-surface-variant">
             <span class="material-symbols-outlined text-[48px] mb-3">inventory_2</span>
-            <p>No hay equipos registrados en el inventario.</p>
+            <p>No hay productos registrados en el inventario.</p>
         </div>
     }
     else
     {
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <div class="bg-surface-container rounded-2xl p-5">
-                <p class="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold mb-2">Disponibles</p>
-                <p class="font-headline text-3xl font-black tracking-tighter text-primary-container">@activos</p>
-            </div>
-            <div class="bg-surface-container rounded-2xl p-5">
-                <p class="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold mb-2">No Disponibles</p>
-                <p class="font-headline text-3xl font-black tracking-tighter" style="color:#ef4444">@inactivos</p>
-            </div>
-            <div class="bg-surface-container rounded-2xl p-5">
-                <p class="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold mb-2">En Mantenimiento</p>
-                <p class="font-headline text-3xl font-black tracking-tighter text-[#fbbf24]">@enMant</p>
-            </div>
-            <div class="bg-surface-container rounded-2xl p-5">
-                <p class="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold mb-2">Total</p>
+                <p class="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold mb-2">Total Productos</p>
                 <p class="font-headline text-3xl font-black tracking-tighter">@Model!.Count</p>
             </div>
+            <div class="bg-surface-container rounded-2xl p-5">
+                <p class="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold mb-2">Bajo Stock</p>
+                <p class="font-headline text-3xl font-black tracking-tighter" style="color:@(bajosStock > 0 ? "#ef4444" : "#4ade80")">@bajosStock</p>
+            </div>
+            <div class="bg-surface-container rounded-2xl p-5">
+                <p class="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold mb-2">Stock Normal</p>
+                <p class="font-headline text-3xl font-black tracking-tighter text-primary-container">@(Model!.Count - bajosStock)</p>
+            </div>
         </div>
+
+        @if (bajosStock > 0)
+        {
+            <div class="bg-red-900/30 border border-red-500/40 rounded-2xl p-4 mb-6 flex items-center gap-3">
+                <span class="material-symbols-outlined text-red-400">warning</span>
+                <p class="text-red-300 text-sm font-semibold">@bajosStock producto(s) con stock igual o por debajo del mínimo configurado.</p>
+            </div>
+        }
 
         <div class="bg-surface-container rounded-2xl overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.3)]">
             <div class="overflow-x-auto">
@@ -63,28 +65,37 @@
                     <thead>
                         <tr>
                             <th>Nombre</th>
-                            <th>Estado</th>
-                            <th>Fecha Compra</th>
+                            <th>Categoría</th>
+                            <th>Cantidad</th>
+                            <th>Stock Mínimo</th>
+                            <th>Alerta</th>
                             <th>Costo</th>
+                            <th>Fecha Ingreso</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var eq in Model)
+                        @foreach (var p in Model)
                         {
-                            <tr class="@(eq.Estado == "No Disponible" ? "row-disabled" : "")">
-                                <td>@eq.Nombre</td>
+                            bool bajo = p.Cantidad <= p.StockMinimo;
+                            <tr class="@(bajo ? "bg-red-900/20" : "")">
+                                <td>@p.NombreProducto</td>
+                                <td>@(p.Categoria ?? "—")</td>
+                                <td class="@(bajo ? "text-red-400 font-bold" : "")">@p.Cantidad</td>
+                                <td>@p.StockMinimo</td>
                                 <td>
-                                    @if (eq.Estado == "Disponible")
+                                    @if (bajo)
                                     {
-                                        <span class="badge-status badge-disponible">@eq.Estado</span>
+                                        <span class="inline-flex items-center gap-1 text-red-400 text-xs font-semibold">
+                                            <span class="material-symbols-outlined text-[14px]">warning</span> Bajo stock
+                                        </span>
                                     }
                                     else
                                     {
-                                        <span class="badge-status badge-no-disponible">@eq.Estado</span>
+                                        <span class="text-[#4ade80] text-xs font-semibold">OK</span>
                                     }
                                 </td>
-                                <td>@(eq.FechaCompra?.ToString("dd/MM/yyyy") ?? "—")</td>
-                                <td>@(eq.Costo.HasValue ? "₡" + eq.Costo.Value.ToString("N2") : "—")</td>
+                                <td>@(p.Costo.HasValue ? "₡" + p.Costo.Value.ToString("N2") : "—")</td>
+                                <td>@p.FechaIngreso.ToString("dd/MM/yyyy")</td>
                             </tr>
                         }
                     </tbody>

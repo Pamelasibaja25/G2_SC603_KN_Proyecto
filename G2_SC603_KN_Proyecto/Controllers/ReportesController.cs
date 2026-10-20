@@ -192,39 +192,48 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
         public IActionResult Inventario(string? exportar)
         {
-            var equipos = _context.Equipo.ToList();
+            var productos = _context.Inventarios.OrderBy(p => p.NombreProducto).ToList();
 
-            if (!equipos.Any())
+            if (!productos.Any())
             {
                 ViewBag.Vacio = true;
-                return View(equipos);
+                return View(productos);
             }
 
             if (exportar == "excel")
-                return ExportarInventarioExcel(equipos);
+                return ExportarInventarioExcel(productos);
 
             if (exportar == "pdf")
-                return ExportarInventarioPdf(equipos);
+                return ExportarInventarioPdf(productos);
 
-            return View(equipos);
+            return View(productos);
         }
 
-        private FileResult ExportarInventarioExcel(List<Equipo> equipos)
+        private FileResult ExportarInventarioExcel(List<Inventario> productos)
         {
             using var workbook = new XLWorkbook();
-            var ws = workbook.Worksheets.Add("Inventario Equipos");
+            var ws = workbook.Worksheets.Add("Inventario Productos");
             ws.Cell(1, 1).Value = "Nombre";
-            ws.Cell(1, 2).Value = "Estado";
-            ws.Cell(1, 3).Value = "Fecha Compra";
-            ws.Cell(1, 4).Value = "Costo";
+            ws.Cell(1, 2).Value = "Categoría";
+            ws.Cell(1, 3).Value = "Cantidad";
+            ws.Cell(1, 4).Value = "Stock Mínimo";
+            ws.Cell(1, 5).Value = "Alerta";
+            ws.Cell(1, 6).Value = "Costo";
+            ws.Cell(1, 7).Value = "Fecha Ingreso";
 
             int fila = 2;
-            foreach (var eq in equipos)
+            foreach (var p in productos)
             {
-                ws.Cell(fila, 1).Value = eq.Nombre;
-                ws.Cell(fila, 2).Value = eq.Estado;
-                ws.Cell(fila, 3).Value = eq.FechaCompra?.ToString() ?? "";
-                ws.Cell(fila, 4).Value = eq.Costo ?? 0;
+                bool bajo = p.Cantidad <= p.StockMinimo;
+                ws.Cell(fila, 1).Value = p.NombreProducto;
+                ws.Cell(fila, 2).Value = p.Categoria ?? "—";
+                ws.Cell(fila, 3).Value = p.Cantidad;
+                ws.Cell(fila, 4).Value = p.StockMinimo;
+                ws.Cell(fila, 5).Value = bajo ? "Bajo stock" : "OK";
+                ws.Cell(fila, 6).Value = p.Costo.HasValue ? (double)p.Costo.Value : 0;
+                ws.Cell(fila, 7).Value = p.FechaIngreso.ToString("dd/MM/yyyy");
+                if (bajo)
+                    ws.Range(fila, 1, fila, 7).Style.Fill.BackgroundColor = XLColor.LightSalmon;
                 fila++;
             }
             ws.Columns().AdjustToContents();
@@ -236,19 +245,17 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 $"Reporte_Inventario_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
         }
 
-        private FileResult ExportarInventarioPdf(List<Equipo> equipos)
+        private FileResult ExportarInventarioPdf(List<Inventario> productos)
         {
             QuestPDF.Settings.License = LicenseType.Community;
 
-            var activos = equipos.Count(e => e.Estado == "Disponible");
-            var inactivos = equipos.Count(e => e.Estado == "No Disponible");
-            var enMant = equipos.Count(e => e.Estado != "Disponible" && e.Estado != "No Disponible");
+            int bajosStock = productos.Count(p => p.Cantidad <= p.StockMinimo);
 
             var pdf = QuestPDF.Fluent.Document.Create(container =>
             {
                 container.Page(page =>
                 {
-                    page.Size(PageSizes.A4);
+                    page.Size(PageSizes.A4.Landscape());
                     page.Margin(1.5f, Unit.Centimetre);
                     page.DefaultTextStyle(x => x.FontSize(10));
 
@@ -264,10 +271,8 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     {
                         col.Item().PaddingVertical(8).Row(row =>
                         {
-                            row.RelativeItem().Text($"Activos: {activos}").SemiBold();
-                            row.RelativeItem().Text($"Inactivos: {inactivos}").SemiBold();
-                            row.RelativeItem().Text($"En Mantenimiento: {enMant}").SemiBold();
-                            row.RelativeItem().Text($"Total: {equipos.Count}").SemiBold();
+                            row.RelativeItem().Text($"Total productos: {productos.Count}").SemiBold();
+                            row.RelativeItem().Text($"Bajo stock: {bajosStock}").SemiBold();
                         });
 
                         col.Item().Table(table =>
@@ -276,13 +281,16 @@ namespace G2_SC603_KN_Proyecto.Controllers
                             {
                                 cols.RelativeColumn(3);
                                 cols.RelativeColumn(2);
+                                cols.RelativeColumn(1.5f);
+                                cols.RelativeColumn(1.5f);
+                                cols.RelativeColumn(1.5f);
                                 cols.RelativeColumn(2);
                                 cols.RelativeColumn(2);
                             });
 
                             table.Header(header =>
                             {
-                                foreach (var h in new[] { "Nombre", "Estado", "Fecha Compra", "Costo" })
+                                foreach (var h in new[] { "Nombre", "Categoría", "Cantidad", "Stock Mín.", "Alerta", "Costo", "Fecha Ingreso" })
                                 {
                                     header.Cell()
                                         .Background("#333333")
@@ -294,13 +302,17 @@ namespace G2_SC603_KN_Proyecto.Controllers
                             });
 
                             bool alt = false;
-                            foreach (var eq in equipos)
+                            foreach (var p in productos)
                             {
-                                var bg = alt ? "#f5f5f5" : "#ffffff";
-                                table.Cell().Background(bg).Padding(4).Text(eq.Nombre);
-                                table.Cell().Background(bg).Padding(4).Text(eq.Estado);
-                                table.Cell().Background(bg).Padding(4).Text(eq.FechaCompra?.ToString("dd/MM/yyyy") ?? "—");
-                                table.Cell().Background(bg).Padding(4).Text(eq.Costo.HasValue ? $"₡{eq.Costo:N2}" : "—");
+                                bool bajo = p.Cantidad <= p.StockMinimo;
+                                var bg = bajo ? "#ffe0e0" : (alt ? "#f5f5f5" : "#ffffff");
+                                table.Cell().Background(bg).Padding(4).Text(p.NombreProducto);
+                                table.Cell().Background(bg).Padding(4).Text(p.Categoria ?? "—");
+                                table.Cell().Background(bg).Padding(4).Text(p.Cantidad.ToString());
+                                table.Cell().Background(bg).Padding(4).Text(p.StockMinimo.ToString());
+                                table.Cell().Background(bg).Padding(4).Text(bajo ? "Bajo stock" : "OK");
+                                table.Cell().Background(bg).Padding(4).Text(p.Costo.HasValue ? $"₡{p.Costo:N2}" : "—");
+                                table.Cell().Background(bg).Padding(4).Text(p.FechaIngreso.ToString("dd/MM/yyyy"));
                                 alt = !alt;
                             }
                         });

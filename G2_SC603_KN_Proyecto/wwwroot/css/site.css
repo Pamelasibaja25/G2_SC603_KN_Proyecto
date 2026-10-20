@@ -1494,3 +1494,9 @@ body {
 .theme-toggle-btn .material-symbols-outlined {
     transition: transform 0.3s ease;
 }
+
+#toast.show {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    pointer-events: auto !important;
+}

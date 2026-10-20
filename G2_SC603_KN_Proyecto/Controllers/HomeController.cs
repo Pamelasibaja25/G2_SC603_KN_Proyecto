@@ -1,10 +1,8 @@
-
 using Microsoft.EntityFrameworkCore;
 using G2_SC603_KN_Proyecto.Models;
 using G2_SC603_KN_Proyecto.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 namespace G2_SC603_KN_Proyecto.Controllers
 {
@@ -12,9 +10,6 @@ namespace G2_SC603_KN_Proyecto.Controllers
     {
         private readonly DbOrionFitContext _context;
 
-        // Protección contra fuerza bruta: solo en memoria del proceso (se
-        // reinicia si la app se reinicia; para producción con más de una
-        // instancia haría falta guardarlo en algo compartido como Redis).
         private static readonly ConcurrentDictionary<string, (int intentos, DateTime bloqueadoHasta, DateTime ultimoFallo)> _intentosFallidos = new();
         private const int MaxIntentos = 5;
         private static readonly TimeSpan TiempoBloqueo = TimeSpan.FromMinutes(5);
@@ -45,13 +40,10 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     return View();
                 }
 
-                // El bloqueo ya venció, o los fallos son viejos: se empieza a contar desde cero.
                 bool bloqueoVencido = estadoActual.bloqueadoHasta != DateTime.MinValue;
                 bool fallosViejos = DateTime.Now - estadoActual.ultimoFallo > VentanaIntentos;
                 if (bloqueoVencido || fallosViejos)
-                {
                     _intentosFallidos.TryRemove(claveIntentos, out _);
-                }
             }
 
             var user = _context.Usuarios
@@ -60,9 +52,6 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             if (user != null && PasswordHasher.Verify(password, user.Contrasena, out bool esHashViejo))
             {
-                // Migración transparente: si todavía tenía el hash SHA-256
-                // viejo, se reemplaza acá mismo por el hash seguro (PBKDF2 +
-                // salt), sin que el usuario tenga que resetear nada.
                 if (esHashViejo)
                 {
                     user.Contrasena = PasswordHasher.HashPassword(password);
@@ -77,7 +66,6 @@ namespace G2_SC603_KN_Proyecto.Controllers
                     return View();
                 }
 
-                // Validar membresía activa únicamente para usuarios USER
                 if (user.Rol.ToUpper() == "USER")
                 {
                     var cliente = user.Clientes.FirstOrDefault();
@@ -104,12 +92,11 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
                 HttpContext.Session.SetString("Usuario", user.Username);
                 HttpContext.Session.SetString("Rol", user.Rol.ToUpper());
-                HttpContext.Session.SetInt32("ID", user.IdUsuario);
+                HttpContext.Session.SetInt32("ID", user.IdUsuario); // ← ya estaba, confirmado
 
                 return RedirectToAction("Home", "Home");
             }
 
-            // Login fallido: cuenta el intento para el bloqueo temporal.
             _intentosFallidos.AddOrUpdate(claveIntentos,
                 _ => (1, DateTime.MinValue, DateTime.Now),
                 (_, actual) =>
@@ -130,14 +117,11 @@ namespace G2_SC603_KN_Proyecto.Controllers
             int? idUsuario = HttpContext.Session.GetInt32("ID");
 
             if (idUsuario == null)
-            {
                 return RedirectToAction("Index", "Home");
-            }
 
             var cliente = _context.Clientes
                 .FirstOrDefault(c => c.IdUsuario == idUsuario);
 
-            // Si no es cliente (ej: admin), no mostramos membresía
             if (cliente == null)
             {
                 ViewBag.MembresiaActiva = null;
@@ -162,23 +146,18 @@ namespace G2_SC603_KN_Proyecto.Controllers
             }
 
             if (membresiaActiva != null)
-            {
                 GenerarNotificacionVencimientoSiCorresponde(cliente.IdCliente, membresiaActiva.FechaFin);
-            }
 
             return View();
         }
 
-        // Notifica al cliente si la mensualidad vence en 5 días o menos (una vez por día)
         private void GenerarNotificacionVencimientoSiCorresponde(int idCliente, DateOnly fechaFin)
         {
             DateOnly hoy = ZonaHoraria.Hoy;
             int diasRestantes = fechaFin.DayNumber - hoy.DayNumber;
 
             if (diasRestantes < 0 || diasRestantes > 5)
-            {
                 return;
-            }
 
             bool yaNotificadoHoy = _context.Notificaciones.Any(n =>
                 n.IdCliente == idCliente &&
@@ -186,9 +165,7 @@ namespace G2_SC603_KN_Proyecto.Controllers
                 n.Fecha.Date == ZonaHoraria.HoyDateTime);
 
             if (yaNotificadoHoy)
-            {
                 return;
-            }
 
             _context.Notificaciones.Add(new Notificacion
             {
@@ -204,6 +181,57 @@ namespace G2_SC603_KN_Proyecto.Controllers
 
             _context.SaveChanges();
         }
+
+        // ── NUEVO: Perfil y cambio de contraseña (AUTH-003) ───────────────────────
+
+        [HttpGet]
+        public IActionResult Perfil()
+        {
+            int? idUsuario = HttpContext.Session.GetInt32("ID");
+            if (idUsuario == null)
+                return RedirectToAction("Index");
+
+            var user = _context.Usuarios.Find(idUsuario.Value);
+            return View(user);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult CambiarContrasena(string contrasenaActual, string nuevaContrasena, string confirmarContrasena)
+        {
+            int? idUsuario = HttpContext.Session.GetInt32("ID");
+            if (idUsuario == null)
+                return RedirectToAction("Index");
+
+            if (string.IsNullOrWhiteSpace(nuevaContrasena) || nuevaContrasena != confirmarContrasena)
+            {
+                TempData["ErrorMessage"] = "Las contraseñas no coinciden o están vacías.";
+                return RedirectToAction("Perfil");
+            }
+
+            var user = _context.Usuarios.Find(idUsuario.Value);
+
+            if (user == null || !PasswordHasher.Verify(contrasenaActual, user.Contrasena, out _))
+            {
+                TempData["ErrorMessage"] = "La contraseña actual es incorrecta.";
+                return RedirectToAction("Perfil");
+            }
+
+            try
+            {
+                string nuevoHash = PasswordHasher.HashPassword(nuevaContrasena);
+                user.Contrasena = nuevoHash;
+                _context.SaveChanges();
+                TempData["MensajeExito"] = "Contraseña actualizada correctamente.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error al actualizar la contraseña: " + ex.Message;
+            }
+
+            return RedirectToAction("Perfil");
+        }
+
         #region Logout
         public IActionResult Logout()
         {
