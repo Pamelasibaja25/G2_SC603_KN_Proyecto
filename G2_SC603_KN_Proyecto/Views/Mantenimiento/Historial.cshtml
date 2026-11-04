@@ -55,7 +55,7 @@
                                     }
                                     else
                                     {
-                                        <span class="badge-status badge-no-disponible">@m.Estado</span>
+                                        <span class="badge-status badge-no-disponible">@(char.ToUpper(m.Estado[0]) + m.Estado.Substring(1).ToLower())</span>
                                     }
                                 </td>
                                 <td>@(m.Costo.HasValue ? "₡" + m.Costo : "—")</td>
@@ -104,7 +104,6 @@
 </div>
 
 <script>
-    // HU #40 (AC3): muestra el detalle completo de un mantenimiento del historial.
     function verDetalleMantenimiento(idMantenimiento) {
         fetch('/Mantenimiento/Detalle/' + idMantenimiento)
             .then(function (res) { return res.json(); })

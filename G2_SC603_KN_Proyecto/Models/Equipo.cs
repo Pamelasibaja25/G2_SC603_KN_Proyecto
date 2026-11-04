@@ -15,6 +15,8 @@ public partial class Equipo
 
     public decimal? Costo { get; set; }
 
+    public int Cantidad { get; set; } = 1;
+
     public virtual ICollection<Ejercicio> Ejercicios { get; set; } = new List<Ejercicio>();
 
     public virtual ICollection<Mantenimiento> Mantenimientos { get; set; } = new List<Mantenimiento>();

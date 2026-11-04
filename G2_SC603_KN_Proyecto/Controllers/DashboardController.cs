@@ -195,13 +195,13 @@ public class DashboardController : Controller
                 Metodo = p.MetodoPago
             }).ToList();
 
-        model.AlertasStock = _context.Inventarios
-            .Where(i => i.Cantidad <= i.StockMinimo)
-            .Select(i => new AlertaStockVM
+        model.AlertasStock = _context.Equipo
+            .Where(e => e.Cantidad <= 1)
+            .Select(e => new AlertaStockVM
             {
-                Producto = i.NombreProducto,
-                CantidadActual = i.Cantidad,
-                StockMinimo = i.StockMinimo
+                Producto = e.Nombre,
+                CantidadActual = e.Cantidad,
+                StockMinimo = 1
             }).ToList();
 
         ViewBag.Hoy = hoy;

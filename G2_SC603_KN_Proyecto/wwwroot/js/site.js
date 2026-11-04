@@ -506,7 +506,7 @@ function openWODModal() {
     modal.style.display = "flex";
 }
 
-function openEditEquipoModal(idEquipo, nombre, estado, fechaCompra, costo) {
+function openEditEquipoModal(idEquipo, nombre, estado, fechaCompra, costo, cantidad) {
 
     const modal = document.getElementById("editEquipoModal");
 
@@ -517,7 +517,7 @@ function openEditEquipoModal(idEquipo, nombre, estado, fechaCompra, costo) {
     document.getElementById("editEstado").value = estado;
     document.getElementById("editFechaCompra").value = fechaCompra || "";
     document.getElementById("editCosto").value = costo || "";
-
+    document.getElementById('editCantidadEquipo').value = cantidad;
     modal.classList.add("active");
     modal.style.display = "flex";
 }

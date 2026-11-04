@@ -32,63 +32,44 @@ public class EquiposController : Controller
 
     [HttpPost]
     [RolAutorizado("ADMIN", "TRAINER")]
-    public IActionResult EditarEquipo(
-    int idEquipo,
-    string nombre,
-    string estado,
-    DateOnly? fechaCompra,
-    decimal? costo
-        )
+    public IActionResult EditarEquipo(int idEquipo, string nombre, string estado,
+    DateOnly? fechaCompra, decimal? costo, int cantidad)
     {
         try
         {
             _context.Database.ExecuteSqlRaw(
-                "CALL sp_editarEquipo({0}, {1}, {2}, {3}, {4})",
-                idEquipo,
-                nombre,
-                estado,
+                "CALL sp_editarEquipo({0}, {1}, {2}, {3}, {4}, {5})",
+                idEquipo, nombre, estado,
                 fechaCompra.HasValue ? fechaCompra.Value : (object)DBNull.Value,
-                costo.HasValue ? costo.Value : (object)DBNull.Value
+                costo.HasValue ? costo.Value : (object)DBNull.Value,
+                cantidad
             );
-            TempData["MensajeExito"] =
-                "Equipo actualizado correctamente.";
+            TempData["MensajeExito"] = "Equipo actualizado correctamente.";
         }
         catch (Exception ex)
         {
-            TempData["ErrorMessage"] =
-                "Error al actualizar equipo: " + ex.Message;
+            TempData["ErrorMessage"] = "Error al actualizar equipo: " + ex.Message;
         }
-
         return RedirectToAction("MostrarEquipo");
     }
 
 
     [HttpPost]
     [RolAutorizado("ADMIN", "TRAINER")]
-    public IActionResult AgregarEquipo(
-    string Nombre,
-    DateTime? FechaCompra,
-    decimal? Costo)
+    public IActionResult AgregarEquipo(string Nombre, DateTime? FechaCompra, decimal? Costo, int Cantidad = 1)
     {
         try
         {
-            string estado = "Disponible";
-
             _context.Database.ExecuteSqlRaw(
-                "CALL sp_agregarEquipo({0}, {1}, {2}, {3})",
-                Nombre,
-                estado,
-                FechaCompra,
-                Costo
+                "CALL sp_agregarEquipo({0}, {1}, {2}, {3}, {4})",
+                Nombre, "Disponible", FechaCompra, Costo, Cantidad
             );
-
             TempData["MensajeExito"] = "Equipo agregado correctamente.";
         }
         catch (Exception ex)
         {
             TempData["ErrorMessage"] = "Error: " + ex.Message;
         }
-
         return RedirectToAction("MostrarEquipo");
     }
 
